@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -34,15 +35,22 @@ const AppRoosterRoute = AppRoosterRouteImport.update({
   path: '/rooster',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCijfersRoute = AppCijfersRouteImport.update({
+  id: '/cijfers',
+  path: '/cijfers',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/cijfers': typeof AppCijfersRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/cijfers': typeof AppCijfersRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app': typeof AppIndexRoute
 }
@@ -50,15 +58,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/cijfers': typeof AppCijfersRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/app/rooster' | '/app/'
+  fullPaths: '/' | '/app' | '/app/cijfers' | '/app/rooster' | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/rooster' | '/app'
-  id: '__root__' | '/' | '/app' | '/app/rooster' | '/app/'
+  to: '/' | '/app/cijfers' | '/app/rooster' | '/app'
+  id: '__root__' | '/' | '/app' | '/app/cijfers' | '/app/rooster' | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,15 +105,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoosterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/cijfers': {
+      id: '/app/cijfers'
+      path: '/cijfers'
+      fullPath: '/app/cijfers'
+      preLoaderRoute: typeof AppCijfersRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppCijfersRoute: typeof AppCijfersRoute
   AppRoosterRoute: typeof AppRoosterRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCijfersRoute: AppCijfersRoute,
   AppRoosterRoute: AppRoosterRoute,
   AppIndexRoute: AppIndexRoute,
 }
