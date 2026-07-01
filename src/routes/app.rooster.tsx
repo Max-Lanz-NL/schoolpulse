@@ -68,3 +68,27 @@ function Rooster() {
     </AppShell>
   );
 }
+
+function FragmentRow({ u, i }: { u: string; i: number }) {
+  return (
+    <>
+      <div className="pt-2 text-right text-[11px] text-muted-foreground">{u}</div>
+      {dagen.map((d) => {
+        const cell = week[i]?.[d as keyof typeof week[0]];
+        if (!cell) return <div key={d + u} className="min-h-[52px] rounded-lg bg-muted/40" />;
+        return (
+          <div key={d + u} className={`relative min-h-[52px] rounded-lg border border-border bg-background p-2 ${cell.wijziging ? "ring-1 ring-warning" : ""}`}>
+            <div className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${cell.kleur}`} />
+            <div className="pl-2 text-xs font-semibold">{cell.vak}</div>
+            <div className="pl-2 text-[10px] text-muted-foreground">{cell.lokaal}</div>
+            {cell.wijziging && (
+              <div className="mt-0.5 flex items-center gap-1 pl-2 text-[10px] font-semibold text-warning">
+                <AlertTriangle className="h-2.5 w-2.5" /> {cell.wijziging}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
