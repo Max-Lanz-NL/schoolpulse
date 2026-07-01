@@ -377,17 +377,6 @@ function DirectieView() {
   );
 }
 
-export function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
 
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === "up") return <TrendingUp className="h-4 w-4 text-success" />;
