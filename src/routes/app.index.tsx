@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
 import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, klassen, roleLabels } from "@/lib/demo-data";
 import {
