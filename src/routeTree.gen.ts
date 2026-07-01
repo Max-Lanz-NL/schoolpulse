@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
 import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
 import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
 
@@ -36,6 +37,11 @@ const AppRoosterRoute = AppRoosterRouteImport.update({
   path: '/rooster',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOpdrachtenRoute = AppOpdrachtenRouteImport.update({
+  id: '/opdrachten',
+  path: '/opdrachten',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCijfersRoute = AppCijfersRouteImport.update({
   id: '/cijfers',
   path: '/cijfers',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
+  '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/': typeof AppIndexRoute
 }
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
+  '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app': typeof AppIndexRoute
 }
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
+  '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/': typeof AppIndexRoute
 }
@@ -78,16 +87,24 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/berichten'
     | '/app/cijfers'
+    | '/app/opdrachten'
     | '/app/rooster'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/berichten' | '/app/cijfers' | '/app/rooster' | '/app'
+  to:
+    | '/'
+    | '/app/berichten'
+    | '/app/cijfers'
+    | '/app/opdrachten'
+    | '/app/rooster'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/app/berichten'
     | '/app/cijfers'
+    | '/app/opdrachten'
     | '/app/rooster'
     | '/app/'
   fileRoutesById: FileRoutesById
@@ -127,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoosterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/opdrachten': {
+      id: '/app/opdrachten'
+      path: '/opdrachten'
+      fullPath: '/app/opdrachten'
+      preLoaderRoute: typeof AppOpdrachtenRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/cijfers': {
       id: '/app/cijfers'
       path: '/cijfers'
@@ -147,6 +171,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppBerichtenRoute: typeof AppBerichtenRoute
   AppCijfersRoute: typeof AppCijfersRoute
+  AppOpdrachtenRoute: typeof AppOpdrachtenRoute
   AppRoosterRoute: typeof AppRoosterRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -154,6 +179,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppBerichtenRoute: AppBerichtenRoute,
   AppCijfersRoute: AppCijfersRoute,
+  AppOpdrachtenRoute: AppOpdrachtenRoute,
   AppRoosterRoute: AppRoosterRoute,
   AppIndexRoute: AppIndexRoute,
 }
