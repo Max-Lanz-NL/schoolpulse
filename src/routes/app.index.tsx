@@ -27,10 +27,10 @@ function Dashboard() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, hint, tone = "default" }: { icon: any; label: string; value: string; hint?: string; tone?: "default" | "success" | "warning" }) {
+function StatCard({ icon: Icon, label, value, hint, tone = "default", to }: { icon: any; label: string; value: string; hint?: string; tone?: "default" | "success" | "warning"; to?: string }) {
   const toneClass = tone === "success" ? "text-success" : tone === "warning" ? "text-warning" : "text-muted-foreground";
-  return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+  const content = (
+    <>
       <div className="flex items-center justify-between">
         <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" /></div>
         <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
@@ -38,18 +38,21 @@ function StatCard({ icon: Icon, label, value, hint, tone = "default" }: { icon: 
       <div className="mt-4 text-xs font-medium text-muted-foreground">{label}</div>
       <div className="mt-1 text-2xl font-bold tracking-tight">{value}</div>
       {hint && <div className={`mt-1 text-xs ${toneClass}`}>{hint}</div>}
-    </div>
+    </>
   );
+  const cls = "block rounded-2xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-elegant)]";
+  if (to) return <Link to={to} className={cls}>{content}</Link>;
+  return <div className="rounded-2xl border border-border bg-card p-5">{content}</div>;
 }
 
 function LeerlingView() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={BarChart3} label="Gemiddelde" value="7.4" hint="+0.3 t.o.v. vorige periode" tone="success" />
-        <StatCard icon={Calendar} label="Lessen vandaag" value="6" hint="1 wijziging" tone="warning" />
-        <StatCard icon={FileCheck} label="Openstaande taken" value="3" hint="1 deadline morgen" tone="warning" />
-        <StatCard icon={MessageSquare} label="Nieuwe berichten" value="2" />
+        <StatCard to="/app/cijfers" icon={BarChart3} label="Gemiddelde" value="7.4" hint="+0.3 t.o.v. vorige periode" tone="success" />
+        <StatCard to="/app/rooster" icon={Calendar} label="Lessen vandaag" value="6" hint="1 wijziging" tone="warning" />
+        <StatCard to="/app/opdrachten" icon={FileCheck} label="Openstaande taken" value="3" hint="1 deadline morgen" tone="warning" />
+        <StatCard to="/app/berichten" icon={MessageSquare} label="Nieuwe berichten" value="2" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -57,7 +60,11 @@ function LeerlingView() {
           <Card title="Rooster vandaag" action={<Link to="/app/rooster" className="text-xs font-semibold text-primary">Volledig rooster →</Link>}>
             <div className="space-y-2">
               {roosterVandaag.map((l) => (
-                <div key={l.tijd} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+                <Link
+                  key={l.tijd}
+                  to="/app/rooster"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
+                >
                   <div className={`h-10 w-1 rounded-full ${l.kleur}`} />
                   <div className="w-28 shrink-0 text-xs text-muted-foreground">{l.tijd}</div>
                   <div className="min-w-0 flex-1">
@@ -67,7 +74,7 @@ function LeerlingView() {
                   {l.wijziging && (
                     <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">{l.wijziging}</span>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
@@ -75,7 +82,11 @@ function LeerlingView() {
           <Card title="Openstaande taken" action={<Link to="/app/opdrachten" className="text-xs font-semibold text-primary">Alle taken →</Link>}>
             <div className="space-y-2">
               {opdrachten.filter(o => !o.ingeleverd).map((o) => (
-                <div key={o.titel} className="flex items-center justify-between rounded-xl border border-border bg-background p-3">
+                <Link
+                  key={o.titel}
+                  to="/app/opdrachten"
+                  className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
+                >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{o.titel}</div>
                     <div className="text-xs text-muted-foreground">{o.vak}</div>
@@ -83,7 +94,7 @@ function LeerlingView() {
                   <div className="flex items-center gap-2 text-xs text-warning">
                     <Clock className="h-3.5 w-3.5" /> {o.deadline}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
@@ -91,15 +102,19 @@ function LeerlingView() {
 
         <div className="space-y-6">
           <Card title="Meldingen">
-            <div className="space-y-3">
+            <div className="space-y-1">
               {meldingen.map((m) => (
-                <div key={m.titel} className="flex items-start gap-3">
+                <Link
+                  key={m.titel}
+                  to={m.link}
+                  className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50"
+                >
                   <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm">{m.titel}</div>
                     <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
@@ -107,13 +122,17 @@ function LeerlingView() {
           <Card title="Recente cijfers" action={<Link to="/app/cijfers" className="text-xs font-semibold text-primary">Alle cijfers →</Link>}>
             <div className="space-y-2">
               {cijfers.slice(0, 4).map((c) => (
-                <div key={c.vak} className="flex items-center justify-between rounded-lg border border-border p-3">
+                <Link
+                  key={c.vak}
+                  to="/app/cijfers"
+                  className="flex items-center justify-between rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"
+                >
                   <div className="text-sm font-medium">{c.vak}</div>
                   <div className="flex items-center gap-2">
                     <TrendIcon trend={c.trend} />
                     <span className={`text-lg font-bold ${c.laatste < 6 ? "text-destructive" : "text-foreground"}`}>{c.laatste.toFixed(1)}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
