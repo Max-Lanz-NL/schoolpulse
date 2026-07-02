@@ -3,8 +3,9 @@ import { useRole } from "@/lib/role-context";
 import { roleLabels, type Role } from "@/lib/demo-data";
 import {
   Calendar, BarChart3, MessageSquare, FileText, Bell, ShieldCheck,
-  GraduationCap, Users, Building2, ArrowRight, CheckCircle2, Sparkles,
+  GraduationCap, Users, Building2, ArrowRight, CheckCircle2,
 } from "lucide-react";
+import logo from "@/assets/schoolpulse-logo.png";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
@@ -23,9 +24,7 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-secondary-foreground">
-              <Sparkles className="h-5 w-5" />
-            </div>
+            <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">Schoolpulse</span>
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
@@ -64,63 +63,6 @@ function Landing() {
               <Link to="/app" className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
                 Bekijk demo
               </Link>
-              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-foreground hover:bg-muted">
-                Plan gesprek
-              </a>
-            </div>
-          </div>
-
-          {/* Hero preview card */}
-          <div className="relative mx-auto mt-16 max-w-5xl">
-            <div className="rounded-3xl border border-border bg-card p-2 shadow-[var(--shadow-elegant)]">
-              <div className="overflow-hidden rounded-2xl bg-muted">
-                <div className="flex items-center gap-2 border-b border-border bg-background px-4 py-3">
-                  <div className="flex gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-destructive/50" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-warning/60" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-success/60" />
-                  </div>
-                  <div className="mx-auto text-xs font-medium text-muted-foreground">app.schoolpulse.nl</div>
-                </div>
-                <div className="grid grid-cols-12 gap-4 p-6">
-                  <div className="col-span-12 md:col-span-4">
-                    <div className="rounded-xl bg-background p-4">
-                      <div className="text-xs font-medium text-muted-foreground">Gemiddelde</div>
-                      <div className="mt-1 text-3xl font-bold">7.4</div>
-                      <div className="mt-1 text-xs text-success">+0.3 t.o.v. vorige periode</div>
-                    </div>
-                  </div>
-                  <div className="col-span-12 md:col-span-4">
-                    <div className="rounded-xl bg-background p-4">
-                      <div className="text-xs font-medium text-muted-foreground">Lessen vandaag</div>
-                      <div className="mt-1 text-3xl font-bold">6</div>
-                      <div className="mt-1 text-xs text-muted-foreground">1 wijziging</div>
-                    </div>
-                  </div>
-                  <div className="col-span-12 md:col-span-4">
-                    <div className="rounded-xl bg-background p-4">
-                      <div className="text-xs font-medium text-muted-foreground">Openstaande taken</div>
-                      <div className="mt-1 text-3xl font-bold">3</div>
-                      <div className="mt-1 text-xs text-warning">1 deadline morgen</div>
-                    </div>
-                  </div>
-                  <div className="col-span-12 rounded-xl bg-background p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <div className="text-sm font-semibold">Rooster vandaag</div>
-                      <div className="text-xs text-muted-foreground">di 26 nov</div>
-                    </div>
-                    <div className="grid grid-cols-6 gap-2">
-                      {["Wis", "Ned", "Sch", "Eng", "Ges", "Bio"].map((v, i) => (
-                        <div key={v} className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">{["08:30","09:20","10:30","11:20","13:00","13:50"][i]}</div>
-                          <div className="mt-1 text-xs font-semibold">{v}</div>
-                          <div className="mt-2 h-1 rounded-full bg-primary/70" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -261,9 +203,7 @@ function Landing() {
       <footer className="border-t border-border py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground md:flex-row">
           <div className="flex items-center gap-2">
-            <div className="grid h-6 w-6 place-items-center rounded-md bg-secondary text-secondary-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
-            </div>
+            <img src={logo} alt="" className="h-6 w-6" />
             <span>© 2025 Schoolpulse — demo</span>
           </div>
           <div className="flex gap-6">

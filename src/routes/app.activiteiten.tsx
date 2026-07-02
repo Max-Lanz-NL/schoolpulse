@@ -2,12 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { activiteiten } from "@/lib/demo-data";
+import { useRole } from "@/lib/role-context";
 import { CalendarCheck, Users, Plus } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/app/activiteiten")({ component: Activiteiten });
 
 function Activiteiten() {
+  const { role } = useRole();
+  const magBeheren = role === "docent" || role === "teamleider" || role === "directie";
+  const zichtbaar = activiteiten.filter((a) => !a.zichtbaarVoor || a.zichtbaarVoor.includes(role));
+
   const [aangemeld, setAangemeld] = useState<Record<string, boolean>>({});
   const [pollAns, setPollAns] = useState<number | null>(null);
   const pollOpties = [
@@ -18,11 +23,17 @@ function Activiteiten() {
   ];
   const totaal = pollOpties.reduce((a, o) => a + o.stemmen, 0);
 
+  const aankondigingen = [
+    { t: "Herinnering ouderavond V4", d: "3 dec · doelgroep V4-ouders", voor: ["ouder", "docent", "teamleider", "directie"] },
+    { t: "Nieuwe kantinekaart", d: "Vanaf maandag actief", voor: null },
+    { t: "Kerstviering programma", d: "Publicatie volgende week", voor: null },
+  ].filter((a) => !a.voor || (a.voor as string[]).includes(role));
+
   return (
     <AppShell title="Activiteiten" subtitle="Aanmeldingen, polls en aankondigingen">
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          {activiteiten.map((a) => {
+          {zichtbaar.map((a) => {
             const pct = Math.round((a.deelnemers / a.plekken) * 100);
             const isIn = aangemeld[a.titel];
             return (
@@ -82,19 +93,17 @@ function Activiteiten() {
 
           <Card title="Aankondigingen">
             <div className="space-y-3">
-              {[
-                { t: "Herinnering ouderavond V4", d: "3 dec · doelgroep V4-ouders" },
-                { t: "Nieuwe kantinekaart", d: "Vanaf maandag actief" },
-                { t: "Kerstviering programma", d: "Publicatie volgende week" },
-              ].map((a) => (
+              {aankondigingen.map((a) => (
                 <div key={a.t} className="rounded-lg border border-border p-3">
                   <div className="text-sm font-semibold">{a.t}</div>
                   <div className="text-[11px] text-muted-foreground">{a.d}</div>
                 </div>
               ))}
-              <button className="inline-flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border p-3 text-xs font-semibold text-muted-foreground hover:bg-muted/40">
-                <Plus className="h-3 w-3" /> Nieuwe aankondiging
-              </button>
+              {magBeheren && (
+                <button className="inline-flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border p-3 text-xs font-semibold text-muted-foreground hover:bg-muted/40">
+                  <Plus className="h-3 w-3" /> Nieuwe aankondiging
+                </button>
+              )}
             </div>
           </Card>
         </div>
