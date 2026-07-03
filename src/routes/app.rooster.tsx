@@ -24,8 +24,8 @@ function Rooster() {
   const [view, setView] = useState<"dag" | "week">("dag");
   const [aiOpen, setAiOpen] = useState(false);
   const [dagIdx, setDagIdx] = useState(1); // di default
-  const [huiswerkModal, setHuiswerkModal] = useState<Les | null>(null);
-  const [absentiesLes, setAbsentiesLes] = useState<Les | null>(null);
+  const [huiswerkModal, setHuiswerkModal] = useState<Detail | null>(null);
+  const [absentiesLes, setAbsentiesLes] = useState<Detail | null>(null);
   const [aanwezigheidState, setAanwezigheidState] = useState<Record<string, LesStatus>>(() => {
     const s: Record<string, LesStatus> = {};
     lesAanwezigheid.default.forEach((l) => { s[l.naam] = l.status; });
