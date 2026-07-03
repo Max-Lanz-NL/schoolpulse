@@ -8,7 +8,6 @@ export const roleLabels: Record<Role, string> = {
   directie: "Directie",
 };
 
-// Avatar URLs via DiceBear (nette, gratis, deterministische portretten)
 const dicebear = (seed: string, style = "avataaars") =>
   `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear&backgroundColor=b6e3f4,c0aede,ffdfbf`;
 
@@ -20,7 +19,6 @@ export const roleUsers: Record<Role, { name: string; sub: string; initials: stri
   directie: { name: "Dr. Rob Hendriks", sub: "Rector", initials: "RH", avatar: dicebear("Rob Hendriks") },
 };
 
-// Vaste lesuur-tijden — mapping start-tijd → lesuur nummer
 export const lesuurSchema: { uur: number; start: string; eind: string }[] = [
   { uur: 1, start: "08:30", eind: "09:20" },
   { uur: 2, start: "09:20", eind: "10:10" },
@@ -35,38 +33,79 @@ export function uurNummer(start: string): number {
   return lesuurSchema.find((l) => l.start === start)?.uur ?? 0;
 }
 
-export const roosterVandaag = [
-  { tijd: "08:30 – 09:20", start: "08:30", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", kleur: "bg-blue-500", huiswerk: "Maak §4.2 opgave 1 t/m 10", aanwezig: true },
-  { tijd: "09:20 – 10:10", start: "09:20", vak: "Nederlands", lokaal: "112", docent: "L. de Boer", kleur: "bg-indigo-500", huiswerk: "Lees hoofdstuk 3 van 'Max Havelaar'", aanwezig: true },
-  { tijd: "10:30 – 11:20", start: "10:30", vak: "Scheikunde", lokaal: "Lab 2", docent: "K. Visser", kleur: "bg-emerald-500", wijziging: "Lokaalwissel", huiswerk: "Neem practicumjas mee", aanwezig: true },
-  { tijd: "11:20 – 12:10", start: "11:20", vak: "Engels", lokaal: "108", docent: "S. Green", kleur: "bg-amber-500", huiswerk: "Chapter 5 vocabulary quiz", aanwezig: true },
-  { tijd: "13:00 – 13:50", start: "13:00", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", kleur: "bg-rose-500", wijziging: "Uitval — zelfstudie", huiswerk: "Zelfstudie §2 herhalen", aanwezig: false },
-  { tijd: "13:50 – 14:40", start: "13:50", vak: "Biologie", lokaal: "Lab 1", docent: "H. Mulder", kleur: "bg-teal-500", huiswerk: "Practicumverslag afronden", aanwezig: true },
+export type LesStatus = "aanwezig" | "afwezig" | "ziek" | "afgemeld" | "onbekend";
+
+export type Les = {
+  tijd: string; start: string; vak: string; lokaal: string; docent: string; docentId?: string;
+  kleur: string; huiswerk?: string; wijziging?: string; aanwezig?: boolean;
+};
+
+export const roosterVandaag: Les[] = [
+  { tijd: "08:30 – 09:20", start: "08:30", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", docentId: "jansen", kleur: "bg-blue-500", huiswerk: "Maak §4.2 opgave 1 t/m 10", aanwezig: true },
+  { tijd: "09:20 – 10:10", start: "09:20", vak: "Nederlands", lokaal: "112", docent: "L. de Boer", docentId: "deboer", kleur: "bg-indigo-500", huiswerk: "Lees hoofdstuk 3 van 'Max Havelaar'", aanwezig: true },
+  { tijd: "10:30 – 11:20", start: "10:30", vak: "Scheikunde", lokaal: "Lab 2", docent: "K. Visser", docentId: "visser", kleur: "bg-emerald-500", wijziging: "Lokaalwissel", huiswerk: "Neem practicumjas mee", aanwezig: true },
+  { tijd: "11:20 – 12:10", start: "11:20", vak: "Engels", lokaal: "108", docent: "S. Green", docentId: "green", kleur: "bg-amber-500", huiswerk: "Chapter 5 vocabulary quiz", aanwezig: true },
+  { tijd: "13:00 – 13:50", start: "13:00", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", docentId: "peters", kleur: "bg-rose-500", wijziging: "Uitval — zelfstudie", huiswerk: "Zelfstudie §2 herhalen", aanwezig: false },
+  { tijd: "13:50 – 14:40", start: "13:50", vak: "Biologie", lokaal: "Lab 1", docent: "H. Mulder", docentId: "mulder", kleur: "bg-teal-500", huiswerk: "Practicumverslag afronden", aanwezig: true },
 ];
 
+// Weekrooster (leerling) — per dag een lijst
+export const weekRooster: Record<string, Les[]> = {
+  Ma: [
+    { tijd: "08:30 – 09:20", start: "08:30", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", docentId: "jansen", kleur: "bg-blue-500", huiswerk: "§4.2 opgaven" },
+    { tijd: "09:20 – 10:10", start: "09:20", vak: "Nederlands", lokaal: "112", docent: "L. de Boer", docentId: "deboer", kleur: "bg-indigo-500" },
+    { tijd: "10:30 – 11:20", start: "10:30", vak: "Scheikunde", lokaal: "Lab 2", docent: "K. Visser", docentId: "visser", kleur: "bg-emerald-500" },
+    { tijd: "11:20 – 12:10", start: "11:20", vak: "Engels", lokaal: "108", docent: "S. Green", docentId: "green", kleur: "bg-amber-500" },
+    { tijd: "13:00 – 13:50", start: "13:00", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", docentId: "peters", kleur: "bg-rose-500" },
+    { tijd: "13:50 – 14:40", start: "13:50", vak: "Biologie", lokaal: "Lab 1", docent: "H. Mulder", docentId: "mulder", kleur: "bg-teal-500" },
+  ],
+  Di: roosterVandaag,
+  Wo: [
+    { tijd: "09:20 – 10:10", start: "09:20", vak: "Biologie", lokaal: "Lab 1", docent: "H. Mulder", docentId: "mulder", kleur: "bg-teal-500" },
+    { tijd: "10:30 – 11:20", start: "10:30", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", docentId: "jansen", kleur: "bg-blue-500" },
+    { tijd: "11:20 – 12:10", start: "11:20", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", docentId: "peters", kleur: "bg-rose-500" },
+    { tijd: "13:00 – 13:50", start: "13:00", vak: "Engels", lokaal: "108", docent: "S. Green", docentId: "green", kleur: "bg-amber-500" },
+  ],
+  Do: [
+    { tijd: "08:30 – 09:20", start: "08:30", vak: "Nederlands", lokaal: "112", docent: "L. de Boer", docentId: "deboer", kleur: "bg-indigo-500" },
+    { tijd: "09:20 – 10:10", start: "09:20", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", docentId: "jansen", kleur: "bg-blue-500" },
+    { tijd: "11:20 – 12:10", start: "11:20", vak: "Biologie", lokaal: "Lab 1", docent: "H. Mulder", docentId: "mulder", kleur: "bg-teal-500" },
+    { tijd: "13:00 – 13:50", start: "13:00", vak: "Scheikunde", lokaal: "Lab 2", docent: "K. Visser", docentId: "visser", kleur: "bg-emerald-500" },
+    { tijd: "13:50 – 14:40", start: "13:50", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", docentId: "peters", kleur: "bg-rose-500" },
+  ],
+  Vr: [
+    { tijd: "08:30 – 09:20", start: "08:30", vak: "Engels", lokaal: "108", docent: "S. Green", docentId: "green", kleur: "bg-amber-500" },
+    { tijd: "09:20 – 10:10", start: "09:20", vak: "Geschiedenis", lokaal: "215", docent: "J. Peters", docentId: "peters", kleur: "bg-rose-500" },
+    { tijd: "10:30 – 11:20", start: "10:30", vak: "Nederlands", lokaal: "112", docent: "L. de Boer", docentId: "deboer", kleur: "bg-indigo-500" },
+    { tijd: "11:20 – 12:10", start: "11:20", vak: "Wiskunde B", lokaal: "204", docent: "M. Jansen", docentId: "jansen", kleur: "bg-blue-500" },
+    { tijd: "13:50 – 14:40", start: "13:50", vak: "Scheikunde", lokaal: "Lab 2", docent: "K. Visser", docentId: "visser", kleur: "bg-emerald-500" },
+  ],
+};
+
+// Sortable date field (ISO YYYY-MM-DD) plus display label
 export const cijfers = [
   { vak: "Wiskunde B", laatste: 7.8, gemiddelde: 7.4, trend: "up", toetsen: [
-    { naam: "SO Hoofdstuk 3", cijfer: 8.2, weging: 1, datum: "12 nov" },
-    { naam: "Proefwerk H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt" },
-    { naam: "Praktische opdracht", cijfer: 8.5, weging: 2, datum: "02 okt" },
+    { naam: "SO Hoofdstuk 3", cijfer: 8.2, weging: 1, datum: "12 nov", iso: "2025-11-12" },
+    { naam: "Proefwerk H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt", iso: "2025-10-18" },
+    { naam: "Praktische opdracht", cijfer: 8.5, weging: 2, datum: "02 okt", iso: "2025-10-02" },
   ]},
   { vak: "Nederlands", laatste: 6.8, gemiddelde: 6.9, trend: "flat", toetsen: [
-    { naam: "Boekverslag", cijfer: 7.2, weging: 2, datum: "20 nov" },
-    { naam: "Grammatica toets", cijfer: 6.4, weging: 2, datum: "05 nov" },
+    { naam: "Boekverslag", cijfer: 7.2, weging: 2, datum: "20 nov", iso: "2025-11-20" },
+    { naam: "Grammatica toets", cijfer: 6.4, weging: 2, datum: "05 nov", iso: "2025-11-05" },
   ]},
   { vak: "Engels", laatste: 8.4, gemiddelde: 8.1, trend: "up", toetsen: [
-    { naam: "Reading test", cijfer: 8.4, weging: 2, datum: "22 nov" },
-    { naam: "Presentation", cijfer: 7.8, weging: 1, datum: "10 nov" },
+    { naam: "Reading test", cijfer: 8.4, weging: 2, datum: "22 nov", iso: "2025-11-22" },
+    { naam: "Presentation", cijfer: 7.8, weging: 1, datum: "10 nov", iso: "2025-11-10" },
   ]},
-  { vak: "Scheikunde", laatste: 5.9, gemiddelde: 6.3, trend: "down", toetsen: [
-    { naam: "SO Molberekeningen", cijfer: 5.9, weging: 1, datum: "25 nov" },
-    { naam: "Proefwerk H2", cijfer: 6.6, weging: 3, datum: "01 nov" },
+  { vak: "Scheikunde", laatste: 5.4, gemiddelde: 5.7, trend: "down", toetsen: [
+    { naam: "SO Molberekeningen", cijfer: 5.4, weging: 1, datum: "25 nov", iso: "2025-11-25" },
+    { naam: "Proefwerk H2", cijfer: 5.9, weging: 3, datum: "01 nov", iso: "2025-11-01" },
   ]},
   { vak: "Biologie", laatste: 7.5, gemiddelde: 7.6, trend: "flat", toetsen: [
-    { naam: "Toets Cellen", cijfer: 7.5, weging: 2, datum: "19 nov" },
+    { naam: "Toets Cellen", cijfer: 7.5, weging: 2, datum: "19 nov", iso: "2025-11-19" },
   ]},
   { vak: "Geschiedenis", laatste: 8.0, gemiddelde: 7.7, trend: "up", toetsen: [
-    { naam: "Werkstuk WOII", cijfer: 8.0, weging: 3, datum: "15 nov" },
+    { naam: "Werkstuk WOII", cijfer: 8.0, weging: 3, datum: "15 nov", iso: "2025-11-15" },
   ]},
 ];
 
@@ -78,114 +117,154 @@ export const opdrachten = [
   { vak: "Biologie", titel: "Onderzoeksvoorstel Ecosysteem", deadline: "Ingeleverd", status: "wachtend" as const, ingeleverd: true },
 ];
 
-export type BerichtType = "docent" | "groep" | "mentor" | "admin";
-export type ChatBericht = { van: string; tijd: string; mij: boolean; tekst: string; avatar?: string };
+// Docent-opdrachten (per klas), incl. te-laat
+export type DocentOpdracht = {
+  id: string; titel: string; vak: string; klas: string; deadline: string; weging: number;
+  status: "openstaand" | "ingeleverd" | "te-laat" | "beoordeeld"; ingeleverd: number; totaal: number;
+  telaatLeerlingen?: { naam: string; dagenTeLaat: number }[];
+};
+export const docentOpdrachten: DocentOpdracht[] = [
+  { id: "o1", titel: "Praktijkverslag Titratie", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
+  { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "28 nov 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 26 },
+  { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "24 nov 23:59", weging: 1, status: "te-laat", ingeleverd: 22, totaal: 24,
+    telaatLeerlingen: [
+      { naam: "Tom Bakker", dagenTeLaat: 2 },
+      { naam: "Julia Smit", dagenTeLaat: 1 },
+    ] },
+  { id: "o4", titel: "Praktische opdracht statistiek", vak: "Wiskunde B", klas: "V4A", deadline: "22 nov 23:59", weging: 3, status: "ingeleverd", ingeleverd: 28, totaal: 28 },
+];
 
-export const berichten: {
-  id: string;
-  van: string;
-  rol: string;
-  tijd: string;
-  preview: string;
-  ongelezen: boolean;
-  avatar: string;
-  kleur: string;
-  type: BerichtType;
-  thread: ChatBericht[];
-}[] = [
+// Docent — klassen met leerlingen en per leerling de vakken waarin docent lesgeeft
+export type Leerling = { id: string; naam: string; vakken: string[]; cijfers: Record<string, { naam: string; cijfer: number; weging: number; datum: string }[]> };
+export const docentKlassen: { klas: string; vak: string; leerlingen: Leerling[] }[] = [
   {
-    id: "jansen",
-    van: "M. Jansen",
-    rol: "Docent Wiskunde",
-    tijd: "10:24",
-    preview: "Vergeet niet dat je opdracht voor morgen om 23:59 ingeleverd moet zijn.",
-    ongelezen: true,
-    avatar: dicebear("Mark Jansen"),
-    kleur: "bg-blue-500",
-    type: "docent",
-    thread: [
-      { van: "M. Jansen", tijd: "10:22", mij: false, tekst: "Hoi Sanne, ik zag dat je opdracht voor H4 nog niet is ingeleverd." },
-      { van: "M. Jansen", tijd: "10:23", mij: false, tekst: "Deadline is morgen 23:59 — lukt dat?" },
-      { van: "Ik", tijd: "10:31", mij: true, tekst: "Ja, ik ben er vanavond mee bezig. Vraag 6 snap ik niet helemaal — mag ik morgen even langskomen?" },
-      { van: "M. Jansen", tijd: "10:32", mij: false, tekst: "Prima, kom rond 12:00 langs bij lokaal 204. Dan kijken we samen." },
-      { van: "Ik", tijd: "10:33", mij: true, tekst: "Top, tot morgen!" },
+    klas: "V4B", vak: "Wiskunde B",
+    leerlingen: [
+      { id: "l1", naam: "Sanne de Vries", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
+        { naam: "SO H3", cijfer: 8.2, weging: 1, datum: "12 nov" },
+        { naam: "PW H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt" },
+      ]}},
+      { id: "l2", naam: "Tom Bakker", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
+        { naam: "SO H3", cijfer: 6.4, weging: 1, datum: "12 nov" },
+        { naam: "PW H1-H2", cijfer: 5.8, weging: 3, datum: "18 okt" },
+      ]}},
+      { id: "l3", naam: "Julia Smit", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
+        { naam: "SO H3", cijfer: 7.8, weging: 1, datum: "12 nov" },
+      ]}},
+      { id: "l4", naam: "Ravi Kumar", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
+        { naam: "SO H3", cijfer: 9.0, weging: 1, datum: "12 nov" },
+        { naam: "PW H1-H2", cijfer: 8.4, weging: 3, datum: "18 okt" },
+      ]}},
     ],
   },
   {
-    id: "v4b",
-    van: "Klas V4B",
-    rol: "Groepschat · 24 leden",
-    tijd: "09:48",
-    preview: "Julia: Iemand aantekeningen van scheikunde vandaag?",
-    ongelezen: true,
-    avatar: dicebear("V4B klas"),
-    kleur: "bg-indigo-500",
-    type: "groep",
-    thread: [
-      { van: "Tom", tijd: "09:31", mij: false, tekst: "Zijn jullie klaar met de wiskunde-opdracht?", avatar: dicebear("Tom") },
-      { van: "Julia", tijd: "09:45", mij: false, tekst: "Ik nog niet, ga vanavond beginnen 😅", avatar: dicebear("Julia") },
-      { van: "Julia", tijd: "09:48", mij: false, tekst: "Iemand aantekeningen van scheikunde vandaag?", avatar: dicebear("Julia") },
-      { van: "Ik", tijd: "09:52", mij: true, tekst: "Ja ik heb foto's gemaakt, stuur ik zo!" },
-      { van: "Ravi", tijd: "09:55", mij: false, tekst: "Top Sanne 🙌", avatar: dicebear("Ravi") },
+    klas: "V4A", vak: "Wiskunde B",
+    leerlingen: [
+      { id: "a1", naam: "Emma Visser", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 7.6, weging: 3, datum: "18 okt" }] }},
+      { id: "a2", naam: "Noah Jansen", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 6.2, weging: 3, datum: "18 okt" }] }},
     ],
   },
   {
-    id: "deboer",
-    van: "L. de Boer",
-    rol: "Mentor",
-    tijd: "Gisteren",
-    preview: "Fijn gesprek gehad. Ik zet de vervolgafspraak in de agenda.",
-    ongelezen: false,
-    avatar: dicebear("Linda de Boer"),
-    kleur: "bg-emerald-500",
-    type: "mentor",
-    thread: [
-      { van: "L. de Boer", tijd: "gis 14:02", mij: false, tekst: "Hoi Sanne, fijn gesprek gehad vanmiddag." },
-      { van: "L. de Boer", tijd: "gis 14:03", mij: false, tekst: "Ik zet de vervolgafspraak volgende week donderdag om 15:00 in de agenda." },
-      { van: "Ik", tijd: "gis 15:10", mij: true, tekst: "Dank u wel, dat komt goed uit!" },
-    ],
-  },
-  {
-    id: "admin",
-    van: "Administratie",
-    rol: "Schoolkantoor",
-    tijd: "Ma",
-    preview: "Herinnering: ouderavond dinsdag 3 december om 19:00.",
-    ongelezen: false,
-    avatar: dicebear("Administratie", "shapes"),
-    kleur: "bg-slate-500",
-    type: "admin",
-    thread: [
-      { van: "Administratie", tijd: "ma 08:00", mij: false, tekst: "Beste Sanne, dit is een automatische herinnering." },
-      { van: "Administratie", tijd: "ma 08:00", mij: false, tekst: "De ouderavond voor V4 vindt plaats op dinsdag 3 december om 19:00 in de aula." },
-    ],
-  },
-  {
-    id: "green",
-    van: "S. Green",
-    rol: "Docent Engels",
-    tijd: "Ma",
-    preview: "Nice work on your presentation, Sanne!",
-    ongelezen: false,
-    avatar: dicebear("Sarah Green"),
-    kleur: "bg-amber-500",
-    type: "docent",
-    thread: [
-      { van: "S. Green", tijd: "ma 11:20", mij: false, tekst: "Hi Sanne, nice work on your presentation this morning!" },
-      { van: "S. Green", tijd: "ma 11:21", mij: false, tekst: "Your pronunciation has really improved. Keep it up!" },
-      { van: "Ik", tijd: "ma 12:05", mij: true, tekst: "Thank you so much!" },
+    klas: "V5A", vak: "Wiskunde B",
+    leerlingen: [
+      { id: "v1", naam: "Lisa Peters", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 7.2, weging: 1, datum: "24 nov" }] }},
+      { id: "v2", naam: "Daan de Wit", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 5.6, weging: 1, datum: "24 nov" }] }},
     ],
   },
 ];
 
+// Aanwezigheid per les — alleen leerlingen (docenten/teamleiders/directie nooit)
+export const lesAanwezigheid: Record<string, { naam: string; status: LesStatus }[]> = {
+  default: [
+    { naam: "Sanne de Vries", status: "aanwezig" },
+    { naam: "Tom Bakker", status: "ziek" },
+    { naam: "Julia Smit", status: "aanwezig" },
+    { naam: "Ravi Kumar", status: "aanwezig" },
+    { naam: "Emma Visser", status: "afgemeld" },
+    { naam: "Noah Jansen", status: "onbekend" },
+    { naam: "Lisa Peters", status: "aanwezig" },
+    { naam: "Daan de Wit", status: "onbekend" },
+  ],
+};
+
+export type BerichtType = "docent" | "groep" | "mentor" | "admin" | "collega" | "teamleider";
+export type ChatBericht = { van: string; tijd: string; mij: boolean; tekst: string; avatar?: string };
+
+export type Bericht = {
+  id: string; van: string; rol: string; tijd: string; preview: string; ongelezen: boolean;
+  avatar: string; kleur: string; type: BerichtType; thread: ChatBericht[];
+};
+
+export const berichten: Bericht[] = [
+  { id: "jansen", van: "M. Jansen", rol: "Docent Wiskunde", tijd: "10:24",
+    preview: "Vergeet niet dat je opdracht voor morgen om 23:59 ingeleverd moet zijn.",
+    ongelezen: true, avatar: dicebear("Mark Jansen"), kleur: "bg-blue-500", type: "docent",
+    thread: [
+      { van: "M. Jansen", tijd: "10:22", mij: false, tekst: "Hoi Sanne, ik zag dat je opdracht voor H4 nog niet is ingeleverd." },
+      { van: "M. Jansen", tijd: "10:23", mij: false, tekst: "Deadline is morgen 23:59 — lukt dat?" },
+      { van: "Ik", tijd: "10:31", mij: true, tekst: "Ja, ik ben er vanavond mee bezig." },
+    ]},
+  { id: "v4b", van: "Klas V4B", rol: "Groepschat · 24 leden", tijd: "09:48",
+    preview: "Julia: Iemand aantekeningen van scheikunde vandaag?",
+    ongelezen: true, avatar: dicebear("V4B klas"), kleur: "bg-indigo-500", type: "groep",
+    thread: [
+      { van: "Tom", tijd: "09:31", mij: false, tekst: "Zijn jullie klaar met de wiskunde-opdracht?", avatar: dicebear("Tom") },
+      { van: "Julia", tijd: "09:48", mij: false, tekst: "Iemand aantekeningen van scheikunde vandaag?", avatar: dicebear("Julia") },
+      { van: "Ik", tijd: "09:52", mij: true, tekst: "Ja ik heb foto's gemaakt, stuur ik zo!" },
+    ]},
+  { id: "deboer", van: "L. de Boer", rol: "Mentor", tijd: "Gisteren",
+    preview: "Fijn gesprek gehad. Ik zet de vervolgafspraak in de agenda.",
+    ongelezen: false, avatar: dicebear("Linda de Boer"), kleur: "bg-emerald-500", type: "mentor",
+    thread: [
+      { van: "L. de Boer", tijd: "gis 14:02", mij: false, tekst: "Hoi Sanne, fijn gesprek gehad vanmiddag." },
+      { van: "Ik", tijd: "gis 15:10", mij: true, tekst: "Dank u wel!" },
+    ]},
+];
+
+// Docent-conversaties
+export const docentBerichten: Bericht[] = [
+  { id: "deboer-col", van: "L. de Boer", rol: "Collega — Nederlands", tijd: "11:02",
+    preview: "Kan jij dinsdag mijn 3e uur overnemen?",
+    ongelezen: true, avatar: dicebear("Linda de Boer"), kleur: "bg-indigo-500", type: "collega",
+    thread: [
+      { van: "L. de Boer", tijd: "10:58", mij: false, tekst: "Hoi Mark, ik heb dinsdag een afspraak in het ziekenhuis." },
+      { van: "L. de Boer", tijd: "11:02", mij: false, tekst: "Kan jij mijn 3e uur V4B overnemen?" },
+      { van: "Ik", tijd: "11:10", mij: true, tekst: "Ja, geen probleem — stuur je de lesstof door?" },
+    ]},
+  { id: "sectie-wi", van: "Sectie Wiskunde", rol: "Groepschat · 6 docenten", tijd: "09:15",
+    preview: "K. Visser: SE-planning staat in de gedeelde map.",
+    ongelezen: true, avatar: dicebear("Sectie Wiskunde"), kleur: "bg-blue-500", type: "groep",
+    thread: [
+      { van: "K. Visser", tijd: "09:12", mij: false, tekst: "SE-planning staat in de gedeelde map.", avatar: dicebear("Karin Visser") },
+      { van: "J. Peters", tijd: "09:14", mij: false, tekst: "Bedankt! Ik loop hem vanavond door.", avatar: dicebear("Jan Peters") },
+      { van: "Ik", tijd: "09:20", mij: true, tekst: "Top, ik zet 'm op de sectievergadering agenda." },
+    ]},
+  { id: "teamleider", van: "I. Bakker", rol: "Teamleider Bovenbouw", tijd: "Gisteren",
+    preview: "Bedankt voor het rapport over V5A.",
+    ongelezen: false, avatar: dicebear("Ingrid Bakker"), kleur: "bg-emerald-500", type: "teamleider",
+    thread: [
+      { van: "I. Bakker", tijd: "gis 15:44", mij: false, tekst: "Bedankt voor het rapport over V5A, duidelijk overzicht." },
+      { van: "Ik", tijd: "gis 16:02", mij: true, tekst: "Graag gedaan!" },
+    ]},
+  { id: "over-tom", van: "L. de Boer", rol: "Over: Tom Bakker (V4B)", tijd: "Ma",
+    preview: "Tom scoort structureel onvoldoende, laten we overleggen.",
+    ongelezen: false, avatar: dicebear("Linda de Boer 2"), kleur: "bg-amber-500", type: "collega",
+    thread: [
+      { van: "L. de Boer", tijd: "ma 10:00", mij: false, tekst: "Tom scoort structureel onvoldoende in verschillende vakken. Zullen we een overleg plannen met de mentor?" },
+      { van: "Ik", tijd: "ma 10:22", mij: true, tekst: "Goed idee — donderdag na school?" },
+    ]},
+  { id: "surveillance", van: "Roostercoördinatie", rol: "Praktisch overleg", tijd: "Ma",
+    preview: "Surveillance CSE tijdvak 1 — indeling",
+    ongelezen: false, avatar: dicebear("Rooster"), kleur: "bg-slate-500", type: "admin",
+    thread: [
+      { van: "Roostercoördinatie", tijd: "ma 08:30", mij: false, tekst: "Surveillance CSE tijdvak 1 indeling zit in de bijlage. Graag bevestigen." },
+      { van: "Ik", tijd: "ma 09:00", mij: true, tekst: "Bevestigd." },
+    ]},
+];
+
 export type Activiteit = {
-  titel: string;
-  datum: string;
-  deelnemers: number;
-  plekken: number;
-  doel: string;
-  status: string;
-  zichtbaarVoor?: Role[]; // undefined = iedereen
+  titel: string; datum: string; deelnemers: number; plekken: number; doel: string; status: string;
+  zichtbaarVoor?: Role[];
 };
 
 export const activiteiten: Activiteit[] = [
@@ -195,14 +274,7 @@ export const activiteiten: Activiteit[] = [
   { titel: "Open Dag 2026", datum: "24 januari 2026", deelnemers: 0, plekken: 500, doel: "Externe bezoekers", status: "aankondiging", zichtbaarVoor: ["docent", "teamleider", "directie"] },
 ];
 
-export type Bestand = {
-  naam: string;
-  vak: string;
-  grootte: string;
-  datum: string;
-  versie: string;
-  gedeeldMet: string[];
-};
+export type Bestand = { naam: string; vak: string; grootte: string; datum: string; versie: string; gedeeldMet: string[]; };
 
 export const documenten: Bestand[] = [
   { naam: "Wiskunde H4 — Uitwerkingen.pdf", vak: "Wiskunde", grootte: "1.2 MB", datum: "Vandaag", versie: "v3", gedeeldMet: ["Klas V4B", "M. Jansen"] },
@@ -224,4 +296,11 @@ export const meldingen: { titel: string; tijd: string; type: "cijfer" | "rooster
   { titel: "Roosterwijziging — Geschiedenis uitval", tijd: "1 u", type: "rooster", link: "/app/rooster" },
   { titel: "Bericht van M. Jansen", tijd: "2 u", type: "bericht", link: "/app/berichten" },
   { titel: "Deadline morgen — Wiskunde H4", tijd: "3 u", type: "deadline", link: "/app/opdrachten" },
+];
+
+export const docentMeldingen = [
+  { titel: "Nieuwe inlevering: Tom Bakker — Opgaven H4", tijd: "5 min", link: "/app/opdrachten" },
+  { titel: "Bericht van L. de Boer", tijd: "22 min", link: "/app/berichten" },
+  { titel: "Verzoek roosterwijziging donderdag", tijd: "1 u", link: "/app/rooster" },
+  { titel: "3 nieuwe cijferwijzigingen goedgekeurd", tijd: "2 u", link: "/app/cijfers" },
 ];
