@@ -19,7 +19,7 @@ function Rooster() {
   const { role } = useRole();
   const navigate = useNavigate();
   const isDocent = role === "docent";
-  const toonAI = role !== "leerling" && role !== "ouder";
+  const toonAI = role === "teamleider" || role === "directie";
   const [detail, setDetail] = useState<Detail | null>(null);
   const [view, setView] = useState<"dag" | "week">("dag");
   const [aiOpen, setAiOpen] = useState(false);

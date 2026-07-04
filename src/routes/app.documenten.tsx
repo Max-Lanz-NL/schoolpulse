@@ -19,6 +19,9 @@ function Bestanden() {
   const addShare = (file: string, target: string) => {
     setExtraShares((s) => ({ ...s, [file]: [...(s[file] ?? []), target] }));
   };
+  const removeShare = (file: string, target: string) => {
+    setExtraShares((s) => ({ ...s, [file]: (s[file] ?? []).filter((t) => t !== target) }));
+  };
 
   return (
     <AppShell title="Bestanden" subtitle="Centrale opslag van lesmateriaal en documenten">
@@ -113,8 +116,10 @@ function Bestanden() {
       {shareFile && (
         <ShareModal
           file={shareFile}
-          shared={[...(documenten.find((d) => d.naam === shareFile)?.gedeeldMet ?? []), ...(extraShares[shareFile] ?? [])]}
+          origineel={documenten.find((d) => d.naam === shareFile)?.gedeeldMet ?? []}
+          extras={extraShares[shareFile] ?? []}
           onAdd={(t) => addShare(shareFile, t)}
+          onRemove={(t) => removeShare(shareFile, t)}
           onClose={() => setShareFile(null)}
         />
       )}
@@ -124,8 +129,12 @@ function Bestanden() {
 
 const suggesties = ["Klas V4A", "Klas V4B", "Klas V5A", "Klas H4A", "Sectie Wiskunde", "Sectie Nederlands", "M. Jansen", "L. de Boer", "S. Green", "K. Visser", "Bovenbouw", "Onderbouw", "Iedereen"];
 
-function ShareModal({ file, shared, onAdd, onClose }: { file: string; shared: string[]; onAdd: (target: string) => void; onClose: () => void }) {
+function ShareModal({ file, origineel, extras, onAdd, onRemove, onClose }: {
+  file: string; origineel: string[]; extras: string[];
+  onAdd: (target: string) => void; onRemove: (target: string) => void; onClose: () => void;
+}) {
   const [q, setQ] = useState("");
+  const shared = [...origineel, ...extras];
   const filtered = suggesties.filter((s) => s.toLowerCase().includes(q.toLowerCase()) && !shared.includes(s));
 
   return (
@@ -161,13 +170,24 @@ function ShareModal({ file, shared, onAdd, onClose }: { file: string; shared: st
           </div>
 
           <div className="mt-4">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Al gedeeld met</div>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Al gedeeld met · klik om te verwijderen</div>
             <div className="flex flex-wrap gap-1.5">
-              {shared.map((s) => (
-                <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                  <Users className="h-3 w-3" /> {s}
-                </span>
-              ))}
+              {shared.length === 0 && <span className="text-xs text-muted-foreground">Nog niemand</span>}
+              {shared.map((s) => {
+                const isExtra = extras.includes(s);
+                return (
+                  <button
+                    key={s}
+                    onClick={() => isExtra && onRemove(s)}
+                    disabled={!isExtra}
+                    title={isExtra ? "Klik om te verwijderen" : "Standaard – niet te verwijderen"}
+                    className={`group inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors ${isExtra ? "bg-primary/10 text-primary hover:bg-destructive/15 hover:text-destructive" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
+                  >
+                    <Users className="h-3 w-3" /> {s}
+                    {isExtra && <X className="h-3 w-3 opacity-60 group-hover:opacity-100" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
