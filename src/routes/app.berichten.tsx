@@ -1,15 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { berichten } from "@/lib/demo-data";
-import { Send, Paperclip, ShieldCheck, Search, Users } from "lucide-react";
+import { berichten as leerlingBerichten, docentBerichten } from "@/lib/demo-data";
+import { useRole } from "@/lib/role-context";
+import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/app/berichten")({ component: Berichten });
 
 function Berichten() {
+  const { role } = useRole();
+  const berichten = role === "docent" ? docentBerichten : leerlingBerichten;
   const [selected, setSelected] = useState(0);
   const [msg, setMsg] = useState("");
-  const chat = berichten[selected];
+  const [mobileDetail, setMobileDetail] = useState(false);
+  const chat = berichten[selected] ?? berichten[0];
   const isGroep = chat.type === "groep";
 
   return (
