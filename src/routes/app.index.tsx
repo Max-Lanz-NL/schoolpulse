@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
-import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, klassen, roleLabels } from "@/lib/demo-data";
+import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, docentMeldingen, klassen, roleLabels } from "@/lib/demo-data";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
   ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users,
@@ -146,16 +146,16 @@ function DocentView() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={Users} label="Klassen" value="5" hint="128 leerlingen" />
-        <StatCard icon={FileCheck} label="Te beoordelen" value="14" hint="3 achterstand" tone="warning" />
-        <StatCard icon={Calendar} label="Lessen deze week" value="22" />
-        <StatCard icon={MessageSquare} label="Ongelezen berichten" value="7" />
+        <StatCard to="/app/cijfers" icon={Users} label="Klassen" value="5" hint="128 leerlingen" />
+        <StatCard to="/app/opdrachten" icon={FileCheck} label="Te beoordelen" value="14" hint="3 achterstand" tone="warning" />
+        <StatCard to="/app/rooster" icon={Calendar} label="Lessen deze week" value="22" />
+        <StatCard to="/app/berichten" icon={MessageSquare} label="Ongelezen berichten" value="7" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <Card title="Mijn klassen" action={<button className="text-xs font-semibold text-primary">Alle klassen →</button>}>
-            <div className="overflow-hidden rounded-xl border border-border">
+          <Card title="Mijn klassen" action={<Link to="/app/cijfers" className="text-xs font-semibold text-primary">Alle klassen →</Link>}>
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
@@ -180,7 +180,7 @@ function DocentView() {
                           <span className="text-xs text-muted-foreground">{k.aanwezigheid}%</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right"><button className="text-xs font-semibold text-primary">Open →</button></td>
+                      <td className="px-4 py-3 text-right"><Link to="/app/cijfers" className="text-xs font-semibold text-primary">Open →</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -189,19 +189,39 @@ function DocentView() {
           </Card>
         </div>
 
-        <Card title="Te beoordelen" action={<Link to="/app/opdrachten" className="text-xs font-semibold text-primary">Alles →</Link>}>
-          <div className="space-y-2">
-            {["Praktijkverslag Titratie — V4B (18)", "Boekverslag — V5A (12)", "SO Molberekeningen — V4A (26)"].map((t) => (
-              <div key={t} className="rounded-lg border border-border p-3">
-                <div className="text-sm font-medium">{t}</div>
-                <div className="mt-2 flex items-center gap-2">
-                  <button className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">Beoordelen</button>
-                  <span className="text-[11px] text-muted-foreground">binnen 3 dagen</span>
+        <div className="space-y-6">
+          <Card title="Nieuwe meldingen" action={<span className="text-[11px] text-muted-foreground">{docentMeldingen.length} nieuw</span>}>
+            <div className="space-y-1">
+              {docentMeldingen.map((m) => (
+                <Link
+                  key={m.titel}
+                  to={m.link}
+                  className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50"
+                >
+                  <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm">{m.titel}</div>
+                    <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Card>
+
+          <Card title="Te beoordelen" action={<Link to="/app/opdrachten" className="text-xs font-semibold text-primary">Alles →</Link>}>
+            <div className="space-y-2">
+              {["Praktijkverslag Titratie — V4B (18)", "Boekverslag — V5A (12)", "SO Molberekeningen — V4A (26)"].map((t) => (
+                <div key={t} className="rounded-lg border border-border p-3">
+                  <div className="text-sm font-medium">{t}</div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Link to="/app/opdrachten" className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">Beoordelen</Link>
+                    <span className="text-[11px] text-muted-foreground">binnen 3 dagen</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
