@@ -18,6 +18,15 @@ function Landing() {
     navigate({ to: "/app" });
   };
 
+  const features = [
+    { icon: Calendar, t: "Slim roosterbeheer", d: "AI-optimalisatie, minder tussenuren en directe melding bij lesuitval.", link: "/features/roosterbeheer" },
+    { icon: BarChart3, t: "Resultaten & voortgang", d: "Realtime cijfers, gemiddelden en trends per leerling en klas.", link: "/features/voortgang" },
+    { icon: MessageSquare, t: "Veilige communicatie", d: "Interne chat tussen leerlingen, docenten, ouders en mentoren.", link: "/features/communicatie" },
+    { icon: FileText, t: "Opdrachten & toetsing", d: "Digitale inlevering, beoordeling en plagiaatsignalering.", link: "/features/opdrachten" },
+    { icon: Bell, t: "Slimme notificaties", d: "Push voor cijfers, berichten, rooster en deadlines — instelbaar.", link: "/features/notificaties" },
+    { icon: ShieldCheck, t: "AVG & 2FA", d: "Versleutelde communicatie, rollenbeheer en tweestapsverificatie.", link: "/features/veiligheid" },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Nav */}
@@ -33,7 +42,7 @@ function Landing() {
             <a href="#veiligheid" className="text-sm font-medium text-muted-foreground hover:text-foreground">Veiligheid</a>
           </nav>
           <div className="flex items-center gap-2">
-            <a href="#demo" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted sm:inline-block">Plan gesprek</a>
+            <Link to="/plan-gesprek" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted sm:inline-block">Plan gesprek</Link>
             <Link to="/app" className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:bg-secondary/90">
               Bekijk demo <ArrowRight className="h-4 w-4" />
             </Link>
@@ -87,7 +96,7 @@ function Landing() {
               <button
                 key={r}
                 onClick={() => pickRole(r)}
-                className="group flex flex-col items-start rounded-2xl border border-border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-elegant)]"
+                className="group flex flex-col items-start rounded-2xl border border-border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-soft)]"
               >
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                   <Icon className="h-5 w-5" />
@@ -111,21 +120,17 @@ function Landing() {
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Alles wat een moderne school nodig heeft</h2>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { icon: Calendar, t: "Slim roosterbeheer", d: "AI-optimalisatie, minder tussenuren en directe melding bij lesuitval." },
-              { icon: BarChart3, t: "Resultaten & voortgang", d: "Realtime cijfers, gemiddelden en trends per leerling en klas." },
-              { icon: MessageSquare, t: "Veilige communicatie", d: "Interne chat tussen leerlingen, docenten, ouders en mentoren." },
-              { icon: FileText, t: "Opdrachten & toetsing", d: "Digitale inlevering, beoordeling en plagiaatsignalering." },
-              { icon: Bell, t: "Slimme notificaties", d: "Push voor cijfers, berichten, rooster en deadlines — instelbaar." },
-              { icon: ShieldCheck, t: "AVG & 2FA", d: "Versleutelde communicatie, rollenbeheer en tweestapsverificatie." },
-            ].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50">
+            {features.map(({ icon: Icon, t, d, link }) => (
+              <Link key={t} to={link} className="group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50 hover:bg-card/80 cursor-pointer">
                 <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-4 text-base font-semibold">{t}</h3>
+                <h3 className="mt-4 text-base font-semibold group-hover:text-primary transition-colors">{t}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-              </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  Meer info <ArrowRight className="h-3 w-3" />
+                </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -201,15 +206,15 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground md:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
           <div className="flex items-center gap-2">
             <img src={logo} alt="" className="h-6 w-6" />
-            <span>© 2025 Schoolpulse — demo</span>
+            <span className="text-sm text-muted-foreground">© 2025 Schoolpulse — demo</span>
           </div>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Voorwaarden</a>
-            <a href="#" className="hover:text-foreground">Contact</a>
+          <div className="flex flex-wrap justify-center gap-6 md:justify-end">
+            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/voorwaarden" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Voorwaarden</Link>
+            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </div>
         </div>
       </footer>
