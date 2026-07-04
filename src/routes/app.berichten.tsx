@@ -1,21 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { berichten } from "@/lib/demo-data";
-import { Send, Paperclip, ShieldCheck, Search, Users } from "lucide-react";
+import { berichten as leerlingBerichten, docentBerichten } from "@/lib/demo-data";
+import { useRole } from "@/lib/role-context";
+import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/app/berichten")({ component: Berichten });
 
 function Berichten() {
+  const { role } = useRole();
+  const berichten = role === "docent" ? docentBerichten : leerlingBerichten;
   const [selected, setSelected] = useState(0);
   const [msg, setMsg] = useState("");
-  const chat = berichten[selected];
+  const [mobileDetail, setMobileDetail] = useState(false);
+  const chat = berichten[selected] ?? berichten[0];
   const isGroep = chat.type === "groep";
 
   return (
     <AppShell title="Berichten" subtitle="Veilige, versleutelde communicatie">
       <div className="grid gap-0 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[320px_1fr]" style={{ height: "calc(100vh - 10rem)" }}>
-        <aside className="flex flex-col border-b border-border md:border-b-0 md:border-r">
+        <aside className={`flex flex-col border-b border-border md:border-b-0 md:border-r md:flex ${mobileDetail ? "hidden" : "flex"}`}>
           <div className="border-b border-border p-3">
             <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2">
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -26,7 +30,7 @@ function Berichten() {
             {berichten.map((b, i) => (
               <button
                 key={b.id}
-                onClick={() => setSelected(i)}
+                onClick={() => { setSelected(i); setMobileDetail(true); }}
                 className={`flex w-full items-start gap-3 border-b border-border p-3 text-left transition-colors hover:bg-muted/50 ${selected === i ? "bg-muted/70" : ""}`}
               >
                 {b.type === "groep" ? (
@@ -50,8 +54,9 @@ function Berichten() {
           </div>
         </aside>
 
-        <section className="flex min-w-0 flex-col">
+        <section className={`min-w-0 flex-col md:flex ${mobileDetail ? "flex" : "hidden"}`}>
           <div className="flex items-center gap-3 border-b border-border p-4">
+            <button onClick={() => setMobileDetail(false)} className="rounded-md p-1 hover:bg-muted md:hidden" aria-label="Terug"><ArrowLeft className="h-4 w-4" /></button>
             {isGroep ? (
               <div className={`grid h-10 w-10 place-items-center rounded-full ${chat.kleur} text-white`}>
                 <Users className="h-4 w-4" />
