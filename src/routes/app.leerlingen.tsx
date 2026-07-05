@@ -4,7 +4,7 @@ import { Card } from "@/components/Card";
 import { docentKlassen, leerlingAanwezigheid, type Leerling } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { useState } from "react";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/leerlingen")({ component: LeerlingenPage });
@@ -119,6 +119,22 @@ function LeerlingDetail({
   if (gem < 5.5 && gem > 0) signaleringen.push(`Gemiddeld onvoldoende (${gem.toFixed(1)})`);
   if (aanwPct < 90) signaleringen.push(`Hoog verzuim (${100 - aanwPct}% afwezig)`);
 
+  const [contactLog, setContactLog] = useState([
+    { datum: "3 jul 2026", type: "Telefonisch", notitie: "Gebeld over scheikunde resultaten. Ouders gaan extra bijles regelen." },
+    { datum: "15 jun 2026", type: "E-mail", notitie: "E-mail ontvangen over absentie 12 juni. Uitleg gegeven over procedure." },
+    { datum: "10 mei 2026", type: "Gesprek", notitie: "Voortgangsgesprek. Leerling doet het goed in wiskunde, aandacht nodig voor scheikunde." },
+  ]);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ datum: "", type: "Telefonisch", notitie: "" });
+
+  const slaContactOp = () => {
+    if (!contactForm.datum || !contactForm.notitie.trim()) { toast.error("Vul alle velden in"); return; }
+    setContactLog((prev) => [{ datum: contactForm.datum, type: contactForm.type, notitie: contactForm.notitie.trim() }, ...prev]);
+    setContactModalOpen(false);
+    setContactForm({ datum: "", type: "Telefonisch", notitie: "" });
+    toast.success("Contactmoment gelogd");
+  };
+
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
@@ -173,6 +189,30 @@ function LeerlingDetail({
         </div>
       </Card>
 
+      <Card
+        title="Contactlog ouders"
+        action={
+          <button
+            onClick={() => setContactModalOpen(true)}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
+          >
+            <Plus className="h-3.5 w-3.5" /> Nieuw contact
+          </button>
+        }
+      >
+        <div className="space-y-2">
+          {contactLog.map((c, i) => (
+            <div key={i} className="rounded-xl border border-border bg-background p-3">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{c.type}</span>
+                <span className="text-[11px] text-muted-foreground">{c.datum}</span>
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">{c.notitie}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       <Card title="Notitie docent/mentor">
         <textarea
           rows={4}
@@ -187,6 +227,72 @@ function LeerlingDetail({
           </button>
         </div>
       </Card>
+
+      {contactModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setContactModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border p-4">
+              <div className="text-sm font-semibold">Contactmoment loggen</div>
+              <button onClick={() => setContactModalOpen(false)} className="rounded-lg p-1.5 hover:bg-muted">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 p-4">
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Datum</span>
+                  <input
+                    type="date"
+                    value={contactForm.datum}
+                    onChange={(e) => setContactForm((f) => ({ ...f, datum: e.target.value }))}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Type</span>
+                  <select
+                    value={contactForm.type}
+                    onChange={(e) => setContactForm((f) => ({ ...f, type: e.target.value }))}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  >
+                    <option>Telefonisch</option>
+                    <option>E-mail</option>
+                    <option>Gesprek</option>
+                  </select>
+                </label>
+              </div>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Notitie</span>
+                <textarea
+                  rows={3}
+                  value={contactForm.notitie}
+                  onChange={(e) => setContactForm((f) => ({ ...f, notitie: e.target.value }))}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  placeholder="Samenvatting van het gesprek..."
+                />
+              </label>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-border p-3">
+              <button onClick={() => setContactModalOpen(false)} className="rounded-lg border border-border px-3 py-2 text-sm">
+                Annuleren
+              </button>
+              <button
+                onClick={slaContactOp}
+                disabled={!contactForm.datum || !contactForm.notitie.trim()}
+                className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Opslaan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

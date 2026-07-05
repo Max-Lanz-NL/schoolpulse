@@ -35,6 +35,11 @@ import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
 import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
+import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
+import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
+import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
+import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
+import { Route as AppAvgRouteImport } from './routes/app.avg'
 
 const VoorwaardenRoute = VoorwaardenRouteImport.update({
   id: '/voorwaarden',
@@ -166,6 +171,31 @@ const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
   path: '/aanwezigheid',
   getParentRoute: () => AppRoute,
 } as any)
+const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
+  id: '/studieplanner',
+  path: '/studieplanner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToetsenRoute = AppToetsenRouteImport.update({
+  id: '/toetsen',
+  path: '/toetsen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToestemmingRoute = AppToestemmingRouteImport.update({
+  id: '/toestemming',
+  path: '/toestemming',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRapportenRoute = AppRapportenRouteImport.update({
+  id: '/rapporten',
+  path: '/rapporten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAvgRoute = AppAvgRouteImport.update({
+  id: '/avg',
+  path: '/avg',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -187,6 +217,11 @@ export interface FileRoutesByFullPath {
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/vervanging': typeof AppVervangingRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/rapporten': typeof AppRapportenRoute
+  '/app/avg': typeof AppAvgRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -214,6 +249,11 @@ export interface FileRoutesByTo {
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/vervanging': typeof AppVervangingRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/rapporten': typeof AppRapportenRoute
+  '/app/avg': typeof AppAvgRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -243,6 +283,11 @@ export interface FileRoutesById {
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/vervanging': typeof AppVervangingRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/rapporten': typeof AppRapportenRoute
+  '/app/avg': typeof AppAvgRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -273,6 +318,11 @@ export interface FileRouteTypes {
     | '/app/personeel'
     | '/app/rooster'
     | '/app/vervanging'
+    | '/app/studieplanner'
+    | '/app/toetsen'
+    | '/app/toestemming'
+    | '/app/rapporten'
+    | '/app/avg'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -300,6 +350,11 @@ export interface FileRouteTypes {
     | '/app/personeel'
     | '/app/rooster'
     | '/app/vervanging'
+    | '/app/studieplanner'
+    | '/app/toetsen'
+    | '/app/toestemming'
+    | '/app/rapporten'
+    | '/app/avg'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -328,6 +383,11 @@ export interface FileRouteTypes {
     | '/app/personeel'
     | '/app/rooster'
     | '/app/vervanging'
+    | '/app/studieplanner'
+    | '/app/toetsen'
+    | '/app/toestemming'
+    | '/app/rapporten'
+    | '/app/avg'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -535,6 +595,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAanwezigheidRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/studieplanner': {
+      id: '/app/studieplanner'
+      path: '/studieplanner'
+      fullPath: '/app/studieplanner'
+      preLoaderRoute: typeof AppStudieplannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/toetsen': {
+      id: '/app/toetsen'
+      path: '/toetsen'
+      fullPath: '/app/toetsen'
+      preLoaderRoute: typeof AppToetsenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/toestemming': {
+      id: '/app/toestemming'
+      path: '/toestemming'
+      fullPath: '/app/toestemming'
+      preLoaderRoute: typeof AppToestemmingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rapporten': {
+      id: '/app/rapporten'
+      path: '/rapporten'
+      fullPath: '/app/rapporten'
+      preLoaderRoute: typeof AppRapportenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/avg': {
+      id: '/app/avg'
+      path: '/avg'
+      fullPath: '/app/avg'
+      preLoaderRoute: typeof AppAvgRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -553,6 +648,11 @@ interface AppRouteChildren {
   AppPersoneelRoute: typeof AppPersoneelRoute
   AppRoosterRoute: typeof AppRoosterRoute
   AppVervangingRoute: typeof AppVervangingRoute
+  AppStudieplannerRoute: typeof AppStudieplannerRoute
+  AppToetsenRoute: typeof AppToetsenRoute
+  AppToestemmingRoute: typeof AppToestemmingRoute
+  AppRapportenRoute: typeof AppRapportenRoute
+  AppAvgRoute: typeof AppAvgRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -571,6 +671,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppPersoneelRoute: AppPersoneelRoute,
   AppRoosterRoute: AppRoosterRoute,
   AppVervangingRoute: AppVervangingRoute,
+  AppStudieplannerRoute: AppStudieplannerRoute,
+  AppToetsenRoute: AppToetsenRoute,
+  AppToestemmingRoute: AppToestemmingRoute,
+  AppRapportenRoute: AppRapportenRoute,
+  AppAvgRoute: AppAvgRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

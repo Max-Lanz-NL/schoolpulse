@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { berichten as leerlingBerichten, docentBerichten, type ChatBericht } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
-import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft } from "lucide-react";
+import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft, Megaphone, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -32,6 +32,10 @@ function Berichten() {
   const [mobileDetail, setMobileDetail] = useState(false);
   const [bijlageNaam, setBijlageNaam] = useState<string | null>(null);
   const [typing, setTyping] = useState(false);
+  const [schoolBreedOpen, setSchoolBreedOpen] = useState(false);
+  const [sbDoelgroepen, setSbDoelgroepen] = useState({ leerlingen: false, ouders: false, docenten: false, teamleiders: false });
+  const [sbOnderwerp, setSbOnderwerp] = useState("");
+  const [sbBericht, setSbBericht] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Reset when role changes
@@ -85,6 +89,16 @@ function Berichten() {
       <div className="grid gap-0 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[320px_1fr]" style={{ height: "calc(100vh - 10rem)" }}>
         {/* Conversation list */}
         <aside className={`flex flex-col border-b border-border md:border-b-0 md:border-r md:flex ${mobileDetail ? "hidden" : "flex"}`}>
+          {role === "directie" && (
+            <div className="border-b border-border p-3">
+              <button
+                onClick={() => setSchoolBreedOpen(true)}
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                <Megaphone className="h-3.5 w-3.5" /> Schoolbrede mededeling
+              </button>
+            </div>
+          )}
           <div className="border-b border-border p-3">
             <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2">
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -235,6 +249,98 @@ function Berichten() {
           </form>
         </section>
       </div>
+
+      {schoolBreedOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setSchoolBreedOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border p-4">
+              <div className="flex items-center gap-2">
+                <Megaphone className="h-5 w-5 text-primary" />
+                <div className="text-sm font-semibold">Schoolbrede mededeling</div>
+              </div>
+              <button onClick={() => setSchoolBreedOpen(false)} className="rounded-lg p-1.5 hover:bg-muted">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 p-4">
+              <div>
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Doelgroep</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["leerlingen", "ouders", "docenten", "teamleiders"] as const).map((g) => {
+                    const labels: Record<string, string> = { leerlingen: "Alle leerlingen", ouders: "Alle ouders", docenten: "Alle docenten", teamleiders: "Teamleiders" };
+                    const counts: Record<string, number> = { leerlingen: 1284, ouders: 1100, docenten: 48, teamleiders: 6 };
+                    return (
+                      <label key={g} className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2.5 transition-colors ${sbDoelgroepen[g] ? "border-primary bg-primary/5" : "border-border"}`}>
+                        <input
+                          type="checkbox"
+                          checked={sbDoelgroepen[g]}
+                          onChange={(e) => setSbDoelgroepen((d) => ({ ...d, [g]: e.target.checked }))}
+                          className="accent-primary"
+                        />
+                        <div>
+                          <div className="text-xs font-semibold">{labels[g]}</div>
+                          <div className="text-[10px] text-muted-foreground">{counts[g]} ontvangers</div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Onderwerp</span>
+                <input
+                  value={sbOnderwerp}
+                  onChange={(e) => setSbOnderwerp(e.target.value)}
+                  placeholder="Onderwerp van de mededeling"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Bericht</span>
+                <textarea
+                  rows={4}
+                  value={sbBericht}
+                  onChange={(e) => setSbBericht(e.target.value)}
+                  placeholder="Schrijf hier de mededeling..."
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </label>
+            </div>
+            <div className="flex items-center justify-between border-t border-border p-4">
+              <div className="text-xs text-muted-foreground">
+                {Object.values(sbDoelgroepen).some(Boolean)
+                  ? `Verstuurd naar ${[sbDoelgroepen.leerlingen ? 1284 : 0, sbDoelgroepen.ouders ? 1100 : 0, sbDoelgroepen.docenten ? 48 : 0, sbDoelgroepen.teamleiders ? 6 : 0].reduce((a, b) => a + b, 0)} personen`
+                  : "Selecteer een doelgroep"}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setSchoolBreedOpen(false)} className="rounded-lg border border-border px-3 py-2 text-sm">
+                  Annuleren
+                </button>
+                <button
+                  disabled={!Object.values(sbDoelgroepen).some(Boolean) || !sbOnderwerp.trim() || !sbBericht.trim()}
+                  onClick={() => {
+                    const count = [sbDoelgroepen.leerlingen ? 1284 : 0, sbDoelgroepen.ouders ? 1100 : 0, sbDoelgroepen.docenten ? 48 : 0, sbDoelgroepen.teamleiders ? 6 : 0].reduce((a, b) => a + b, 0);
+                    setSchoolBreedOpen(false);
+                    setSbOnderwerp("");
+                    setSbBericht("");
+                    setSbDoelgroepen({ leerlingen: false, ouders: false, docenten: false, teamleiders: false });
+                    toast.success(`Mededeling verstuurd naar ${count} ontvangers`);
+                  }}
+                  className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  Verstuur naar {[sbDoelgroepen.leerlingen ? 1284 : 0, sbDoelgroepen.ouders ? 1100 : 0, sbDoelgroepen.docenten ? 48 : 0, sbDoelgroepen.teamleiders ? 6 : 0].reduce((a, b) => a + b, 0)} personen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

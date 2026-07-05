@@ -6,6 +6,7 @@ import {
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
   ChevronDown, User, Shield, HelpCircle, Moon, Sun, X, GraduationCap, Users, Building2,
   BookOpen, UserCheck, AlertCircle, CalendarDays, Briefcase, RefreshCw, Upload,
+  CalendarRange, ClipboardCheck, PenLine, ClipboardList, Type,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
@@ -25,25 +26,31 @@ const getModules = (role: Role) => {
   if (role === "leerling") return [...base,
     { to: "/app/huiswerk", label: "Huiswerk", icon: BookOpen },
     { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+    { to: "/app/studieplanner", label: "Studieplanner", icon: CalendarRange },
   ];
   if (role === "ouder") return [...base,
     { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
     { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
     { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/toestemming", label: "Toestemming", icon: ClipboardCheck },
   ];
   if (role === "docent") return [...base,
     { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
     { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/toetsen", label: "Toetsen", icon: PenLine },
   ];
   if (role === "teamleider") return [...base,
     { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
     { to: "/app/personeel", label: "Personeel", icon: Briefcase },
     { to: "/app/vervanging", label: "Vervanging", icon: RefreshCw },
     { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
   ];
   if (role === "directie") return [...base,
     { to: "/app/personeel", label: "Personeel", icon: Briefcase },
     { to: "/app/import", label: "Data import", icon: Upload },
+    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
+    { to: "/app/avg", label: "AVG & Privacy", icon: Shield },
   ];
   return base;
 };
@@ -82,11 +89,21 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
     if (typeof window === "undefined") return false;
     return localStorage.getItem("sp-theme") === "dark";
   });
+  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
+    if (typeof window === "undefined") return "base";
+    return (localStorage.getItem("sp-fontsize") as "sm" | "base" | "lg") ?? "base";
+  });
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("sp-theme", dark ? "dark" : "light");
   }, [dark]);
+
+  useEffect(() => {
+    const sizes: Record<string, string> = { sm: "14px", base: "16px", lg: "18px" };
+    document.documentElement.style.fontSize = sizes[fontSize];
+    localStorage.setItem("sp-fontsize", fontSize);
+  }, [fontSize]);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const navigate = useNavigate();
   const user = roleUsers[role];
@@ -336,6 +353,21 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                     {dark ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
                     {dark ? "Lichte modus" : "Donkere modus"}
                   </button>
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <Type className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1">Tekstgrootte</span>
+                    <div className="flex gap-1">
+                      {(["sm", "base", "lg"] as const).map((s, i) => (
+                        <button
+                          key={s}
+                          onClick={() => setFontSize(s)}
+                          className={`rounded px-2 py-0.5 text-[11px] font-semibold ${fontSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                        >
+                          {["A-", "A", "A+"][i]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <div className="border-t border-border">
                   <button

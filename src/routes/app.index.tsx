@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
-import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels } from "@/lib/demo-data";
+import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels, weekRooster, personeel, berichten } from "@/lib/demo-data";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
   ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users,
@@ -294,22 +294,48 @@ function OuderView() {
           </div>
         </Card>
       </div>
+
+      <Card title="Weekoverzicht Sanne — week 28">
+        <div className="grid grid-cols-5 gap-2">
+          {[
+            { dag: "Ma", datum: "7 jul", lessen: weekRooster["Ma"].length, toets: null, deadline: null, afwezig: false },
+            { dag: "Di", datum: "8 jul", lessen: weekRooster["Di"].length, toets: null, deadline: "Wiskunde H4", afwezig: true, afwezigVak: "Scheikunde" },
+            { dag: "Wo", datum: "9 jul", lessen: weekRooster["Wo"].length, toets: null, deadline: null, afwezig: false },
+            { dag: "Do", datum: "10 jul", lessen: weekRooster["Do"].length, toets: null, deadline: null, afwezig: false },
+            { dag: "Vr", datum: "11 jul", lessen: weekRooster["Vr"].length, toets: null, deadline: "Nederlands essay", afwezig: false },
+          ].map((d) => (
+            <div key={d.dag} className={`rounded-xl border p-2 text-center ${d.afwezig ? "border-warning/40 bg-warning/5" : "border-border bg-background"}`}>
+              <div className="text-[11px] font-bold uppercase text-muted-foreground">{d.dag}</div>
+              <div className="text-[10px] text-muted-foreground">{d.datum}</div>
+              <div className="mt-2 text-lg font-bold">{d.lessen}</div>
+              <div className="text-[10px] text-muted-foreground">lessen</div>
+              {d.deadline && (
+                <div className="mt-1 rounded bg-warning/10 px-1 py-0.5 text-[9px] font-semibold text-warning leading-tight">{d.deadline}</div>
+              )}
+              {d.afwezig && (
+                <div className="mt-1 rounded bg-destructive/10 px-1 py-0.5 text-[9px] font-semibold text-destructive leading-tight">{"afwezigVak" in d ? d.afwezigVak : "Afwezig"}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
 
 function TeamleiderView() {
+  const docentenAfwezig = personeel.filter((p) => !p.aanwezig);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={Users} label="Klassen" value="12" hint="326 leerlingen" />
-        <StatCard icon={AlertCircle} label="Verzuim vandaag" value="18" hint="4 zonder melding" tone="warning" />
-        <StatCard icon={BarChart3} label="Gemiddelde bovenbouw" value="7.1" hint="+0.1" tone="success" />
-        <StatCard icon={FileCheck} label="Openstaande rapporten" value="5" />
+        <StatCard to="/app/leerlingen" icon={AlertCircle} label="Leerlingen afwezig" value="18" hint="4 zonder melding" tone="warning" />
+        <StatCard to="/app/leerlingen" icon={Users} label="Zonder melding" value="4" hint="Direct actie vereist" tone="warning" />
+        <StatCard to="/app/personeel" icon={Users} label="Docenten afwezig" value={String(docentenAfwezig.length)} hint={docentenAfwezig.map((p) => p.naam.split(" ")[0]).join(", ")} tone="warning" />
+        <StatCard to="/app/vervanging" icon={AlertCircle} label="Openstaande vervangingen" value="1" hint="Regelen vereist" tone="warning" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
           <Card title="Klassenoverzicht bovenbouw">
             <div className="grid gap-3 sm:grid-cols-2">
               {klassen.map((k) => (
@@ -335,20 +361,77 @@ function TeamleiderView() {
               ))}
             </div>
           </Card>
+
+          <Card title="Verzuim vandaag — leerlingen">
+            <div className="space-y-2">
+              {[
+                { naam: "Tom Bakker", klas: "V4B", reden: "Zonder melding" },
+                { naam: "Daan de Wit", klas: "V5A", reden: "Ziek gemeld" },
+                { naam: "Emma Visser", klas: "V4A", reden: "Zonder melding" },
+                { naam: "Noah Jansen", klas: "V4B", reden: "Zonder melding" },
+                { naam: "Anna Smits", klas: "H4A", reden: "Afgemeld" },
+              ].map((l) => (
+                <div key={l.naam} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2">
+                  <div>
+                    <div className="text-sm font-medium">{l.naam}</div>
+                    <div className="text-[11px] text-muted-foreground">{l.klas}</div>
+                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${l.reden === "Zonder melding" ? "bg-destructive/15 text-destructive" : l.reden === "Ziek gemeld" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground"}`}>
+                    {l.reden}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card title="Docenten afwezig vandaag">
+            <div className="space-y-2">
+              {docentenAfwezig.map((p) => (
+                <div key={p.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2">
+                  <div>
+                    <div className="text-sm font-medium">{p.naam}</div>
+                    <div className="text-[11px] text-muted-foreground">{p.verlof ?? "Afwezig"}</div>
+                  </div>
+                  <Link to="/app/vervanging" className="rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground">
+                    Regelen →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
         <Card title="Signaleringen">
           <div className="space-y-3">
-            {[
-              { t: "V5A — 4 leerlingen onvoldoende scheikunde", ton: "warning" },
-              { t: "V4B — verzuim boven norm (8%)", ton: "warning" },
-              { t: "H4A — nieuwe mentor aangesteld", ton: "info" },
-              { t: "V4A — 3 leerlingen op koers voor cum laude", ton: "success" },
-            ].map((s) => (
-              <div key={s.t} className="flex items-start gap-2 rounded-lg border border-border p-3">
-                <div className={`mt-1 h-2 w-2 rounded-full ${s.ton === "warning" ? "bg-warning" : s.ton === "success" ? "bg-success" : "bg-primary"}`} />
-                <div className="text-sm">{s.t}</div>
-              </div>
-            ))}
+            {klassen.map((k) => {
+              const isLowGem = k.gemiddelde < 7.0;
+              const isLowAanw = k.aanwezigheid < 95;
+              const tone = isLowGem || isLowAanw ? "warning" : "success";
+              const tekst = isLowGem
+                ? `${k.klas} — gemiddelde onder 7.0 (${k.gemiddelde.toFixed(1)})`
+                : isLowAanw
+                ? `${k.klas} — aanwezigheid onder norm (${k.aanwezigheid}%)`
+                : `${k.klas} — op koers (∅ ${k.gemiddelde.toFixed(1)}, ${k.aanwezigheid}% aanwezig)`;
+              return (
+                <div key={k.klas} className="rounded-lg border border-border p-3">
+                  <div className="flex items-start gap-2">
+                    <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${tone === "warning" ? "bg-warning" : "bg-success"}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm">{tekst}</div>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    <Link to="/app/leerlingen" className="text-[11px] font-semibold text-primary">
+                      Bekijk dossier →
+                    </Link>
+                    {isLowAanw && (
+                      <Link to="/app/vervanging" className="text-[11px] font-semibold text-muted-foreground">
+                        Vervanging →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </Card>
       </div>
@@ -401,6 +484,42 @@ function DirectieView() {
           </div>
         </Card>
       </div>
+
+      <Card title="Schooldoelstellingen">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[
+            { label: "Slagingspercentage", doel: 95, huidig: 94, eenheid: "%", status: "Op koers" },
+            { label: "Gemiddeld schoolcijfer", doel: 7.5, huidig: 7.2, eenheid: "", status: "Aandacht vereist" },
+            { label: "Verzuimpercentage", doel: 5, huidig: 4.8, eenheid: "%", status: "Op koers", lager: true },
+            { label: "Oudertevredenheid", doel: 8.0, huidig: 7.6, eenheid: "", status: "Aandacht vereist" },
+          ].map((kpi) => {
+            const onKoers = kpi.status === "Op koers";
+            const pct = kpi.lager
+              ? Math.max(0, Math.min(100, (1 - (kpi.huidig - kpi.doel) / kpi.doel) * 100))
+              : Math.min(100, (kpi.huidig / kpi.doel) * 100);
+            return (
+              <div key={kpi.label} className="rounded-xl border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold">{kpi.label}</div>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${onKoers ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}>
+                    {kpi.status}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-end gap-2">
+                  <div className="text-2xl font-bold">{kpi.huidig}{kpi.eenheid}</div>
+                  <div className="mb-0.5 text-xs text-muted-foreground">doel: {kpi.doel}{kpi.eenheid}</div>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full ${onKoers ? "bg-success" : "bg-warning"}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       <Card title="Beleidsagenda">
         <div className="grid gap-3 md:grid-cols-3">
