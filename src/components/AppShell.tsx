@@ -5,21 +5,48 @@ import {
   LayoutDashboard, Calendar, BarChart3, MessageSquare, FileCheck,
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
   ChevronDown, User, Shield, HelpCircle, Moon, Sun, X, GraduationCap, Users, Building2,
+  BookOpen, UserCheck, AlertCircle, CalendarDays, Briefcase, RefreshCw, Upload,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
 
-const modules = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/rooster", label: "Rooster", icon: Calendar },
-  { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
-  { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge: 2 },
-  { to: "/app/opdrachten", label: "Opdrachten", icon: FileCheck },
-  { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
-  { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
-];
+const getModules = (role: Role) => {
+  const base = [
+    { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/app/rooster", label: "Rooster", icon: Calendar },
+    { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
+    { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge: 2 },
+    { to: "/app/opdrachten", label: "Opdrachten", icon: FileCheck },
+    { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
+    { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
+  ];
+  if (role === "leerling") return [...base,
+    { to: "/app/huiswerk", label: "Huiswerk", icon: BookOpen },
+    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+  ];
+  if (role === "ouder") return [...base,
+    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+    { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+  ];
+  if (role === "docent") return [...base,
+    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+  ];
+  if (role === "teamleider") return [...base,
+    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+    { to: "/app/vervanging", label: "Vervanging", icon: RefreshCw },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+  ];
+  if (role === "directie") return [...base,
+    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+    { to: "/app/import", label: "Data import", icon: Upload },
+  ];
+  return base;
+};
 
 // Zoekindex — mapt trefwoorden aan modules
 const searchIndex = [
@@ -42,6 +69,7 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
 
 function AppShellInner({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
   const { role, setRole, setDemoUser } = useRole();
+  const modules = getModules(role);
   const [open, setOpen] = useState(false);
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -327,13 +355,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex border-t border-border bg-background md:hidden">
-        {[
-          { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-          { to: "/app/rooster", label: "Rooster", icon: Calendar },
-          { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
-          { to: "/app/berichten", label: "Berichten", icon: MessageSquare },
-          { to: "/app/opdrachten", label: "Taken", icon: FileCheck },
-        ].map((m) => {
+        {getModules(role).slice(0, 5).map((m) => {
           const active = isActive(m.to, m.exact);
           return (
             <Link

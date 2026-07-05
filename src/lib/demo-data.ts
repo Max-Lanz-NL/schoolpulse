@@ -320,3 +320,70 @@ export const directieMeldingen = [
   { titel: "Schoolgemiddelde gedaald — actie vereist", tijd: "5 u", link: "/app/cijfers" },
   { titel: "Nieuwe docent toegevoegd aan systeem", tijd: "1 d", link: "/app/berichten" },
 ];
+
+// Huiswerk data
+export type HuiswerkItem = { id: string; vak: string; omschrijving: string; deadline: string; afgerond: boolean; prioriteit: "hoog" | "normaal" };
+export const huiswerk: HuiswerkItem[] = [
+  { id: "hw1", vak: "Wiskunde B", omschrijving: "Maak §4.2 opgave 1 t/m 10", deadline: "Morgen", afgerond: false, prioriteit: "hoog" },
+  { id: "hw2", vak: "Engels", omschrijving: "Vocabulary chapter 6 leren", deadline: "Overmorgen", afgerond: false, prioriteit: "normaal" },
+  { id: "hw3", vak: "Scheikunde", omschrijving: "Practicumverslag titratie afmaken", deadline: "Vr 10 jul", afgerond: false, prioriteit: "hoog" },
+  { id: "hw4", vak: "Nederlands", omschrijving: "Hoofdstuk 4 lezen Max Havelaar", deadline: "Vr 10 jul", afgerond: true, prioriteit: "normaal" },
+  { id: "hw5", vak: "Biologie", omschrijving: "Aantekeningen uitwerken les 3", deadline: "Ma 13 jul", afgerond: false, prioriteit: "normaal" },
+];
+
+// Aanwezigheidshistorie leerling (eigen view)
+export type AanwezigheidEntry = { datum: string; vak: string; status: "aanwezig" | "afwezig" | "ziek" | "afgemeld"; reden?: string };
+export const leerlingAanwezigheid: AanwezigheidEntry[] = [
+  { datum: "Di 7 jul", vak: "Wiskunde B", status: "aanwezig" },
+  { datum: "Di 7 jul", vak: "Nederlands", status: "aanwezig" },
+  { datum: "Di 7 jul", vak: "Scheikunde", status: "afwezig", reden: "Vergeten" },
+  { datum: "Ma 6 jul", vak: "Engels", status: "aanwezig" },
+  { datum: "Ma 6 jul", vak: "Biologie", status: "ziek", reden: "Doktersbezoek" },
+  { datum: "Vr 4 jul", vak: "Geschiedenis", status: "aanwezig" },
+  { datum: "Vr 4 jul", vak: "Wiskunde B", status: "aanwezig" },
+  { datum: "Do 3 jul", vak: "Nederlands", status: "afgemeld", reden: "Sportdag" },
+  { datum: "Do 3 jul", vak: "Scheikunde", status: "aanwezig" },
+  { datum: "Wo 2 jul", vak: "Engels", status: "aanwezig" },
+];
+
+// Gesprekken (mentorgesprekken, oudergesprekken)
+export type Gesprek = { id: string; type: "mentor" | "ouder" | "teamleider"; datum: string; tijd: string; persoon: string; onderwerp: string; status: "gepland" | "afgerond" | "beschikbaar" };
+export const gesprekken: Gesprek[] = [
+  { id: "g1", type: "mentor", datum: "Di 8 jul", tijd: "14:30", persoon: "L. de Boer", onderwerp: "Voortgangsgesprek periode 2", status: "gepland" },
+  { id: "g2", type: "ouder", datum: "Wo 9 jul", tijd: "16:00", persoon: "Ouders de Vries", onderwerp: "Resultaten scheikunde", status: "gepland" },
+  { id: "g3", type: "mentor", datum: "Ma 14 jul", tijd: "15:00", persoon: "L. de Boer", onderwerp: "Beschikbaar tijdslot", status: "beschikbaar" },
+  { id: "g4", type: "mentor", datum: "Di 15 jul", tijd: "14:00", persoon: "L. de Boer", onderwerp: "Beschikbaar tijdslot", status: "beschikbaar" },
+  { id: "g5", type: "mentor", datum: "Do 3 jul", tijd: "14:30", persoon: "L. de Boer", onderwerp: "Introductiegesprek schooljaar", status: "afgerond" },
+];
+
+// Personeel (voor directie/teamleider)
+export type Personeelslid = { id: string; naam: string; rol: string; vakken: string[]; uren: number; aanwezig: boolean; verlof?: string };
+export const personeel: Personeelslid[] = [
+  { id: "p1", naam: "Mark Jansen", rol: "Docent", vakken: ["Wiskunde B", "Wiskunde A"], uren: 28, aanwezig: true },
+  { id: "p2", naam: "Linda de Boer", rol: "Docent / Mentor", vakken: ["Nederlands"], uren: 26, aanwezig: true },
+  { id: "p3", naam: "Karin Visser", rol: "Docent", vakken: ["Scheikunde", "Biologie"], uren: 24, aanwezig: false, verlof: "Ziek gemeld" },
+  { id: "p4", naam: "Steve Green", rol: "Docent", vakken: ["Engels"], uren: 22, aanwezig: true },
+  { id: "p5", naam: "Jan Peters", rol: "Docent", vakken: ["Geschiedenis", "Aardrijkskunde"], uren: 20, aanwezig: true },
+  { id: "p6", naam: "Hans Mulder", rol: "Docent", vakken: ["Biologie"], uren: 18, aanwezig: false, verlof: "Studieverlof" },
+  { id: "p7", naam: "Ingrid Bakker", rol: "Teamleider Bovenbouw", vakken: [], uren: 32, aanwezig: true },
+];
+
+// Ouder-leerling koppelcodes (voor onboarding)
+export const koppelcodes: Record<string, { leerling: string; klas: string; ouderNaam: string; gebruikt: boolean }> = {
+  "SV2026": { leerling: "Sanne de Vries", klas: "V4B", ouderNaam: "Petra de Vries", gebruikt: true },
+  "TB2026": { leerling: "Tom Bakker", klas: "V4B", ouderNaam: "Familie Bakker", gebruikt: false },
+  "JS2026": { leerling: "Julia Smit", klas: "V4B", ouderNaam: "Familie Smit", gebruikt: false },
+};
+
+// Import mapping voor Magister/Somtoday
+export const importVoorbeeldData = {
+  magister: [
+    { leerlingnr: "24001", naam: "Sanne de Vries", klas: "V4B", geboortedatum: "2008-03-12", ouder_email: "p.devries@email.nl" },
+    { leerlingnr: "24002", naam: "Tom Bakker", klas: "V4B", geboortedatum: "2008-07-22", ouder_email: "bakker.familie@email.nl" },
+    { leerlingnr: "24003", naam: "Julia Smit", klas: "V4B", geboortedatum: "2007-11-05", ouder_email: "smit.ouders@email.nl" },
+  ],
+  somtoday: [
+    { studentnummer: "24001", volledigenaam: "de Vries, Sanne", stamgroep: "V4B", email_ouder: "p.devries@email.nl" },
+    { studentnummer: "24002", volledigenaam: "Bakker, Tom", stamgroep: "V4B", email_ouder: "bakker.familie@email.nl" },
+  ],
+};

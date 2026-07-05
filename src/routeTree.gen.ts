@@ -9,25 +9,48 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
-import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as FeaturesVoortgangRouteImport } from './routes/features/voortgang'
+import { Route as FeaturesVeiligheidRouteImport } from './routes/features/veiligheid'
+import { Route as FeaturesRoosterbeheerRouteImport } from './routes/features/roosterbeheer'
+import { Route as FeaturesOpdrachtenRouteImport } from './routes/features/opdrachten'
+import { Route as FeaturesNotificatiesRouteImport } from './routes/features/notificaties'
+import { Route as FeaturesCommunicatieRouteImport } from './routes/features/communicatie'
+import { Route as AppVervangingRouteImport } from './routes/app.vervanging'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
 import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
+import { Route as AppLeerlingenRouteImport } from './routes/app.leerlingen'
+import { Route as AppImportRouteImport } from './routes/app.import'
+import { Route as AppHuiswerkRouteImport } from './routes/app.huiswerk'
+import { Route as AppGesprekkenRouteImport } from './routes/app.gesprekken'
 import { Route as AppDocumentenRouteImport } from './routes/app.documenten'
 import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
 import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
 import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
-import { Route as FeaturesRoosterbeheerRouteImport } from './routes/features/roosterbeheer'
-import { Route as FeaturesCommunicatieRouteImport } from './routes/features/communicatie'
-import { Route as FeaturesOpdrachtenRouteImport } from './routes/features/opdrachten'
-import { Route as FeaturesNotificatiesRouteImport } from './routes/features/notificaties'
-import { Route as FeaturesVeiligheidRouteImport } from './routes/features/veiligheid'
-import { Route as FeaturesVoortgangRouteImport } from './routes/features/voortgang'
+import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
+import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
 
+const VoorwaardenRoute = VoorwaardenRouteImport.update({
+  id: '/voorwaarden',
+  path: '/voorwaarden',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -38,24 +61,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VoorwaardenRoute = VoorwaardenRouteImport.update({
-  id: '/voorwaarden',
-  path: '/voorwaarden',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const FeaturesVoortgangRoute = FeaturesVoortgangRouteImport.update({
+  id: '/features/voortgang',
+  path: '/features/voortgang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesVeiligheidRoute = FeaturesVeiligheidRouteImport.update({
+  id: '/features/veiligheid',
+  path: '/features/veiligheid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoosterbeheerRoute = FeaturesRoosterbeheerRouteImport.update({
+  id: '/features/roosterbeheer',
+  path: '/features/roosterbeheer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesOpdrachtenRoute = FeaturesOpdrachtenRouteImport.update({
+  id: '/features/opdrachten',
+  path: '/features/opdrachten',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesNotificatiesRoute = FeaturesNotificatiesRouteImport.update({
+  id: '/features/notificaties',
+  path: '/features/notificaties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesCommunicatieRoute = FeaturesCommunicatieRouteImport.update({
+  id: '/features/communicatie',
+  path: '/features/communicatie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppVervangingRoute = AppVervangingRouteImport.update({
+  id: '/vervanging',
+  path: '/vervanging',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRoosterRoute = AppRoosterRouteImport.update({
@@ -63,9 +106,34 @@ const AppRoosterRoute = AppRoosterRouteImport.update({
   path: '/rooster',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPersoneelRoute = AppPersoneelRouteImport.update({
+  id: '/personeel',
+  path: '/personeel',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOpdrachtenRoute = AppOpdrachtenRouteImport.update({
   id: '/opdrachten',
   path: '/opdrachten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeerlingenRoute = AppLeerlingenRouteImport.update({
+  id: '/leerlingen',
+  path: '/leerlingen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImportRoute = AppImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHuiswerkRoute = AppHuiswerkRouteImport.update({
+  id: '/huiswerk',
+  path: '/huiswerk',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGesprekkenRoute = AppGesprekkenRouteImport.update({
+  id: '/gesprekken',
+  path: '/gesprekken',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDocumentenRoute = AppDocumentenRouteImport.update({
@@ -88,175 +156,224 @@ const AppActiviteitenRoute = AppActiviteitenRouteImport.update({
   path: '/activiteiten',
   getParentRoute: () => AppRoute,
 } as any)
-const FeaturesRoosterbeheerRoute = FeaturesRoosterbeheerRouteImport.update({
-  id: '/features/roosterbeheer',
-  path: '/features/roosterbeheer',
-  getParentRoute: () => rootRouteImport,
+const AppAbsentieRoute = AppAbsentieRouteImport.update({
+  id: '/absentie',
+  path: '/absentie',
+  getParentRoute: () => AppRoute,
 } as any)
-const FeaturesCommunicatieRoute = FeaturesCommunicatieRouteImport.update({
-  id: '/features/communicatie',
-  path: '/features/communicatie',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesOpdrachtenRoute = FeaturesOpdrachtenRouteImport.update({
-  id: '/features/opdrachten',
-  path: '/features/opdrachten',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesNotificatiesRoute = FeaturesNotificatiesRouteImport.update({
-  id: '/features/notificaties',
-  path: '/features/notificaties',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesVeiligheidRoute = FeaturesVeiligheidRouteImport.update({
-  id: '/features/veiligheid',
-  path: '/features/veiligheid',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesVoortgangRoute = FeaturesVoortgangRouteImport.update({
-  id: '/features/voortgang',
-  path: '/features/voortgang',
-  getParentRoute: () => rootRouteImport,
+const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
+  id: '/aanwezigheid',
+  path: '/aanwezigheid',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
-  '/contact': typeof ContactRoute
-  '/app': typeof AppRouteWithChildren
+  '/app/aanwezigheid': typeof AppAanwezigheidRoute
+  '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gesprekken': typeof AppGesprekkenRoute
+  '/app/huiswerk': typeof AppHuiswerkRoute
+  '/app/import': typeof AppImportRoute
+  '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
-  '/app/': typeof AppIndexRoute
-  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
-  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
+  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
+  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
-  '/contact': typeof ContactRoute
+  '/app/aanwezigheid': typeof AppAanwezigheidRoute
+  '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gesprekken': typeof AppGesprekkenRoute
+  '/app/huiswerk': typeof AppHuiswerkRoute
+  '/app/import': typeof AppImportRoute
+  '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
-  '/app': typeof AppIndexRoute
-  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
-  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
+  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
+  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
-  '/contact': typeof ContactRoute
-  '/app': typeof AppRouteWithChildren
+  '/app/aanwezigheid': typeof AppAanwezigheidRoute
+  '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gesprekken': typeof AppGesprekkenRoute
+  '/app/huiswerk': typeof AppHuiswerkRoute
+  '/app/import': typeof AppImportRoute
+  '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/personeel': typeof AppPersoneelRoute
   '/app/rooster': typeof AppRoosterRoute
-  '/app/': typeof AppIndexRoute
-  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
-  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
+  '/features/opdrachten': typeof FeaturesOpdrachtenRoute
+  '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
+    | '/contact'
     | '/privacy'
     | '/voorwaarden'
-    | '/contact'
-    | '/app'
+    | '/app/aanwezigheid'
+    | '/app/absentie'
     | '/app/activiteiten'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gesprekken'
+    | '/app/huiswerk'
+    | '/app/import'
+    | '/app/leerlingen'
     | '/app/opdrachten'
+    | '/app/personeel'
     | '/app/rooster'
-    | '/app/'
-    | '/features/roosterbeheer'
+    | '/app/vervanging'
     | '/features/communicatie'
-    | '/features/opdrachten'
     | '/features/notificaties'
+    | '/features/opdrachten'
+    | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/contact'
     | '/privacy'
     | '/voorwaarden'
-    | '/contact'
+    | '/app/aanwezigheid'
+    | '/app/absentie'
     | '/app/activiteiten'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gesprekken'
+    | '/app/huiswerk'
+    | '/app/import'
+    | '/app/leerlingen'
     | '/app/opdrachten'
+    | '/app/personeel'
     | '/app/rooster'
-    | '/app'
-    | '/features/roosterbeheer'
+    | '/app/vervanging'
     | '/features/communicatie'
-    | '/features/opdrachten'
     | '/features/notificaties'
+    | '/features/opdrachten'
+    | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/app'
   id:
     | '__root__'
     | '/'
+    | '/app'
+    | '/contact'
     | '/privacy'
     | '/voorwaarden'
-    | '/contact'
-    | '/app'
+    | '/app/aanwezigheid'
+    | '/app/absentie'
     | '/app/activiteiten'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gesprekken'
+    | '/app/huiswerk'
+    | '/app/import'
+    | '/app/leerlingen'
     | '/app/opdrachten'
+    | '/app/personeel'
     | '/app/rooster'
-    | '/app/'
-    | '/features/roosterbeheer'
+    | '/app/vervanging'
     | '/features/communicatie'
-    | '/features/opdrachten'
     | '/features/notificaties'
+    | '/features/opdrachten'
+    | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   VoorwaardenRoute: typeof VoorwaardenRoute
-  ContactRoute: typeof ContactRoute
-  AppRoute: typeof AppRouteWithChildren
-  FeaturesRoosterbeheerRoute: typeof FeaturesRoosterbeheerRoute
   FeaturesCommunicatieRoute: typeof FeaturesCommunicatieRoute
-  FeaturesOpdrachtenRoute: typeof FeaturesOpdrachtenRoute
   FeaturesNotificatiesRoute: typeof FeaturesNotificatiesRoute
+  FeaturesOpdrachtenRoute: typeof FeaturesOpdrachtenRoute
+  FeaturesRoosterbeheerRoute: typeof FeaturesRoosterbeheerRoute
   FeaturesVeiligheidRoute: typeof FeaturesVeiligheidRoute
   FeaturesVoortgangRoute: typeof FeaturesVoortgangRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/voorwaarden': {
+      id: '/voorwaarden'
+      path: '/voorwaarden'
+      fullPath: '/voorwaarden'
+      preLoaderRoute: typeof VoorwaardenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -271,32 +388,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/voorwaarden': {
-      id: '/voorwaarden'
-      path: '/voorwaarden'
-      fullPath: '/voorwaarden'
-      preLoaderRoute: typeof VoorwaardenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app/': {
       id: '/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/features/voortgang': {
+      id: '/features/voortgang'
+      path: '/features/voortgang'
+      fullPath: '/features/voortgang'
+      preLoaderRoute: typeof FeaturesVoortgangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/veiligheid': {
+      id: '/features/veiligheid'
+      path: '/features/veiligheid'
+      fullPath: '/features/veiligheid'
+      preLoaderRoute: typeof FeaturesVeiligheidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/roosterbeheer': {
+      id: '/features/roosterbeheer'
+      path: '/features/roosterbeheer'
+      fullPath: '/features/roosterbeheer'
+      preLoaderRoute: typeof FeaturesRoosterbeheerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/opdrachten': {
+      id: '/features/opdrachten'
+      path: '/features/opdrachten'
+      fullPath: '/features/opdrachten'
+      preLoaderRoute: typeof FeaturesOpdrachtenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/notificaties': {
+      id: '/features/notificaties'
+      path: '/features/notificaties'
+      fullPath: '/features/notificaties'
+      preLoaderRoute: typeof FeaturesNotificatiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/communicatie': {
+      id: '/features/communicatie'
+      path: '/features/communicatie'
+      fullPath: '/features/communicatie'
+      preLoaderRoute: typeof FeaturesCommunicatieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/vervanging': {
+      id: '/app/vervanging'
+      path: '/vervanging'
+      fullPath: '/app/vervanging'
+      preLoaderRoute: typeof AppVervangingRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/rooster': {
@@ -306,11 +451,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoosterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/personeel': {
+      id: '/app/personeel'
+      path: '/personeel'
+      fullPath: '/app/personeel'
+      preLoaderRoute: typeof AppPersoneelRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/opdrachten': {
       id: '/app/opdrachten'
       path: '/opdrachten'
       fullPath: '/app/opdrachten'
       preLoaderRoute: typeof AppOpdrachtenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/leerlingen': {
+      id: '/app/leerlingen'
+      path: '/leerlingen'
+      fullPath: '/app/leerlingen'
+      preLoaderRoute: typeof AppLeerlingenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/import': {
+      id: '/app/import'
+      path: '/import'
+      fullPath: '/app/import'
+      preLoaderRoute: typeof AppImportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/huiswerk': {
+      id: '/app/huiswerk'
+      path: '/huiswerk'
+      fullPath: '/app/huiswerk'
+      preLoaderRoute: typeof AppHuiswerkRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/gesprekken': {
+      id: '/app/gesprekken'
+      path: '/gesprekken'
+      fullPath: '/app/gesprekken'
+      preLoaderRoute: typeof AppGesprekkenRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/documenten': {
@@ -341,68 +521,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppActiviteitenRouteImport
       parentRoute: typeof AppRoute
     }
-    '/features/roosterbeheer': {
-      id: '/features/roosterbeheer'
-      path: '/features/roosterbeheer'
-      fullPath: '/features/roosterbeheer'
-      preLoaderRoute: typeof FeaturesRoosterbeheerRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/absentie': {
+      id: '/app/absentie'
+      path: '/absentie'
+      fullPath: '/app/absentie'
+      preLoaderRoute: typeof AppAbsentieRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/features/communicatie': {
-      id: '/features/communicatie'
-      path: '/features/communicatie'
-      fullPath: '/features/communicatie'
-      preLoaderRoute: typeof FeaturesCommunicatieRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/opdrachten': {
-      id: '/features/opdrachten'
-      path: '/features/opdrachten'
-      fullPath: '/features/opdrachten'
-      preLoaderRoute: typeof FeaturesOpdrachtenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/notificaties': {
-      id: '/features/notificaties'
-      path: '/features/notificaties'
-      fullPath: '/features/notificaties'
-      preLoaderRoute: typeof FeaturesNotificatiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/veiligheid': {
-      id: '/features/veiligheid'
-      path: '/features/veiligheid'
-      fullPath: '/features/veiligheid'
-      preLoaderRoute: typeof FeaturesVeiligheidRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/voortgang': {
-      id: '/features/voortgang'
-      path: '/features/voortgang'
-      fullPath: '/features/voortgang'
-      preLoaderRoute: typeof FeaturesVoortgangRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/aanwezigheid': {
+      id: '/app/aanwezigheid'
+      path: '/aanwezigheid'
+      fullPath: '/app/aanwezigheid'
+      preLoaderRoute: typeof AppAanwezigheidRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
 interface AppRouteChildren {
+  AppAanwezigheidRoute: typeof AppAanwezigheidRoute
+  AppAbsentieRoute: typeof AppAbsentieRoute
   AppActiviteitenRoute: typeof AppActiviteitenRoute
   AppBerichtenRoute: typeof AppBerichtenRoute
   AppCijfersRoute: typeof AppCijfersRoute
   AppDocumentenRoute: typeof AppDocumentenRoute
+  AppGesprekkenRoute: typeof AppGesprekkenRoute
+  AppHuiswerkRoute: typeof AppHuiswerkRoute
+  AppImportRoute: typeof AppImportRoute
+  AppLeerlingenRoute: typeof AppLeerlingenRoute
   AppOpdrachtenRoute: typeof AppOpdrachtenRoute
+  AppPersoneelRoute: typeof AppPersoneelRoute
   AppRoosterRoute: typeof AppRoosterRoute
+  AppVervangingRoute: typeof AppVervangingRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAanwezigheidRoute: AppAanwezigheidRoute,
+  AppAbsentieRoute: AppAbsentieRoute,
   AppActiviteitenRoute: AppActiviteitenRoute,
   AppBerichtenRoute: AppBerichtenRoute,
   AppCijfersRoute: AppCijfersRoute,
   AppDocumentenRoute: AppDocumentenRoute,
+  AppGesprekkenRoute: AppGesprekkenRoute,
+  AppHuiswerkRoute: AppHuiswerkRoute,
+  AppImportRoute: AppImportRoute,
+  AppLeerlingenRoute: AppLeerlingenRoute,
   AppOpdrachtenRoute: AppOpdrachtenRoute,
+  AppPersoneelRoute: AppPersoneelRoute,
   AppRoosterRoute: AppRoosterRoute,
+  AppVervangingRoute: AppVervangingRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -410,17 +578,27 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   VoorwaardenRoute: VoorwaardenRoute,
-  ContactRoute: ContactRoute,
-  AppRoute: AppRouteWithChildren,
-  FeaturesRoosterbeheerRoute: FeaturesRoosterbeheerRoute,
   FeaturesCommunicatieRoute: FeaturesCommunicatieRoute,
-  FeaturesOpdrachtenRoute: FeaturesOpdrachtenRoute,
   FeaturesNotificatiesRoute: FeaturesNotificatiesRoute,
+  FeaturesOpdrachtenRoute: FeaturesOpdrachtenRoute,
+  FeaturesRoosterbeheerRoute: FeaturesRoosterbeheerRoute,
   FeaturesVeiligheidRoute: FeaturesVeiligheidRoute,
   FeaturesVoortgangRoute: FeaturesVoortgangRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
