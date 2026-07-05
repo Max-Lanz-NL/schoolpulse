@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
-import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, docentMeldingen, klassen, roleLabels } from "@/lib/demo-data";
+import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, docentMeldingen, docentOpdrachten, klassen, roleLabels } from "@/lib/demo-data";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
   ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users,
@@ -210,15 +210,18 @@ function DocentView() {
 
           <Card title="Te beoordelen" action={<Link to="/app/opdrachten" className="text-xs font-semibold text-primary">Alles →</Link>}>
             <div className="space-y-2">
-              {["Praktijkverslag Titratie — V4B (18)", "Boekverslag — V5A (12)", "SO Molberekeningen — V4A (26)"].map((t) => (
-                <div key={t} className="rounded-lg border border-border p-3">
-                  <div className="text-sm font-medium">{t}</div>
+              {docentOpdrachten.filter((o) => o.status === "ingeleverd" || o.status === "te-laat").slice(0, 3).map((o) => (
+                <div key={o.id} className="rounded-lg border border-border p-3">
+                  <div className="text-sm font-medium">{o.titel} — {o.klas} ({o.ingeleverd})</div>
                   <div className="mt-2 flex items-center gap-2">
                     <Link to="/app/opdrachten" className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">Beoordelen</Link>
-                    <span className="text-[11px] text-muted-foreground">binnen 3 dagen</span>
+                    <span className="text-[11px] text-muted-foreground">deadline {o.deadline}</span>
                   </div>
                 </div>
               ))}
+              {docentOpdrachten.filter((o) => o.status === "ingeleverd" || o.status === "te-laat").length === 0 && (
+                <div className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">Niets te beoordelen</div>
+              )}
             </div>
           </Card>
         </div>
@@ -228,6 +231,7 @@ function DocentView() {
 }
 
 function OuderView() {
+  const navigate = useNavigate();
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-card p-5">
@@ -238,8 +242,18 @@ function OuderView() {
             <div className="text-sm text-muted-foreground">4 VWO · Klas V4B · Mentor: L. de Boer</div>
           </div>
           <div className="ml-auto flex gap-2">
-            <button className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted">Mentor bereiken</button>
-            <button className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">Volledige voortgang</button>
+            <button
+              onClick={() => navigate({ to: "/app/berichten" })}
+              className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
+            >
+              Mentor bereiken
+            </button>
+            <button
+              onClick={() => navigate({ to: "/app/cijfers" })}
+              className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              Volledige voortgang
+            </button>
           </div>
         </div>
       </div>
@@ -273,7 +287,7 @@ function OuderView() {
           <div className="space-y-3">
             {berichten.slice(0, 4).map((b) => (
               <div key={b.van} className="flex gap-3">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-xs font-bold">{b.avatar}</div>
+                <img src={b.avatar} alt={b.van} className="h-9 w-9 shrink-0 rounded-full bg-muted object-cover" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="truncate text-sm font-semibold">{b.van}</div>

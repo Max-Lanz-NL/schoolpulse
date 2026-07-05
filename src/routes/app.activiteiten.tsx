@@ -10,15 +10,27 @@ export const Route = createFileRoute("/app/activiteiten")({ component: Activitei
 
 type Aank = { t: string; d: string; voor: string[] | null };
 
+function formatDatum(iso: string): string {
+  if (!iso) return "Direct";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
+  } catch {
+    return iso;
+  }
+}
+
 function Activiteiten() {
   const { role } = useRole();
   const magBeheren = role === "docent" || role === "teamleider" || role === "directie";
   const zichtbaar = activiteiten.filter((a) => !a.zichtbaarVoor || a.zichtbaarVoor.includes(role));
 
   const [aangemeld, setAangemeld] = useState<Record<string, boolean>>({});
+  const [deelnemersDelta, setDeelnemersDelta] = useState<Record<string, number>>({});
   const [pollAns, setPollAns] = useState<number | null>(null);
   const [nieuweOpen, setNieuweOpen] = useState(false);
   const [extraAank, setExtraAank] = useState<Aank[]>([]);
+
   const pollOpties = [
     { label: "Berlijn", stemmen: 84 },
     { label: "Praag", stemmen: 52 },
@@ -26,6 +38,12 @@ function Activiteiten() {
     { label: "Rome", stemmen: 41 },
   ];
   const totaal = pollOpties.reduce((a, o) => a + o.stemmen, 0);
+
+  const toggleAanmelden = (titel: string) => {
+    const wasIn = !!aangemeld[titel];
+    setAangemeld((s) => ({ ...s, [titel]: !s[titel] }));
+    setDeelnemersDelta((s) => ({ ...s, [titel]: (s[titel] ?? 0) + (wasIn ? -1 : 1) }));
+  };
 
   const basisAank: Aank[] = [
     { t: "Herinnering ouderavond V4", d: "3 dec · doelgroep V4-ouders", voor: ["ouder", "docent", "teamleider", "directie"] },
@@ -39,7 +57,8 @@ function Activiteiten() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {zichtbaar.map((a) => {
-            const pct = Math.round((a.deelnemers / a.plekken) * 100);
+            const currentDeelnemers = a.deelnemers + (deelnemersDelta[a.titel] ?? 0);
+            const pct = Math.round((currentDeelnemers / a.plekken) * 100);
             const isIn = aangemeld[a.titel];
             return (
               <div key={a.titel} className="rounded-2xl border border-border bg-card p-5">
@@ -52,7 +71,7 @@ function Activiteiten() {
                     </div>
                   </div>
                   <button
-                    onClick={() => setAangemeld((s) => ({ ...s, [a.titel]: !s[a.titel] }))}
+                    onClick={() => toggleAanmelden(a.titel)}
                     className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${isIn ? "border border-success bg-success/10 text-success" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
                   >
                     {isIn ? "Aangemeld ✓" : "Aanmelden"}
@@ -60,11 +79,11 @@ function Activiteiten() {
                 </div>
                 <div className="mt-4">
                   <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" /> {a.deelnemers} / {a.plekken} deelnemers</span>
+                    <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" /> {currentDeelnemers} / {a.plekken} deelnemers</span>
                     <span>{pct}%</span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${Math.min(100, pct)}%` }} />
                   </div>
                 </div>
               </div>
@@ -78,22 +97,29 @@ function Activiteiten() {
               {pollOpties.map((o, i) => {
                 const pct = Math.round((o.stemmen / totaal) * 100);
                 const gekozen = pollAns === i;
+                const heeftGestemd = pollAns !== null;
                 return (
                   <button
                     key={o.label}
                     onClick={() => setPollAns(i)}
                     className={`relative w-full overflow-hidden rounded-lg border p-3 text-left transition-colors ${gekozen ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
                   >
-                    <div className="absolute inset-0 bg-primary/10" style={{ width: `${pct}%` }} />
+                    {heeftGestemd && (
+                      <div className="absolute inset-0 bg-primary/10 transition-all duration-500" style={{ width: `${pct}%` }} />
+                    )}
                     <div className="relative flex items-center justify-between">
                       <span className="text-sm font-medium">{o.label}</span>
-                      <span className="text-xs font-semibold text-muted-foreground">{pct}%</span>
+                      {heeftGestemd && (
+                        <span className="text-xs font-semibold text-muted-foreground">{pct}%</span>
+                      )}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="mt-3 text-[11px] text-muted-foreground">{totaal} stemmen · sluit vrijdag</div>
+            <div className="mt-3 text-[11px] text-muted-foreground">
+              {pollAns !== null ? `${totaal + 1} stemmen · sluit vrijdag` : "Klik op een optie om te stemmen · sluit vrijdag"}
+            </div>
           </Card>
 
           <Card title="Aankondigingen">
@@ -126,6 +152,18 @@ function Activiteiten() {
 
 const doelgroepen = ["Hele school", "Bovenbouw", "Onderbouw", "V4", "V5", "H4", "Sectie Wiskunde", "Sectie Nederlands", "Ouders"];
 
+const doelgroepNaarRollen = (doel: string[]): string[] | null => {
+  if (doel.includes("Hele school")) return null;
+  const rollen: string[] = [];
+  if (doel.includes("Ouders")) rollen.push("ouder");
+  if (doel.some((d) => d.startsWith("Sectie"))) rollen.push("docent", "teamleider", "directie");
+  if (doel.some((d) => ["Bovenbouw", "Onderbouw", "V4", "V5", "H4"].includes(d))) {
+    rollen.push("leerling", "docent", "teamleider", "directie");
+    if (!rollen.includes("ouder")) rollen.push("ouder");
+  }
+  return rollen.length ? [...new Set(rollen)] : null;
+};
+
 function NieuweAankondigingModal({ onClose, onSave }: { onClose: () => void; onSave: (a: Aank) => void }) {
   const [titel, setTitel] = useState("");
   const [tekst, setTekst] = useState("");
@@ -138,10 +176,12 @@ function NieuweAankondigingModal({ onClose, onSave }: { onClose: () => void; onS
 
   const submit = () => {
     if (!canSave) return;
+    const datumLabel = datum ? formatDatum(datum) : "Direct";
+    const voor = doelgroepNaarRollen(doel);
     onSave({
       t: titel,
-      d: `${datum || "Direct"} · ${doel.join(", ")}${bijlage ? ` · 📎 ${bijlage}` : ""}`,
-      voor: null,
+      d: `${datumLabel} · ${doel.join(", ")}${bijlage ? ` · 📎 ${bijlage}` : ""}`,
+      voor,
     });
   };
 
@@ -197,3 +237,4 @@ function NieuweAankondigingModal({ onClose, onSave }: { onClose: () => void; onS
     </div>
   );
 }
+

@@ -4,6 +4,7 @@ import { Card } from "@/components/Card";
 import { documenten } from "@/lib/demo-data";
 import { FileText, Download, MoreHorizontal, FolderPlus, Upload, UserPlus, X, Users } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/documenten")({ component: Bestanden });
 
@@ -26,10 +27,22 @@ function Bestanden() {
   return (
     <AppShell title="Bestanden" subtitle="Centrale opslag van lesmateriaal en documenten">
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">
           <Upload className="h-4 w-4" /> Uploaden
-        </button>
-        <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold hover:bg-muted">
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) toast.success(`"${file.name}" toegevoegd`);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <button
+          onClick={() => toast.success("Nieuwe map aangemaakt")}
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold hover:bg-muted"
+        >
           <FolderPlus className="h-4 w-4" /> Nieuwe map
         </button>
         <div className="ml-auto flex flex-wrap gap-2 text-xs">
@@ -100,8 +113,19 @@ function Bestanden() {
                           >
                             <UserPlus className="h-4 w-4" />
                           </button>
-                          <button className="rounded-md p-1.5 hover:bg-muted" aria-label="Download"><Download className="h-4 w-4" /></button>
-                          <button className="rounded-md p-1.5 hover:bg-muted"><MoreHorizontal className="h-4 w-4" /></button>
+                          <button
+                            onClick={() => toast.success(`"${d.naam}" wordt gedownload`)}
+                            className="rounded-md p-1.5 hover:bg-muted"
+                            aria-label="Download"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => toast(`Opties voor "${d.naam}"`, { description: "Verplaatsen, hernoemen en versiebeheer komen binnenkort." })}
+                            className="rounded-md p-1.5 hover:bg-muted"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

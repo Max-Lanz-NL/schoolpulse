@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
+import { toast } from "sonner";
 
 const modules = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -207,10 +208,15 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
                 <div className="flex items-center justify-between border-b border-border px-3 py-2">
                   <div className="text-xs font-semibold">Meldingen</div>
-                  <button className="text-[10px] font-medium text-muted-foreground hover:text-foreground">Alles gelezen</button>
+                  <button
+                    className="text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                    onClick={() => { setNotifOpen(false); toast.success("Alle meldingen als gelezen gemarkeerd"); }}
+                  >
+                    Alles gelezen
+                  </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {(role === "docent" || role === "teamleider" ? docentMeldingen : meldingen).map((m) => (
+                  {(role === "docent" || role === "teamleider" || role === "directie" ? docentMeldingen : meldingen).map((m) => (
                     <button
                       key={m.titel}
                       onClick={() => { navigate({ to: m.link }); setNotifOpen(false); }}
@@ -249,12 +255,16 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                 </div>
                 <div className="py-1">
                   {[
-                    { icon: User, label: "Mijn profiel" },
-                    { icon: Shield, label: "Privacy & 2FA" },
-                    { icon: Moon, label: "Weergave & thema" },
-                    { icon: HelpCircle, label: "Help & support" },
+                    { icon: User, label: "Mijn profiel", msg: "Profielbeheer komt binnenkort beschikbaar" },
+                    { icon: Shield, label: "Privacy & 2FA", msg: "Privacy- en 2FA-instellingen komen binnenkort" },
+                    { icon: Moon, label: "Weergave & thema", msg: "Thema-instellingen komen binnenkort beschikbaar" },
+                    { icon: HelpCircle, label: "Help & support", msg: "Meer info op schoolpulse.nl/support" },
                   ].map((it) => (
-                    <button key={it.label} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted">
+                    <button
+                      key={it.label}
+                      onClick={() => { toast(it.label, { description: it.msg }); setSettingsOpen(false); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                    >
                       <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
                     </button>
                   ))}
