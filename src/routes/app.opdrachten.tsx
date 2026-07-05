@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
-import { opdrachten, docentOpdrachten } from "@/lib/demo-data";
+import { opdrachten, docentOpdrachten, docentKlassen, klassen } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
-import { Upload, ShieldAlert, CheckCircle2, Clock, FileCheck, Plus, Pencil, Trash2, X, Sparkles, AlertTriangle, Paperclip } from "lucide-react";
+import { Upload, ShieldAlert, CheckCircle2, Clock, FileCheck, Plus, Pencil, Trash2, X, Sparkles, AlertTriangle, Paperclip, BarChart3, Users } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/opdrachten")({ component: OpdrachtenPage });
 
 function OpdrachtenPage() {
   const { role } = useRole();
   if (role === "docent") return <DocentOpdrachten />;
+  if (role === "teamleider" || role === "directie") return <ManagementOpdrachten />;
   return <LeerlingOpdrachten />;
 }
 
@@ -43,14 +45,25 @@ function LeerlingOpdrachten() {
                     )}
                   </div>
                 </div>
-                {!o.ingeleverd && (
+                  {!o.ingeleverd && (
                   <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-4">
                     <Upload className="h-5 w-5 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-medium">Sleep een bestand hierheen of</div>
                       <div className="text-[11px] text-muted-foreground">PDF, DOCX, ZIP · max 25 MB</div>
                     </div>
-                    <button className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Kies bestand</button>
+                    <label className="cursor-pointer rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">
+                      Kies bestand
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) toast.success(`"${file.name}" klaar om in te leveren`);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
                   </div>
                 )}
               </div>
@@ -163,7 +176,18 @@ function DocentOpdrachten() {
 
       {(nieuwOpen || bewerken) && <OpdrachtModal init={bewerken as any} onSave={saveOpdracht} onClose={() => { setNieuwOpen(false); setBewerkId(null); }} />}
       {aiOpen && <AICheckModal onClose={() => setAiOpen(false)} />}
-      {beoordelen && <BeoordeelModal titel={beoordelen.titel} onClose={() => setBeoordelenId(null)} />}
+      {beoordelen && (
+        <BeoordeelModal
+          opdracht={beoordelen}
+          leerlingenInKlas={docentKlassen.find((k) => k.klas === beoordelen.klas)?.leerlingen.map((l) => l.naam) ?? ["Sanne de Vries", "Tom Bakker", "Julia Smit", "Ravi Kumar"]}
+          onSave={() => {
+            setItems((s) => s.map((i) => i.id === beoordelen.id ? { ...i, status: "beoordeeld" as const } : i));
+            setBeoordelenId(null);
+            toast.success("Cijfers opgeslagen");
+          }}
+          onClose={() => setBeoordelenId(null)}
+        />
+      )}
     </AppShell>
   );
 }
@@ -270,34 +294,106 @@ function AICheckModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function BeoordeelModal({ titel, onClose }: { titel: string; onClose: () => void }) {
-  const leerlingen = ["Sanne de Vries", "Tom Bakker", "Julia Smit", "Ravi Kumar"];
+function BeoordeelModal({ opdracht, leerlingenInKlas, onSave, onClose }: {
+  opdracht: { titel: string; klas: string };
+  leerlingenInKlas: string[];
+  onSave: () => void;
+  onClose: () => void;
+}) {
   const [cijfers, setCijfers] = useState<Record<string, string>>({});
+  const heeftCijfers = Object.values(cijfers).some(Boolean);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border p-4">
           <div>
-            <div className="text-xs text-muted-foreground">Beoordelen</div>
-            <div className="text-sm font-semibold">{titel}</div>
+            <div className="text-xs text-muted-foreground">Beoordelen · {opdracht.klas}</div>
+            <div className="text-sm font-semibold">{opdracht.titel}</div>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
         <div className="divide-y divide-border">
-          {leerlingen.map((l) => (
+          {leerlingenInKlas.map((l) => (
             <div key={l} className="flex items-center gap-3 p-3">
               <div className="min-w-0 flex-1 text-sm font-medium">{l}</div>
-              <input value={cijfers[l] ?? ""} onChange={(e) => setCijfers((s) => ({ ...s, [l]: e.target.value }))}
+              <input
+                value={cijfers[l] ?? ""}
+                onChange={(e) => setCijfers((s) => ({ ...s, [l]: e.target.value }))}
                 type="number" step="0.1" min="1" max="10" placeholder="-"
-                className="w-20 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-right outline-none focus:border-primary" />
+                className="w-20 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-right outline-none focus:border-primary"
+              />
             </div>
           ))}
         </div>
         <div className="flex justify-end gap-2 border-t border-border p-3">
           <button onClick={onClose} className="rounded-lg border border-border px-3 py-2 text-sm">Annuleren</button>
-          <button onClick={onClose} className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">Cijfers opslaan</button>
+          <button
+            onClick={onSave}
+            disabled={!heeftCijfers}
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            Cijfers opslaan
+          </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function ManagementOpdrachten() {
+  return (
+    <AppShell title="Opdrachten" subtitle="Overzicht per klas">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-6">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><BarChart3 className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Totaal openstaand</div>
+          <div className="mt-1 text-2xl font-bold">{docentOpdrachten.filter(o => o.status === "openstaand").length}</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success"><CheckCircle2 className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Beoordeeld</div>
+          <div className="mt-1 text-2xl font-bold">{docentOpdrachten.filter(o => o.status === "beoordeeld").length}</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10 text-warning"><AlertTriangle className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Te laat</div>
+          <div className="mt-1 text-2xl font-bold">{docentOpdrachten.filter(o => o.status === "te-laat").length}</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Klassen actief</div>
+          <div className="mt-1 text-2xl font-bold">{klassen.length}</div>
+        </div>
+      </div>
+      <Card title="Overzicht per klas">
+        <div className="overflow-hidden rounded-xl border border-border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="px-4 py-2 text-left">Klas</th>
+                <th className="px-4 py-2 text-left">Leerlingen</th>
+                <th className="px-4 py-2 text-left">Openstaand</th>
+                <th className="px-4 py-2 text-left">Ingeleverd</th>
+                <th className="px-4 py-2 text-left">Beoordeeld</th>
+              </tr>
+            </thead>
+            <tbody>
+              {klassen.map((k) => {
+                const klasOpdrachten = docentOpdrachten.filter(o => o.klas === k.klas);
+                return (
+                  <tr key={k.klas} className="border-t border-border hover:bg-muted/30">
+                    <td className="px-4 py-3 font-semibold">{k.klas}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{k.leerlingen}</td>
+                    <td className="px-4 py-3">{klasOpdrachten.filter(o => o.status === "openstaand").length}</td>
+                    <td className="px-4 py-3">{klasOpdrachten.filter(o => o.status === "ingeleverd").length}</td>
+                    <td className="px-4 py-3 text-success">{klasOpdrachten.filter(o => o.status === "beoordeeld").length}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </AppShell>
   );
 }

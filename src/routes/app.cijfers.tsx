@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
-import { cijfers, docentKlassen, type Leerling } from "@/lib/demo-data";
+import { cijfers, docentKlassen, klassen, type Leerling } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
-import { TrendingUp, TrendingDown, Minus, ArrowLeft, Plus, Pencil, Trash2, X } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, ArrowLeft, Plus, Pencil, Trash2, X, Users, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/app/cijfers")({ component: CijfersPage });
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/app/cijfers")({ component: CijfersPage })
 function CijfersPage() {
   const { role } = useRole();
   if (role === "docent") return <DocentCijfers />;
+  if (role === "teamleider" || role === "directie") return <ManagementCijfers />;
   return <LeerlingCijfers />;
 }
 
@@ -219,7 +220,8 @@ function CijferModal({ init, onSave, onClose }: { init: Cijfer | null; onSave: (
   const [naam, setNaam] = useState(init?.naam ?? "");
   const [cijfer, setCijfer] = useState(init?.cijfer.toString() ?? "");
   const [weging, setWeging] = useState(init?.weging.toString() ?? "1");
-  const [datum, setDatum] = useState(init?.datum ?? "vandaag");
+  const vandaag = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
+  const [datum, setDatum] = useState(init?.datum ?? vandaag);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -255,5 +257,54 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
       {children}
     </label>
+  );
+}
+
+function ManagementCijfers() {
+  return (
+    <AppShell title="Cijfers" subtitle="Klassenoverzicht">
+      <div className="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><BarChart3 className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Gem. bovenbouw</div>
+          <div className="mt-1 text-2xl font-bold">7.1</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-success/10 text-success"><TrendingUp className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Voldoende</div>
+          <div className="mt-1 text-2xl font-bold">89%</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-warning/10 text-warning"><TrendingDown className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Tekorten</div>
+          <div className="mt-1 text-2xl font-bold">14</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+          <div className="mt-3 text-xs text-muted-foreground">Klassen</div>
+          <div className="mt-1 text-2xl font-bold">{klassen.length}</div>
+        </div>
+      </div>
+      <Card title="Gemiddelden per klas">
+        <div className="space-y-3">
+          {klassen.map((k) => (
+            <div key={k.klas} className="rounded-xl border border-border bg-background p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold">{k.klas}</div>
+                  <div className="text-xs text-muted-foreground">{k.leerlingen} leerlingen · {k.aanwezigheid}% aanwezigheid</div>
+                </div>
+                <div className={`text-2xl font-bold ${k.gemiddelde < 6 ? "text-destructive" : k.gemiddelde >= 7.5 ? "text-success" : ""}`}>
+                  {k.gemiddelde.toFixed(1)}
+                </div>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                <div className="h-full bg-primary" style={{ width: `${(k.gemiddelde / 10) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </AppShell>
   );
 }

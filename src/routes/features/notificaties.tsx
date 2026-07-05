@@ -90,7 +90,7 @@ function FeatureDetail() {
                   "Nieuwe cijfers (direct na invoering)",
                   "Berichten van docenten en ouders",
                   "Roosterwijzigingen en lesuitval",
-                  "Inhlevering deadlines (herinnering)",
+                  "Inlevering deadlines (herinnering)",
                   "Belangrijke schoolmededelingen",
                   "Verzuim en afmeldingen",
                 ].map((item) => (
