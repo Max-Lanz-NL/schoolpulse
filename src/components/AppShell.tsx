@@ -6,7 +6,7 @@ import {
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
   ChevronDown, User, Shield, HelpCircle, Moon, Sun, X, GraduationCap, Users, Building2,
   BookOpen, UserCheck, AlertCircle, CalendarDays, Briefcase, RefreshCw, Upload,
-  CalendarRange, ClipboardCheck, PenLine, ClipboardList, Type,
+  CalendarRange, ClipboardCheck, PenLine, ClipboardList, Type, UserCog,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
@@ -29,6 +29,7 @@ const getModules = (role: Role) => {
     { to: "/app/studieplanner", label: "Studieplanner", icon: CalendarRange },
   ];
   if (role === "ouder") return [...base,
+    { to: "/app/agenda", label: "Agenda", icon: CalendarDays },
     { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
     { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
     { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
@@ -48,6 +49,7 @@ const getModules = (role: Role) => {
   ];
   if (role === "directie") return [...base,
     { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+    { to: "/app/gebruikersbeheer", label: "Gebruikersbeheer", icon: UserCog },
     { to: "/app/import", label: "Data import", icon: Upload },
     { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
     { to: "/app/avg", label: "AVG & Privacy", icon: Shield },

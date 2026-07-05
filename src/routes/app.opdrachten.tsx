@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
+import type { DocentOpdracht } from "@/lib/demo-data";
 import { opdrachten, docentOpdrachten, docentKlassen, klassen } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
-import { Upload, ShieldAlert, CheckCircle2, Clock, FileCheck, Plus, Pencil, Trash2, X, Sparkles, AlertTriangle, Paperclip, BarChart3, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Upload, ShieldAlert, CheckCircle2, Clock, FileCheck, Plus, Pencil, Trash2, X, Sparkles, AlertTriangle, Paperclip, BarChart3, Users, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -26,12 +28,63 @@ const statusStyle: Record<string, { label: string; cls: string }> = {
 
 function LeerlingOpdrachten() {
   const [ingeleverdState, setIngeleverdState] = useState<Record<string, { naam: string }>>({});
+  const [filterVak, setFilterVak] = useState("alle");
+  const [filterDeadline, setFilterDeadline] = useState("alle");
+  const [filterStatus, setFilterStatus] = useState<"alle" | "open" | "afgerond">("alle");
+
+  const vakken = Array.from(new Set(opdrachten.map((o) => o.vak)));
+  const today = new Date("2026-07-05T00:00:00");
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+  const maandIndex: Record<string, number> = { jan: 0, feb: 1, mrt: 2, apr: 3, mei: 4, jun: 5, jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, dec: 11 };
+  const parseDeadline = (deadline: string) => {
+    const lower = deadline.toLowerCase();
+    if (lower.includes("morgen")) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + 1);
+      return d;
+    }
+    const match = lower.match(/(\d{1,2})\s+([a-z]{3})/);
+    if (!match) return null;
+    const month = maandIndex[match[2]];
+    if (month === undefined) return null;
+    return new Date(2026, month, Number(match[1]));
+  };
+  const filtered = opdrachten.filter((o) => {
+    if (filterVak !== "alle" && o.vak !== filterVak) return false;
+    if (filterStatus === "open" && (o.ingeleverd || ingeleverdState[o.titel])) return false;
+    if (filterStatus === "afgerond" && !(o.ingeleverd || ingeleverdState[o.titel])) return false;
+    const deadlineDate = parseDeadline(o.deadline);
+    if (filterDeadline === "vandaag") return deadlineDate ? deadlineDate.toDateString() === today.toDateString() : false;
+    if (filterDeadline === "week") return deadlineDate ? deadlineDate >= today && deadlineDate <= endOfWeek : false;
+    if (filterDeadline === "verlopen") return deadlineDate ? deadlineDate < today : false;
+    return true;
+  });
 
   return (
     <AppShell title="Opdrachten" subtitle="Digitale inlevering en beoordeling">
       <Card title="Alle opdrachten">
+        <div className="mb-4 flex flex-wrap gap-2">
+          <select value={filterVak} onChange={(e) => setFilterVak(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary">
+            <option value="alle">Alle vakken</option>
+            {vakken.map((v) => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <select value={filterDeadline} onChange={(e) => setFilterDeadline(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary">
+            <option value="alle">Alle deadlines</option>
+            <option value="vandaag">Vandaag</option>
+            <option value="week">Deze week</option>
+            <option value="verlopen">Verlopen</option>
+          </select>
+          <div className="inline-flex overflow-hidden rounded-lg border border-border">
+            {(["alle", "open", "afgerond"] as const).map((s) => (
+              <button key={s} onClick={() => setFilterStatus(s)} className={`px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${filterStatus === s ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                {s === "alle" ? "Alle" : s === "open" ? "Openstaand" : "Afgerond"}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="space-y-3">
-          {opdrachten.map((o) => {
+          {filtered.map((o) => {
             const ingel = ingeleverdState[o.titel];
             const effectiefStatus = ingel ? "wachtend" : o.status;
             const s = statusStyle[effectiefStatus] ?? statusStyle["open"];
@@ -90,10 +143,14 @@ function LeerlingOpdrachten() {
 }
 
 // ─────────── DOCENT ───────────
-type Filter = "openstaand" | "ingeleverd" | "te-laat" | "beoordeeld" | "alle";
+type Filter = "openstaand" | "ingeleverd" | "te-laat" | "beoordeeld" | "concept" | "alle";
+type DocentOpdrachtStatus = DocentOpdracht["status"] | "concept";
+type DocentOpdrachtItem = Omit<DocentOpdracht, "status"> & { status: DocentOpdrachtStatus };
+type OpdrachtDraft = Pick<DocentOpdrachtItem, "titel" | "vak" | "klas" | "deadline" | "weging">;
+const isConceptOpdracht = (o: DocentOpdrachtItem) => o.status === "concept";
 
 function DocentOpdrachten() {
-  const [items, setItems] = useState(docentOpdrachten);
+  const [items, setItems] = useState<DocentOpdrachtItem[]>(docentOpdrachten as DocentOpdrachtItem[]);
   const [filter, setFilter] = useState<Filter>("alle");
   const [nieuwOpen, setNieuwOpen] = useState(false);
   const [bewerkId, setBewerkId] = useState<string | null>(null);
@@ -105,16 +162,23 @@ function DocentOpdrachten() {
     ingeleverd: items.filter((i) => i.status === "ingeleverd").length,
     "te-laat": items.filter((i) => i.status === "te-laat").length,
     beoordeeld: items.filter((i) => i.status === "beoordeeld").length,
+    concept: items.filter((i) => i.status === "concept").length,
   };
   const zichtbaar = filter === "alle" ? items : items.filter((i) => i.status === filter);
   const bewerken = bewerkId ? items.find((i) => i.id === bewerkId) : null;
   const beoordelen = beoordelenId ? items.find((i) => i.id === beoordelenId) : null;
 
-  const saveOpdracht = (o: any) => {
+  const saveOpdracht = (o: OpdrachtDraft) => {
     if (bewerkId) setItems((s) => s.map((i) => (i.id === bewerkId ? { ...i, ...o } : i)));
     else setItems((s) => [...s, { ...o, id: `n${Date.now()}`, status: "openstaand", ingeleverd: 0, totaal: 26 }]);
     setNieuwOpen(false);
     setBewerkId(null);
+  };
+  const saveConceptOpdracht = (o: OpdrachtDraft) => {
+    setItems((s) => [...s, { ...o, id: `c${Date.now()}`, status: "concept", ingeleverd: 0, totaal: 26 }]);
+    setNieuwOpen(false);
+    setBewerkId(null);
+    toast.success("Concept opgeslagen");
   };
   const delOpdracht = (id: string) => setItems((s) => s.filter((i) => i.id !== id));
 
@@ -125,6 +189,7 @@ function DocentOpdrachten() {
         <StatBtn active={filter === "ingeleverd"} onClick={() => setFilter(filter === "ingeleverd" ? "alle" : "ingeleverd")} icon={FileCheck} label="Ingeleverd" value={counts.ingeleverd} />
         <StatBtn active={filter === "te-laat"} onClick={() => setFilter(filter === "te-laat" ? "alle" : "te-laat")} icon={AlertTriangle} label="Te laat" value={counts["te-laat"]} tone="warning" />
         <StatBtn active={filter === "beoordeeld"} onClick={() => setFilter(filter === "beoordeeld" ? "alle" : "beoordeeld")} icon={CheckCircle2} label="Beoordeeld" value={counts.beoordeeld} tone="success" />
+        <StatBtn active={filter === "concept"} onClick={() => setFilter(filter === "concept" ? "alle" : "concept")} icon={FileCheck} label="Concepten" value={counts.concept} />
         <button onClick={() => setAiOpen(true)} className="rounded-2xl border border-primary/30 bg-primary/10 p-4 text-left transition-all hover:border-primary hover:bg-primary/15">
           <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Sparkles className="h-4 w-4" /></div>
           <div className="mt-3 text-xs text-muted-foreground">AI-controle</div>
@@ -174,11 +239,23 @@ function DocentOpdrachten() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                    isConceptOpdracht(o) ? "bg-violet-500/15 text-violet-700" :
                     o.status === "te-laat" ? "bg-warning/15 text-warning" :
                     o.status === "beoordeeld" ? "bg-success/15 text-success" :
                     o.status === "ingeleverd" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   }`}>{o.status}</span>
+                  {isConceptOpdracht(o) && (
+                    <button onClick={() => {
+                      setItems((s) => s.map((i) => i.id === o.id ? { ...i, status: "openstaand" as const } : i));
+                      toast.success("Opdracht gepubliceerd");
+                    }} className="rounded-lg bg-success px-3 py-1.5 text-xs font-semibold text-white">Publiceer</button>
+                  )}
                   <button onClick={() => setBeoordelenId(o.id)} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Beoordelen</button>
+                  <button onClick={() => {
+                    const kopie: DocentOpdrachtItem = { ...o, id: `k${Date.now()}`, titel: `Kopie: ${o.titel}`, status: "concept" };
+                    setItems((s) => [...s, kopie]);
+                    toast.success("Opdracht gedupliceerd");
+                  }} className="rounded-md p-1.5 hover:bg-muted" aria-label="Dupliceer"><Copy className="h-4 w-4" /></button>
                   <button onClick={() => setBewerkId(o.id)} className="rounded-md p-1.5 hover:bg-muted" aria-label="Bewerken"><Pencil className="h-4 w-4" /></button>
                   <button onClick={() => delOpdracht(o.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
                 </div>
@@ -188,7 +265,7 @@ function DocentOpdrachten() {
         </div>
       </Card>
 
-      {(nieuwOpen || bewerken) && <OpdrachtModal init={bewerken as any} onSave={saveOpdracht} onClose={() => { setNieuwOpen(false); setBewerkId(null); }} />}
+      {(nieuwOpen || bewerken) && <OpdrachtModal init={bewerken ?? null} onSave={saveOpdracht} onSaveConcept={saveConceptOpdracht} onClose={() => { setNieuwOpen(false); setBewerkId(null); }} />}
       {aiOpen && <AICheckModal onClose={() => setAiOpen(false)} />}
       {beoordelen && (
         <BeoordeelModal
@@ -206,7 +283,7 @@ function DocentOpdrachten() {
   );
 }
 
-function StatBtn({ icon: Icon, label, value, tone = "default", active, onClick }: { icon: any; label: string; value: number; tone?: "default" | "warning" | "success"; active?: boolean; onClick?: () => void }) {
+function StatBtn({ icon: Icon, label, value, tone = "default", active, onClick }: { icon: LucideIcon; label: string; value: number; tone?: "default" | "warning" | "success"; active?: boolean; onClick?: () => void }) {
   const cls = tone === "warning" ? "text-warning" : tone === "success" ? "text-success" : "text-primary";
   return (
     <button onClick={onClick} className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow ${active ? "border-primary bg-primary/5" : "border-border bg-card"}`}>
@@ -217,7 +294,7 @@ function StatBtn({ icon: Icon, label, value, tone = "default", active, onClick }
   );
 }
 
-function OpdrachtModal({ init, onSave, onClose }: { init: any; onSave: (o: any) => void; onClose: () => void }) {
+function OpdrachtModal({ init, onSave, onSaveConcept, onClose }: { init: DocentOpdrachtItem | null; onSave: (o: OpdrachtDraft) => void; onSaveConcept?: (o: OpdrachtDraft) => void; onClose: () => void }) {
   const [titel, setTitel] = useState(init?.titel ?? "");
   const [vak, setVak] = useState(init?.vak ?? "Wiskunde B");
   const [klas, setKlas] = useState(init?.klas ?? "V4B");
@@ -251,6 +328,10 @@ function OpdrachtModal({ init, onSave, onClose }: { init: any; onSave: (o: any) 
         </div>
         <div className="flex justify-end gap-2 border-t border-border p-3">
           <button onClick={onClose} className="rounded-lg border border-border px-3 py-2 text-sm">Annuleren</button>
+          {onSaveConcept && !init && (
+            <button disabled={!titel} onClick={() => onSaveConcept({ titel, vak, klas, deadline, weging: parseInt(weging) || 1 })}
+              className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50">Concept</button>
+          )}
           <button disabled={!titel} onClick={() => onSave({ titel, vak, klas, deadline, weging: parseInt(weging) || 1 })}
             className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">Opslaan</button>
         </div>
