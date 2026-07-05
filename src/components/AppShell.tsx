@@ -1,25 +1,59 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
-import { roleLabels, roleUsers, meldingen, docentMeldingen, type Role } from "@/lib/demo-data";
+import { roleLabels, roleUsers, meldingen, docentMeldingen, teamleiderMeldingen, directieMeldingen, type Role } from "@/lib/demo-data";
 import {
   LayoutDashboard, Calendar, BarChart3, MessageSquare, FileCheck,
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
-  ChevronDown, User, Shield, HelpCircle, Moon,
+  ChevronDown, User, Shield, HelpCircle, Moon, Sun, X, GraduationCap, Users, Building2,
+  BookOpen, UserCheck, AlertCircle, CalendarDays, Briefcase, RefreshCw, Upload,
+  CalendarRange, ClipboardCheck, PenLine, ClipboardList, Type,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
 
-const modules = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/rooster", label: "Rooster", icon: Calendar },
-  { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
-  { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge: 2 },
-  { to: "/app/opdrachten", label: "Opdrachten", icon: FileCheck },
-  { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
-  { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
-];
+const getModules = (role: Role) => {
+  const base = [
+    { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/app/rooster", label: "Rooster", icon: Calendar },
+    { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
+    { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge: 2 },
+    { to: "/app/opdrachten", label: "Opdrachten", icon: FileCheck },
+    { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
+    { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
+  ];
+  if (role === "leerling") return [...base,
+    { to: "/app/huiswerk", label: "Huiswerk", icon: BookOpen },
+    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+    { to: "/app/studieplanner", label: "Studieplanner", icon: CalendarRange },
+  ];
+  if (role === "ouder") return [...base,
+    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+    { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/toestemming", label: "Toestemming", icon: ClipboardCheck },
+  ];
+  if (role === "docent") return [...base,
+    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/toetsen", label: "Toetsen", icon: PenLine },
+  ];
+  if (role === "teamleider") return [...base,
+    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+    { to: "/app/vervanging", label: "Vervanging", icon: RefreshCw },
+    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
+  ];
+  if (role === "directie") return [...base,
+    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+    { to: "/app/import", label: "Data import", icon: Upload },
+    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
+    { to: "/app/avg", label: "AVG & Privacy", icon: Shield },
+  ];
+  return base;
+};
 
 // Zoekindex — mapt trefwoorden aan modules
 const searchIndex = [
@@ -42,12 +76,34 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
 
 function AppShellInner({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
   const { role, setRole, setDemoUser } = useRole();
+  const modules = getModules(role);
   const [open, setOpen] = useState(false);
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [unread, setUnread] = useState(true);
+  const [bannerOpen, setBannerOpen] = useState(true);
+  const [dark, setDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("sp-theme") === "dark";
+  });
+  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
+    if (typeof window === "undefined") return "base";
+    return (localStorage.getItem("sp-fontsize") as "sm" | "base" | "lg") ?? "base";
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("sp-theme", dark ? "dark" : "light");
+  }, [dark]);
+
+  useEffect(() => {
+    const sizes: Record<string, string> = { sm: "14px", base: "16px", lg: "18px" };
+    document.documentElement.style.fontSize = sizes[fontSize];
+    localStorage.setItem("sp-fontsize", fontSize);
+  }, [fontSize]);
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const navigate = useNavigate();
   const user = roleUsers[role];
@@ -75,6 +131,29 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Demo Banner */}
+      {bannerOpen && (
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-primary px-4 py-2 text-primary-foreground">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold">Demo als: {roleLabels[role]}</span>
+            <span className="hidden text-primary-foreground/60 sm:inline">·</span>
+            <div className="hidden flex-wrap gap-1 sm:flex">
+              {(Object.keys(roleLabels) as Role[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRole(r)}
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${r === role ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 hover:bg-primary-foreground/30"}`}
+                >
+                  {roleLabels[r]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={() => setBannerOpen(false)} className="shrink-0 rounded p-0.5 hover:bg-primary-foreground/20">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
       {/* Sidebar — altijd fixed, met eigen scroll */}
       <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5">
@@ -202,7 +281,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               aria-label="Notificaties"
             >
               <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+              {unread && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />}
             </button>
             {notifOpen && (
               <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
@@ -210,19 +289,19 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   <div className="text-xs font-semibold">Meldingen</div>
                   <button
                     className="text-[10px] font-medium text-muted-foreground hover:text-foreground"
-                    onClick={() => { setNotifOpen(false); toast.success("Alle meldingen als gelezen gemarkeerd"); }}
+                    onClick={() => { setUnread(false); setNotifOpen(false); toast.success("Alle meldingen als gelezen gemarkeerd"); }}
                   >
                     Alles gelezen
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {(role === "docent" || role === "teamleider" || role === "directie" ? docentMeldingen : meldingen).map((m) => (
+                  {(role === "directie" ? directieMeldingen : role === "teamleider" ? teamleiderMeldingen : role === "docent" ? docentMeldingen : meldingen).map((m) => (
                     <button
                       key={m.titel}
                       onClick={() => { navigate({ to: m.link }); setNotifOpen(false); }}
-                      className="flex w-full items-start gap-3 border-b border-border px-3 py-2.5 text-left hover:bg-muted"
+                      className={`flex w-full items-start gap-3 border-b border-border px-3 py-2.5 text-left hover:bg-muted ${!unread ? "opacity-60" : ""}`}
                     >
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                      <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-muted-foreground"}`} />
                       <div className="min-w-0 flex-1">
                         <div className="text-sm">{m.titel}</div>
                         <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
@@ -257,7 +336,6 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   {[
                     { icon: User, label: "Mijn profiel", msg: "Profielbeheer komt binnenkort beschikbaar" },
                     { icon: Shield, label: "Privacy & 2FA", msg: "Privacy- en 2FA-instellingen komen binnenkort" },
-                    { icon: Moon, label: "Weergave & thema", msg: "Thema-instellingen komen binnenkort beschikbaar" },
                     { icon: HelpCircle, label: "Help & support", msg: "Meer info op schoolpulse.nl/support" },
                   ].map((it) => (
                     <button
@@ -268,6 +346,28 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                       <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
                     </button>
                   ))}
+                  <button
+                    onClick={() => { setDark((d) => !d); setSettingsOpen(false); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                  >
+                    {dark ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
+                    {dark ? "Lichte modus" : "Donkere modus"}
+                  </button>
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <Type className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1">Tekstgrootte</span>
+                    <div className="flex gap-1">
+                      {(["sm", "base", "lg"] as const).map((s, i) => (
+                        <button
+                          key={s}
+                          onClick={() => setFontSize(s)}
+                          className={`rounded px-2 py-0.5 text-[11px] font-semibold ${fontSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                        >
+                          {["A-", "A", "A+"][i]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <div className="border-t border-border">
                   <button
@@ -282,8 +382,25 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-x-hidden p-4 md:p-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-8 md:pb-8">{children}</main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 flex border-t border-border bg-background md:hidden">
+        {getModules(role).slice(0, 5).map((m) => {
+          const active = isActive(m.to, m.exact);
+          return (
+            <Link
+              key={m.to}
+              to={m.to}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <m.icon className="h-5 w-5" />
+              {m.label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

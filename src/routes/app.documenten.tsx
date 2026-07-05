@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { documenten } from "@/lib/demo-data";
-import { FileText, Download, MoreHorizontal, FolderPlus, Upload, UserPlus, X, Users } from "lucide-react";
+import { FileText, Download, MoreHorizontal, FolderPlus, Upload, UserPlus, X, Users, Folder } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -10,12 +10,15 @@ export const Route = createFileRoute("/app/documenten")({ component: Bestanden }
 
 const filters = ["Alles", "Wiskunde", "Nederlands", "Scheikunde", "Engels", "Algemeen"];
 
+type ExtraBestand = { naam: string; vak: string; grootte: string; datum: string; versie: string; gedeeldMet: string[]; isMap?: boolean };
+
 function Bestanden() {
   const [filter, setFilter] = useState<string>("Alles");
   const [shareFile, setShareFile] = useState<string | null>(null);
   const [extraShares, setExtraShares] = useState<Record<string, string[]>>({});
+  const [extraBestanden, setExtraBestanden] = useState<ExtraBestand[]>([]);
 
-  const zichtbaar = documenten.filter((d) => filter === "Alles" || d.vak === filter);
+  const zichtbaar = [...extraBestanden, ...documenten].filter((d) => filter === "Alles" || d.vak === filter || filter === "Alles");
 
   const addShare = (file: string, target: string) => {
     setExtraShares((s) => ({ ...s, [file]: [...(s[file] ?? []), target] }));
@@ -34,13 +37,25 @@ function Bestanden() {
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) toast.success(`"${file.name}" toegevoegd`);
+              if (file) {
+                const sizeKB = file.size / 1024;
+                const grootte = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${Math.round(sizeKB)} KB`;
+                setExtraBestanden((prev) => [
+                  { naam: file.name, vak: "Algemeen", grootte, datum: "Zojuist", versie: "v1", gedeeldMet: [] },
+                  ...prev,
+                ]);
+                toast.success(`"${file.name}" toegevoegd`);
+              }
               e.target.value = "";
             }}
           />
         </label>
         <button
-          onClick={() => toast.success("Nieuwe map aangemaakt")}
+          onClick={() => {
+            const naam = `Nieuwe map ${extraBestanden.filter((b) => b.isMap).length + 1}`;
+            setExtraBestanden((prev) => [{ naam, vak: "Algemeen", grootte: "—", datum: "Zojuist", versie: "—", gedeeldMet: [], isMap: true }, ...prev]);
+            toast.success(`Map "${naam}" aangemaakt`);
+          }}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold hover:bg-muted"
         >
           <FolderPlus className="h-4 w-4" /> Nieuwe map
@@ -84,10 +99,12 @@ function Bestanden() {
                     <tr key={d.naam} className="border-t border-border hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary"><FileText className="h-4 w-4" /></div>
-                          <span className="font-medium">{d.naam}</span>
-                        </div>
-                      </td>
+                            <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
+                              {(d as ExtraBestand).isMap ? <Folder className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                            </div>
+                            <span className="font-medium">{d.naam}</span>
+                          </div>
+                        </td>
                       <td className="px-4 py-3 text-muted-foreground">{d.vak}</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">

@@ -209,7 +209,7 @@ function Landing() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
           <div className="flex items-center gap-2">
             <img src={logo} alt="" className="h-6 w-6" />
-            <span className="text-sm text-muted-foreground">© 2025 Schoolpulse — demo</span>
+            <span className="text-sm text-muted-foreground">© 2026 Schoolpulse — demo</span>
           </div>
           <div className="flex flex-wrap justify-center gap-6 md:justify-end">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>

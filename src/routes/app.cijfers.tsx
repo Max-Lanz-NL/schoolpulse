@@ -17,7 +17,7 @@ function CijfersPage() {
 
 // ─────────────── LEERLING ───────────────
 function LeerlingCijfers() {
-  const [tab, setTab] = useState<"recent" | "overzicht">("recent");
+  const [tab, setTab] = useState<"recent" | "overzicht" | "prognose">("recent");
 
   // Flatten en sorteer alle cijfers nieuw → oud
   const alle = cijfers.flatMap((c) => c.toetsen.map((t) => ({ ...t, vak: c.vak }))).sort((a, b) => b.iso.localeCompare(a.iso));
@@ -26,7 +26,8 @@ function LeerlingCijfers() {
     <AppShell title="Cijfers" subtitle="Schooljaar 2025-2026">
       <div className="mb-6 inline-flex rounded-lg border border-border bg-card p-1">
         <button onClick={() => setTab("recent")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "recent" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Recent</button>
-        <button onClick={() => setTab("overzicht")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "overzicht" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Cijferoverzicht</button>
+        <button onClick={() => setTab("overzicht")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "overzicht" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Overzicht</button>
+        <button onClick={() => setTab("prognose")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "prognose" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Prognose</button>
       </div>
 
       {tab === "recent" ? (
@@ -45,10 +46,65 @@ function LeerlingCijfers() {
             ))}
           </div>
         </Card>
-      ) : (
+      ) : tab === "overzicht" ? (
         <Overzicht />
+      ) : (
+        <Prognose />
       )}
     </AppShell>
+  );
+}
+
+function Prognose() {
+  const [target, setTarget] = useState("6.0");
+  const targetNum = parseFloat(target);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
+        <label className="shrink-0 text-sm font-semibold text-muted-foreground">Streefcijfer:</label>
+        <select
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary"
+        >
+          {["5.5", "6.0", "6.5", "7.0", "7.5", "8.0"].map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+      </div>
+
+      {cijfers.map((c) => {
+        const totWeging = c.toetsen.reduce((a, t) => a + t.weging, 0);
+        const totSom = c.toetsen.reduce((a, t) => a + t.cijfer * t.weging, 0);
+        const gem = totWeging > 0 ? totSom / totWeging : 0;
+        const volgendeWeging = 1;
+        const benodigd = (targetNum * (totWeging + volgendeWeging) - totSom) / volgendeWeging;
+        const doelGehaald = gem >= targetNum;
+
+        return (
+          <div key={c.vak} className="rounded-2xl border border-border bg-card p-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-sm font-semibold">{c.vak}</div>
+              <div className="text-xs text-muted-foreground">Huidig gemiddelde: <span className="font-bold text-foreground">{gem.toFixed(2)}</span></div>
+            </div>
+            {doelGehaald ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
+                ✓ Doel gehaald — je staat al op {gem.toFixed(1)}
+              </span>
+            ) : benodigd > 10 ? (
+              <span className="inline-flex rounded-full bg-destructive/15 px-3 py-1 text-xs font-semibold text-destructive">
+                Doel niet haalbaar met één toets (nodig: {benodigd.toFixed(1)})
+              </span>
+            ) : (
+              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${benodigd > 8 ? "bg-warning/15 text-warning" : "bg-primary/10 text-primary"}`}>
+                Haal een {Math.max(1, benodigd).toFixed(1)} voor je volgende toets (weging {volgendeWeging})
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
