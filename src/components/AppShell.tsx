@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
-import { roleLabels, roleUsers, meldingen, docentMeldingen, type Role } from "@/lib/demo-data";
+import { roleLabels, roleUsers, meldingen, docentMeldingen, teamleiderMeldingen, directieMeldingen, type Role } from "@/lib/demo-data";
 import {
   LayoutDashboard, Calendar, BarChart3, MessageSquare, FileCheck,
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
@@ -216,7 +216,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {(role === "docent" || role === "teamleider" || role === "directie" ? docentMeldingen : meldingen).map((m) => (
+                  {(role === "directie" ? directieMeldingen : role === "teamleider" ? teamleiderMeldingen : role === "docent" ? docentMeldingen : meldingen).map((m) => (
                     <button
                       key={m.titel}
                       onClick={() => { navigate({ to: m.link }); setNotifOpen(false); }}

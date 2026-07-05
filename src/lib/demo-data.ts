@@ -304,3 +304,19 @@ export const docentMeldingen = [
   { titel: "Verzoek roosterwijziging donderdag", tijd: "1 u", link: "/app/rooster" },
   { titel: "3 nieuwe cijferwijzigingen goedgekeurd", tijd: "2 u", link: "/app/cijfers" },
 ];
+
+export const teamleiderMeldingen = [
+  { titel: "Docent R. Visser ziek gemeld — 3e uur V4", tijd: "15 min", link: "/app/rooster" },
+  { titel: "Ouder vraagt gesprek over voortgang Emma B.", tijd: "45 min", link: "/app/berichten" },
+  { titel: "2 klassen zonder toetscijfer deze week", tijd: "2 u", link: "/app/cijfers" },
+  { titel: "Roosterwijziging ingediend door M. Jansen", tijd: "3 u", link: "/app/rooster" },
+  { titel: "Nieuwe opdracht aangemaakt in klas V4B", tijd: "4 u", link: "/app/opdrachten" },
+];
+
+export const directieMeldingen = [
+  { titel: "Maandrapport beschikbaar — november 2024", tijd: "1 u", link: "/app/cijfers" },
+  { titel: "3 openstaande roosterwijzigingen ter goedkeuring", tijd: "2 u", link: "/app/rooster" },
+  { titel: "Bericht van teamleider: bezetting donderdag", tijd: "2 u", link: "/app/berichten" },
+  { titel: "Schoolgemiddelde gedaald — actie vereist", tijd: "5 u", link: "/app/cijfers" },
+  { titel: "Nieuwe docent toegevoegd aan systeem", tijd: "1 d", link: "/app/berichten" },
+];
