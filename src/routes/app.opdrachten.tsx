@@ -25,27 +25,38 @@ const statusStyle: Record<string, { label: string; cls: string }> = {
 };
 
 function LeerlingOpdrachten() {
+  const [ingeleverdState, setIngeleverdState] = useState<Record<string, { naam: string }>>({});
+
   return (
     <AppShell title="Opdrachten" subtitle="Digitale inlevering en beoordeling">
       <Card title="Alle opdrachten">
         <div className="space-y-3">
           {opdrachten.map((o) => {
-            const s = statusStyle[o.status];
+            const ingel = ingeleverdState[o.titel];
+            const effectiefStatus = ingel ? "wachtend" : o.status;
+            const s = statusStyle[effectiefStatus] ?? statusStyle["open"];
             return (
               <div key={o.titel} className="rounded-xl border border-border bg-background p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold">{o.titel}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">{o.vak} · {o.deadline}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{o.vak} · {ingel ? "Ingeleverd" : o.deadline}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${s.cls}`}>{s.label}</span>
-                    {o.status === "beoordeeld" && "cijfer" in o && (
+                    {effectiefStatus === "beoordeeld" && "cijfer" in o && (
                       <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">{o.cijfer?.toFixed(1)}</span>
                     )}
                   </div>
                 </div>
-                  {!o.ingeleverd && (
+                {ingel && (
+                  <div className="mt-3 flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-xs text-success">
+                    <FileCheck className="h-4 w-4" />
+                    <span className="truncate font-medium">{ingel.naam}</span>
+                    <span className="text-success/70">— wacht op beoordeling</span>
+                  </div>
+                )}
+                {!o.ingeleverd && !ingel && (
                   <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-4">
                     <Upload className="h-5 w-5 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
@@ -59,7 +70,10 @@ function LeerlingOpdrachten() {
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) toast.success(`"${file.name}" klaar om in te leveren`);
+                          if (file) {
+                            setIngeleverdState((prev) => ({ ...prev, [o.titel]: { naam: file.name } }));
+                            toast.success(`"${file.name}" ingeleverd voor ${o.titel}`);
+                          }
                           e.target.value = "";
                         }}
                       />

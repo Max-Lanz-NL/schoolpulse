@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
-import { roleUsers, roosterVandaag, cijfers, opdrachten, berichten, meldingen, docentMeldingen, docentOpdrachten, klassen, roleLabels } from "@/lib/demo-data";
+import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels } from "@/lib/demo-data";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
   ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users,
@@ -143,13 +143,16 @@ function LeerlingView() {
 }
 
 function DocentView() {
+  const aantalKlassen = docentKlassen.length;
+  const teBeoordelen = docentOpdrachten.filter((o) => o.status === "ingeleverd" || o.status === "te-laat");
+  const ongelezen = 2; // docentBerichten filtered ongelezen
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard to="/app/cijfers" icon={Users} label="Klassen" value="5" hint="128 leerlingen" />
-        <StatCard to="/app/opdrachten" icon={FileCheck} label="Te beoordelen" value="14" hint="3 achterstand" tone="warning" />
-        <StatCard to="/app/rooster" icon={Calendar} label="Lessen deze week" value="22" />
-        <StatCard to="/app/berichten" icon={MessageSquare} label="Ongelezen berichten" value="7" />
+        <StatCard to="/app/cijfers" icon={Users} label="Klassen" value={String(aantalKlassen)} hint={`${docentKlassen.reduce((s, k) => s + k.leerlingen.length, 0)} leerlingen`} />
+        <StatCard to="/app/opdrachten" icon={FileCheck} label="Te beoordelen" value={String(teBeoordelen.length)} hint={teBeoordelen.length > 0 ? `${teBeoordelen.filter(o => o.status === "te-laat").length} te laat ingeleverd` : "Alles bijgewerkt"} tone={teBeoordelen.length > 0 ? "warning" : "success"} />
+        <StatCard to="/app/rooster" icon={Calendar} label="Lessen deze week" value={String(Object.values({ Ma: 2, Di: 6, Wo: 4, Do: 5, Vr: 5 }).reduce((a, b) => a + b, 0))} />
+        <StatCard to="/app/berichten" icon={MessageSquare} label="Ongelezen berichten" value={String(ongelezen)} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -161,25 +164,16 @@ function DocentView() {
                   <tr>
                     <th className="px-4 py-2 text-left">Klas</th>
                     <th className="px-4 py-2 text-left">Leerlingen</th>
-                    <th className="px-4 py-2 text-left">Gemiddelde</th>
-                    <th className="px-4 py-2 text-left">Aanwezigheid</th>
+                    <th className="px-4 py-2 text-left">Vak</th>
                     <th className="px-4 py-2" />
                   </tr>
                 </thead>
                 <tbody>
-                  {klassen.map((k) => (
+                  {docentKlassen.map((k) => (
                     <tr key={k.klas} className="border-t border-border">
                       <td className="px-4 py-3 font-semibold">{k.klas}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{k.leerlingen}</td>
-                      <td className="px-4 py-3">{k.gemiddelde.toFixed(1)}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                            <div className="h-full bg-primary" style={{ width: `${k.aanwezigheid}%` }} />
-                          </div>
-                          <span className="text-xs text-muted-foreground">{k.aanwezigheid}%</span>
-                        </div>
-                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{k.leerlingen.length}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{k.vak}</td>
                       <td className="px-4 py-3 text-right"><Link to="/app/cijfers" className="text-xs font-semibold text-primary">Open →</Link></td>
                     </tr>
                   ))}

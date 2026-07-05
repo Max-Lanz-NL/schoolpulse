@@ -5,10 +5,11 @@ import { activiteiten } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { CalendarCheck, Users, Plus, X, Paperclip } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/activiteiten")({ component: Activiteiten });
 
-type Aank = { t: string; d: string; voor: string[] | null };
+type Aank = { t: string; d: string; tekst?: string; voor: string[] | null };
 
 function formatDatum(iso: string): string {
   if (!iso) return "Direct";
@@ -43,12 +44,13 @@ function Activiteiten() {
     const wasIn = !!aangemeld[titel];
     setAangemeld((s) => ({ ...s, [titel]: !s[titel] }));
     setDeelnemersDelta((s) => ({ ...s, [titel]: (s[titel] ?? 0) + (wasIn ? -1 : 1) }));
+    toast.success(wasIn ? `Afgemeld voor ${titel}` : `Aangemeld voor ${titel}`);
   };
 
   const basisAank: Aank[] = [
-    { t: "Herinnering ouderavond V4", d: "3 dec · doelgroep V4-ouders", voor: ["ouder", "docent", "teamleider", "directie"] },
-    { t: "Nieuwe kantinekaart", d: "Vanaf maandag actief", voor: null },
-    { t: "Kerstviering programma", d: "Publicatie volgende week", voor: null },
+    { t: "Herinnering ouderavond V4", d: "8 okt · doelgroep V4-ouders", tekst: "Vergeet niet de ouderavond van 8 oktober te noteren. Aanmelding via de schoolapp vereist.", voor: ["ouder", "docent", "teamleider", "directie"] },
+    { t: "Nieuwe kantinekaart", d: "Vanaf maandag actief", tekst: "De nieuwe kantinekaarten zijn beschikbaar bij de administratie. Breng je oude kaart in voor omruil.", voor: null },
+    { t: "Kerstviering programma", d: "Publicatie volgende week", tekst: "Het programma van de kerstviering wordt volgende week gepubliceerd op de schoolsite.", voor: null },
   ];
   const aankondigingen = [...extraAank, ...basisAank].filter((a) => !a.voor || a.voor.includes(role));
 
@@ -95,14 +97,16 @@ function Activiteiten() {
           <Card title="Poll: bestemming schoolreis">
             <div className="space-y-2">
               {pollOpties.map((o, i) => {
-                const pct = Math.round((o.stemmen / totaal) * 100);
+                const stemmenNa = i === pollAns ? o.stemmen + 1 : o.stemmen;
+                const totaalNa = heeftGestemd ? totaal + 1 : totaal;
+                const pct = Math.round((stemmenNa / totaalNa) * 100);
                 const gekozen = pollAns === i;
-                const heeftGestemd = pollAns !== null;
                 return (
                   <button
                     key={o.label}
-                    onClick={() => setPollAns(i)}
-                    className={`relative w-full overflow-hidden rounded-lg border p-3 text-left transition-colors ${gekozen ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
+                    onClick={() => !heeftGestemd && setPollAns(i)}
+                    disabled={heeftGestemd}
+                    className={`relative w-full overflow-hidden rounded-lg border p-3 text-left transition-colors ${gekozen ? "border-primary bg-primary/5" : "border-border"} ${heeftGestemd ? "cursor-default" : "hover:bg-muted/40"}`}
                   >
                     {heeftGestemd && (
                       <div className="absolute inset-0 bg-primary/10 transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -128,6 +132,7 @@ function Activiteiten() {
                 <div key={a.t} className="rounded-lg border border-border p-3">
                   <div className="text-sm font-semibold">{a.t}</div>
                   <div className="text-[11px] text-muted-foreground">{a.d}</div>
+                  {a.tekst && <div className="mt-1.5 text-xs text-foreground/80 leading-relaxed">{a.tekst}</div>}
                 </div>
               ))}
               {magBeheren && (
@@ -181,6 +186,7 @@ function NieuweAankondigingModal({ onClose, onSave }: { onClose: () => void; onS
     onSave({
       t: titel,
       d: `${datumLabel} · ${doel.join(", ")}${bijlage ? ` · 📎 ${bijlage}` : ""}`,
+      tekst,
       voor,
     });
   };

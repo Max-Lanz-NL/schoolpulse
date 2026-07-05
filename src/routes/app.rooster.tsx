@@ -11,7 +11,7 @@ import { useNavigate } from "@tanstack/react-router";
 export const Route = createFileRoute("/app/rooster")({ component: Rooster });
 
 const dagen = ["Ma", "Di", "Wo", "Do", "Vr"] as const;
-const dagLabels: Record<string, string> = { Ma: "Maandag 24 nov", Di: "Dinsdag 26 nov", Wo: "Woensdag 27 nov", Do: "Donderdag 28 nov", Vr: "Vrijdag 29 nov" };
+const dagLabels: Record<string, string> = { Ma: "Maandag 6 jul", Di: "Dinsdag 7 jul", Wo: "Woensdag 8 jul", Do: "Donderdag 9 jul", Vr: "Vrijdag 10 jul" };
 
 type Detail = Les & { dag?: string };
 
@@ -47,7 +47,7 @@ function Rooster() {
   };
 
   return (
-    <AppShell title="Rooster" subtitle="Week 48 · 24 – 28 november 2025">
+    <AppShell title="Rooster" subtitle="Week 28 · 6 – 10 juli 2026">
       {toonAI && (
         <div className="mb-6 flex flex-wrap items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">

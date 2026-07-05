@@ -85,34 +85,34 @@ export const weekRooster: Record<string, Les[]> = {
 // Sortable date field (ISO YYYY-MM-DD) plus display label
 export const cijfers = [
   { vak: "Wiskunde B", laatste: 7.8, gemiddelde: 7.4, trend: "up", toetsen: [
-    { naam: "SO Hoofdstuk 3", cijfer: 8.2, weging: 1, datum: "12 nov", iso: "2025-11-12" },
-    { naam: "Proefwerk H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt", iso: "2025-10-18" },
-    { naam: "Praktische opdracht", cijfer: 8.5, weging: 2, datum: "02 okt", iso: "2025-10-02" },
+    { naam: "SO Hoofdstuk 3", cijfer: 8.2, weging: 1, datum: "12 mei", iso: "2026-05-12" },
+    { naam: "Proefwerk H1-H2", cijfer: 7.0, weging: 3, datum: "14 apr", iso: "2026-04-14" },
+    { naam: "Praktische opdracht", cijfer: 8.5, weging: 2, datum: "24 mrt", iso: "2026-03-24" },
   ]},
   { vak: "Nederlands", laatste: 6.8, gemiddelde: 6.9, trend: "flat", toetsen: [
-    { naam: "Boekverslag", cijfer: 7.2, weging: 2, datum: "20 nov", iso: "2025-11-20" },
-    { naam: "Grammatica toets", cijfer: 6.4, weging: 2, datum: "05 nov", iso: "2025-11-05" },
+    { naam: "Boekverslag", cijfer: 7.2, weging: 2, datum: "20 mei", iso: "2026-05-20" },
+    { naam: "Grammatica toets", cijfer: 6.4, weging: 2, datum: "5 mei", iso: "2026-05-05" },
   ]},
   { vak: "Engels", laatste: 8.4, gemiddelde: 8.1, trend: "up", toetsen: [
-    { naam: "Reading test", cijfer: 8.4, weging: 2, datum: "22 nov", iso: "2025-11-22" },
-    { naam: "Presentation", cijfer: 7.8, weging: 1, datum: "10 nov", iso: "2025-11-10" },
+    { naam: "Reading test", cijfer: 8.4, weging: 2, datum: "2 jun", iso: "2026-06-02" },
+    { naam: "Presentation", cijfer: 7.8, weging: 1, datum: "19 mei", iso: "2026-05-19" },
   ]},
   { vak: "Scheikunde", laatste: 5.4, gemiddelde: 5.7, trend: "down", toetsen: [
-    { naam: "SO Molberekeningen", cijfer: 5.4, weging: 1, datum: "25 nov", iso: "2025-11-25" },
-    { naam: "Proefwerk H2", cijfer: 5.9, weging: 3, datum: "01 nov", iso: "2025-11-01" },
+    { naam: "SO Molberekeningen", cijfer: 5.4, weging: 1, datum: "2 jun", iso: "2026-06-02" },
+    { naam: "Proefwerk H2", cijfer: 5.9, weging: 3, datum: "13 mei", iso: "2026-05-13" },
   ]},
   { vak: "Biologie", laatste: 7.5, gemiddelde: 7.6, trend: "flat", toetsen: [
-    { naam: "Toets Cellen", cijfer: 7.5, weging: 2, datum: "19 nov", iso: "2025-11-19" },
+    { naam: "Toets Cellen", cijfer: 7.5, weging: 2, datum: "28 mei", iso: "2026-05-28" },
   ]},
   { vak: "Geschiedenis", laatste: 8.0, gemiddelde: 7.7, trend: "up", toetsen: [
-    { naam: "Werkstuk WOII", cijfer: 8.0, weging: 3, datum: "15 nov", iso: "2025-11-15" },
+    { naam: "Werkstuk WOII", cijfer: 8.0, weging: 3, datum: "19 mei", iso: "2026-05-19" },
   ]},
 ];
 
 export const opdrachten = [
   { vak: "Wiskunde B", titel: "Opgaven H4: Differentiëren", deadline: "Morgen 23:59", status: "open" as const, ingeleverd: false },
-  { vak: "Nederlands", titel: "Essay: Multatuli en de moderne tijd", deadline: "Vr 28 nov", status: "open" as const, ingeleverd: false },
-  { vak: "Engels", titel: "Book report — 1984", deadline: "Ma 1 dec", status: "concept" as const, ingeleverd: false },
+  { vak: "Nederlands", titel: "Essay: Multatuli en de moderne tijd", deadline: "Vr 10 jul", status: "open" as const, ingeleverd: false },
+  { vak: "Engels", titel: "Book report — 1984", deadline: "Ma 13 jul", status: "concept" as const, ingeleverd: false },
   { vak: "Scheikunde", titel: "Praktijkverslag Titratie", deadline: "Ingeleverd", status: "beoordeeld" as const, cijfer: 7.4, ingeleverd: true },
   { vak: "Biologie", titel: "Onderzoeksvoorstel Ecosysteem", deadline: "Ingeleverd", status: "wachtend" as const, ingeleverd: true },
 ];
@@ -269,9 +269,9 @@ export type Activiteit = {
 
 export const activiteiten: Activiteit[] = [
   { titel: "Schoolreis Berlijn", datum: "12 – 16 mei 2026", deelnemers: 148, plekken: 180, doel: "Bovenbouw", status: "open" },
-  { titel: "Ouderavond V4", datum: "3 december 2025", deelnemers: 62, plekken: 90, doel: "Ouders V4", status: "open", zichtbaarVoor: ["ouder", "docent", "teamleider", "directie"] },
-  { titel: "Sportdag onderbouw", datum: "18 december 2025", deelnemers: 210, plekken: 240, doel: "Klas 1-3", status: "open" },
-  { titel: "Open Dag 2026", datum: "24 januari 2026", deelnemers: 0, plekken: 500, doel: "Externe bezoekers", status: "aankondiging", zichtbaarVoor: ["docent", "teamleider", "directie"] },
+  { titel: "Ouderavond V4", datum: "8 oktober 2026", deelnemers: 62, plekken: 90, doel: "Ouders V4", status: "open", zichtbaarVoor: ["ouder", "docent", "teamleider", "directie"] },
+  { titel: "Sportdag onderbouw", datum: "11 december 2026", deelnemers: 210, plekken: 240, doel: "Klas 1-3", status: "open" },
+  { titel: "Open Dag 2027", datum: "23 januari 2027", deelnemers: 0, plekken: 500, doel: "Externe bezoekers", status: "aankondiging", zichtbaarVoor: ["docent", "teamleider", "directie"] },
 ];
 
 export type Bestand = { naam: string; vak: string; grootte: string; datum: string; versie: string; gedeeldMet: string[]; };
@@ -279,8 +279,8 @@ export type Bestand = { naam: string; vak: string; grootte: string; datum: strin
 export const documenten: Bestand[] = [
   { naam: "Wiskunde H4 — Uitwerkingen.pdf", vak: "Wiskunde", grootte: "1.2 MB", datum: "Vandaag", versie: "v3", gedeeldMet: ["Klas V4B", "M. Jansen"] },
   { naam: "Leeslijst Nederlands 2025-2026.docx", vak: "Nederlands", grootte: "84 KB", datum: "Ma", versie: "v2", gedeeldMet: ["Sectie Nederlands"] },
-  { naam: "Practicum handleiding — Titratie.pdf", vak: "Scheikunde", grootte: "540 KB", datum: "18 nov", versie: "v1", gedeeldMet: ["Klas V4A", "Klas V4B"] },
-  { naam: "Studiewijzer Engels periode 2.pdf", vak: "Engels", grootte: "320 KB", datum: "12 nov", versie: "v4", gedeeldMet: ["Bovenbouw"] },
+  { naam: "Practicum handleiding — Titratie.pdf", vak: "Scheikunde", grootte: "540 KB", datum: "3 jun", versie: "v1", gedeeldMet: ["Klas V4A", "Klas V4B"] },
+  { naam: "Studiewijzer Engels periode 2.pdf", vak: "Engels", grootte: "320 KB", datum: "28 mei", versie: "v4", gedeeldMet: ["Bovenbouw"] },
   { naam: "Schoolgids 2025-2026.pdf", vak: "Algemeen", grootte: "3.4 MB", datum: "01 sep", versie: "v1", gedeeldMet: ["Iedereen"] },
 ];
 
@@ -314,7 +314,7 @@ export const teamleiderMeldingen = [
 ];
 
 export const directieMeldingen = [
-  { titel: "Maandrapport beschikbaar — november 2024", tijd: "1 u", link: "/app/cijfers" },
+  { titel: "Maandrapport beschikbaar — juni 2026", tijd: "1 u", link: "/app/cijfers" },
   { titel: "3 openstaande roosterwijzigingen ter goedkeuring", tijd: "2 u", link: "/app/rooster" },
   { titel: "Bericht van teamleider: bezetting donderdag", tijd: "2 u", link: "/app/berichten" },
   { titel: "Schoolgemiddelde gedaald — actie vereist", tijd: "5 u", link: "/app/cijfers" },

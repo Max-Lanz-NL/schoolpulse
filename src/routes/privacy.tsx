@@ -30,7 +30,7 @@ function Privacy() {
           <div className="space-y-8 text-sm text-foreground">
             {[
               { icon: Lock, title: "Gegevensverwerking", body: "Schoolpulse verwerkt persoonsgegevens conform de AVG (Algemene Verordening Gegevensbescherming). In de demo-omgeving worden geen echte persoonsgegevens opgeslagen — alle data is fictief en wordt lokaal bewaard in uw browser." },
-              { icon: Eye, title: "Welke gegevens verzamelen wij?", body: "In de productieversi worden naam, e-mailadres, rol en schoolgegevens verwerkt voor het functioneren van het platform. Gegevens worden niet gedeeld met derden zonder expliciete toestemming." },
+              { icon: Eye, title: "Welke gegevens verzamelen wij?", body: "In de productieversie worden naam, e-mailadres, rol en schoolgegevens verwerkt voor het functioneren van het platform. Gegevens worden niet gedeeld met derden zonder expliciete toestemming." },
               { icon: FileCheck, title: "Uw rechten", body: "U heeft het recht op inzage, correctie en verwijdering van uw gegevens. Neem hiervoor contact op via privacy@schoolpulse.nl." },
               { icon: ShieldCheck, title: "Beveiliging", body: "Alle communicatie is versleuteld via TLS. Wachtwoorden worden nooit opgeslagen in leesbare vorm. Optioneel is tweestapsverificatie (2FA) beschikbaar." },
             ].map(({ icon: Icon, title, body }) => (

@@ -4,8 +4,20 @@ import { berichten as leerlingBerichten, docentBerichten, type ChatBericht } fro
 import { useRole } from "@/lib/role-context";
 import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/berichten")({ component: Berichten });
+
+const autoAntwoorden: Record<string, string> = {
+  "jansen": "Goed, ik zal er naar kijken. Stuur het maar door!",
+  "v4b": "👍",
+  "deboer": "Bedankt! Tot de volgende keer.",
+  "deboer-col": "Prima, ik stuur de lesstof vanavond door.",
+  "sectie-wi": "Duidelijk, tot de vergadering!",
+  "teamleider": "Ik zet het op de agenda voor volgende week.",
+  "over-tom": "Goed idee. Ik reserveer de vergaderzaal.",
+  "surveillance": "Ontvangen, bedankt voor de bevestiging.",
+};
 
 function Berichten() {
   const { role } = useRole();
@@ -18,6 +30,8 @@ function Berichten() {
   const [msg, setMsg] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [mobileDetail, setMobileDetail] = useState(false);
+  const [bijlageNaam, setBijlageNaam] = useState<string | null>(null);
+  const [typing, setTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Reset when role changes
@@ -42,15 +56,26 @@ function Berichten() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [thread.length]);
+  }, [thread.length, typing]);
 
   const sendMsg = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!msg.trim() || !chat) return;
+    if (!msg.trim() && !bijlageNaam || !chat) return;
     const now = new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
-    const newMsg: ChatBericht = { van: "Ik", tijd: now, mij: true, tekst: msg.trim() };
+    const tekst = bijlageNaam ? `📎 ${bijlageNaam}${msg.trim() ? `\n${msg.trim()}` : ""}` : msg.trim();
+    const newMsg: ChatBericht = { van: "Ik", tijd: now, mij: true, tekst };
     setThreads((prev) => ({ ...prev, [chat.id]: [...(prev[chat.id] ?? []), newMsg] }));
     setMsg("");
+    setBijlageNaam(null);
+
+    // Typing indicator + auto reply
+    setTyping(true);
+    setTimeout(() => {
+      setTyping(false);
+      const reply = autoAntwoorden[chat.id] ?? "Ik kom er zo op terug.";
+      const replyMsg: ChatBericht = { van: chat.van, tijd: new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }), mij: false, tekst: reply, avatar: chat.avatar };
+      setThreads((prev) => ({ ...prev, [chat.id]: [...(prev[chat.id] ?? []), replyMsg] }));
+    }, 2000);
   };
 
   if (!chat) return null;
@@ -152,29 +177,61 @@ function Berichten() {
               );
             })}
             <div ref={bottomRef} />
+            {typing && (
+              <div className="flex items-end gap-2">
+                <div className="w-8 shrink-0">
+                  <img src={chat.avatar} alt={chat.van} className="h-8 w-8 rounded-full bg-muted object-cover" />
+                </div>
+                <div className="rounded-2xl border border-border bg-background px-4 py-2 text-sm text-muted-foreground">
+                  <span className="inline-flex gap-1">
+                    <span className="animate-bounce [animation-delay:0ms]">·</span>
+                    <span className="animate-bounce [animation-delay:150ms]">·</span>
+                    <span className="animate-bounce [animation-delay:300ms]">·</span>
+                  </span>
+                  &nbsp;{chat.van.split(" ")[0]} typt...
+                </div>
+              </div>
+            )}
           </div>
 
           <form
             onSubmit={sendMsg}
-            className="flex items-center gap-2 border-t border-border bg-background p-3"
+            className="flex flex-col gap-2 border-t border-border bg-background p-3"
           >
-            <label className="rounded-lg p-2 hover:bg-muted cursor-pointer" aria-label="Bijlage">
-              <Paperclip className="h-4 w-4" />
-              <input type="file" className="hidden" onChange={() => {}} />
-            </label>
-            <input
-              value={msg}
-              onChange={(e) => setMsg(e.target.value)}
-              placeholder="Type een bericht..."
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-            />
-            <button
-              type="submit"
-              disabled={!msg.trim()}
-              className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              <Send className="h-4 w-4" /> Versturen
-            </button>
+            {bijlageNaam && (
+              <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-1.5 text-xs">
+                <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="flex-1 truncate text-muted-foreground">{bijlageNaam}</span>
+                <button type="button" onClick={() => setBijlageNaam(null)} className="text-muted-foreground hover:text-foreground">×</button>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer rounded-lg p-2 hover:bg-muted" aria-label="Bijlage">
+                <Paperclip className="h-4 w-4" />
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) { setBijlageNaam(file.name); toast.success(`Bijlage "${file.name}" toegevoegd`); }
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <input
+                value={msg}
+                onChange={(e) => setMsg(e.target.value)}
+                placeholder="Type een bericht..."
+                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button
+                type="submit"
+                disabled={!msg.trim() && !bijlageNaam}
+                className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" /> Versturen
+              </button>
+            </div>
           </form>
         </section>
       </div>
