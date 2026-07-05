@@ -3,7 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { docentKlassen } from "@/lib/demo-data";
 import { useState } from "react";
-import { X, CheckCircle2, AlertTriangle } from "lucide-react";
+import { X, CheckCircle2, AlertTriangle, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/rapporten")({ component: RapportenPage });
@@ -61,6 +61,7 @@ function RapportenPage() {
   const [rapporten, setRapporten] = useState<Rapport[]>(initRapporten);
   const [modalRapport, setModalRapport] = useState<Rapport | null>(null);
   const [afgewezenIds, setAfgewezenIds] = useState<Set<string>>(new Set());
+  const [exportOpen, setExportOpen] = useState(false);
 
   const inAfwachting = rapporten.filter((r) => r.status === "afwachting");
   const goedgekeurd = [...rapporten.filter((r) => r.status === "goedgekeurd"), ...eerderGoedgekeurd];
@@ -91,19 +92,43 @@ function RapportenPage() {
 
   return (
     <AppShell title="Rapporten" subtitle="Beoordeling en goedkeuring rapportcijfers">
-      <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
-        <button
-          onClick={() => setTab("afwachting")}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === "afwachting" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          In afwachting {inAfwachting.length > 0 && `(${inAfwachting.length})`}
-        </button>
-        <button
-          onClick={() => setTab("goedgekeurd")}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === "goedgekeurd" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          Goedgekeurd
-        </button>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex rounded-lg border border-border bg-card p-1">
+          <button
+            onClick={() => setTab("afwachting")}
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === "afwachting" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            In afwachting {inAfwachting.length > 0 && `(${inAfwachting.length})`}
+          </button>
+          <button
+            onClick={() => setTab("goedgekeurd")}
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === "goedgekeurd" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Goedgekeurd
+          </button>
+        </div>
+        <div className="relative">
+          <button onClick={() => setExportOpen((v) => !v)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold hover:bg-muted">
+            <Download className="h-4 w-4" /> Exporteer
+          </button>
+          {exportOpen && (
+            <div className="absolute right-0 top-full z-10 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+              {[{ label: "PDF exporteren", ext: "pdf", mime: "application/pdf" }, { label: "Excel exporteren", ext: "xlsx", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, { label: "CSV exporteren", ext: "csv", mime: "text/csv" }].map((opt) => (
+                <button key={opt.ext} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted" onClick={() => {
+                  setExportOpen(false);
+                  const blob = new Blob(["Rapportoverzicht SchoolPulse demo"], { type: opt.mime });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `rapporten.${opt.ext}`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success(`Rapporten geëxporteerd als ${opt.ext.toUpperCase()}`);
+                }}>{opt.label}</button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {tab === "afwachting" && (

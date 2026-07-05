@@ -22,24 +22,26 @@ import { Route as FeaturesOpdrachtenRouteImport } from './routes/features/opdrac
 import { Route as FeaturesNotificatiesRouteImport } from './routes/features/notificaties'
 import { Route as FeaturesCommunicatieRouteImport } from './routes/features/communicatie'
 import { Route as AppVervangingRouteImport } from './routes/app.vervanging'
+import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
+import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
+import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
 import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
 import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
 import { Route as AppLeerlingenRouteImport } from './routes/app.leerlingen'
 import { Route as AppImportRouteImport } from './routes/app.import'
 import { Route as AppHuiswerkRouteImport } from './routes/app.huiswerk'
 import { Route as AppGesprekkenRouteImport } from './routes/app.gesprekken'
+import { Route as AppGebruikersbeheerRouteImport } from './routes/app.gebruikersbeheer'
 import { Route as AppDocumentenRouteImport } from './routes/app.documenten'
 import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
 import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
+import { Route as AppAvgRouteImport } from './routes/app.avg'
+import { Route as AppAgendaRouteImport } from './routes/app.agenda'
 import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
-import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
-import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
-import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
-import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
-import { Route as AppAvgRouteImport } from './routes/app.avg'
 
 const VoorwaardenRoute = VoorwaardenRouteImport.update({
   id: '/voorwaarden',
@@ -106,9 +108,29 @@ const AppVervangingRoute = AppVervangingRouteImport.update({
   path: '/vervanging',
   getParentRoute: () => AppRoute,
 } as any)
+const AppToetsenRoute = AppToetsenRouteImport.update({
+  id: '/toetsen',
+  path: '/toetsen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToestemmingRoute = AppToestemmingRouteImport.update({
+  id: '/toestemming',
+  path: '/toestemming',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
+  id: '/studieplanner',
+  path: '/studieplanner',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRoosterRoute = AppRoosterRouteImport.update({
   id: '/rooster',
   path: '/rooster',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRapportenRoute = AppRapportenRouteImport.update({
+  id: '/rapporten',
+  path: '/rapporten',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPersoneelRoute = AppPersoneelRouteImport.update({
@@ -141,6 +163,11 @@ const AppGesprekkenRoute = AppGesprekkenRouteImport.update({
   path: '/gesprekken',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGebruikersbeheerRoute = AppGebruikersbeheerRouteImport.update({
+  id: '/gebruikersbeheer',
+  path: '/gebruikersbeheer',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDocumentenRoute = AppDocumentenRouteImport.update({
   id: '/documenten',
   path: '/documenten',
@@ -154,6 +181,16 @@ const AppCijfersRoute = AppCijfersRouteImport.update({
 const AppBerichtenRoute = AppBerichtenRouteImport.update({
   id: '/berichten',
   path: '/berichten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAvgRoute = AppAvgRouteImport.update({
+  id: '/avg',
+  path: '/avg',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAgendaRoute = AppAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
   getParentRoute: () => AppRoute,
 } as any)
 const AppActiviteitenRoute = AppActiviteitenRouteImport.update({
@@ -171,31 +208,6 @@ const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
   path: '/aanwezigheid',
   getParentRoute: () => AppRoute,
 } as any)
-const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
-  id: '/studieplanner',
-  path: '/studieplanner',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppToetsenRoute = AppToetsenRouteImport.update({
-  id: '/toetsen',
-  path: '/toetsen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppToestemmingRoute = AppToestemmingRouteImport.update({
-  id: '/toestemming',
-  path: '/toestemming',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRapportenRoute = AppRapportenRouteImport.update({
-  id: '/rapporten',
-  path: '/rapporten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAvgRoute = AppAvgRouteImport.update({
-  id: '/avg',
-  path: '/avg',
-  getParentRoute: () => AppRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -206,22 +218,24 @@ export interface FileRoutesByFullPath {
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
+  '/app/agenda': typeof AppAgendaRoute
+  '/app/avg': typeof AppAvgRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gebruikersbeheer': typeof AppGebruikersbeheerRoute
   '/app/gesprekken': typeof AppGesprekkenRoute
   '/app/huiswerk': typeof AppHuiswerkRoute
   '/app/import': typeof AppImportRoute
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
-  '/app/rooster': typeof AppRoosterRoute
-  '/app/vervanging': typeof AppVervangingRoute
-  '/app/studieplanner': typeof AppStudieplannerRoute
-  '/app/toetsen': typeof AppToetsenRoute
-  '/app/toestemming': typeof AppToestemmingRoute
   '/app/rapporten': typeof AppRapportenRoute
-  '/app/avg': typeof AppAvgRoute
+  '/app/rooster': typeof AppRoosterRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -238,22 +252,24 @@ export interface FileRoutesByTo {
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
+  '/app/agenda': typeof AppAgendaRoute
+  '/app/avg': typeof AppAvgRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gebruikersbeheer': typeof AppGebruikersbeheerRoute
   '/app/gesprekken': typeof AppGesprekkenRoute
   '/app/huiswerk': typeof AppHuiswerkRoute
   '/app/import': typeof AppImportRoute
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
-  '/app/rooster': typeof AppRoosterRoute
-  '/app/vervanging': typeof AppVervangingRoute
-  '/app/studieplanner': typeof AppStudieplannerRoute
-  '/app/toetsen': typeof AppToetsenRoute
-  '/app/toestemming': typeof AppToestemmingRoute
   '/app/rapporten': typeof AppRapportenRoute
-  '/app/avg': typeof AppAvgRoute
+  '/app/rooster': typeof AppRoosterRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -272,22 +288,24 @@ export interface FileRoutesById {
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
+  '/app/agenda': typeof AppAgendaRoute
+  '/app/avg': typeof AppAvgRoute
   '/app/berichten': typeof AppBerichtenRoute
   '/app/cijfers': typeof AppCijfersRoute
   '/app/documenten': typeof AppDocumentenRoute
+  '/app/gebruikersbeheer': typeof AppGebruikersbeheerRoute
   '/app/gesprekken': typeof AppGesprekkenRoute
   '/app/huiswerk': typeof AppHuiswerkRoute
   '/app/import': typeof AppImportRoute
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
-  '/app/rooster': typeof AppRoosterRoute
-  '/app/vervanging': typeof AppVervangingRoute
-  '/app/studieplanner': typeof AppStudieplannerRoute
-  '/app/toetsen': typeof AppToetsenRoute
-  '/app/toestemming': typeof AppToestemmingRoute
   '/app/rapporten': typeof AppRapportenRoute
-  '/app/avg': typeof AppAvgRoute
+  '/app/rooster': typeof AppRoosterRoute
+  '/app/studieplanner': typeof AppStudieplannerRoute
+  '/app/toestemming': typeof AppToestemmingRoute
+  '/app/toetsen': typeof AppToetsenRoute
+  '/app/vervanging': typeof AppVervangingRoute
   '/features/communicatie': typeof FeaturesCommunicatieRoute
   '/features/notificaties': typeof FeaturesNotificatiesRoute
   '/features/opdrachten': typeof FeaturesOpdrachtenRoute
@@ -307,22 +325,24 @@ export interface FileRouteTypes {
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
+    | '/app/agenda'
+    | '/app/avg'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gebruikersbeheer'
     | '/app/gesprekken'
     | '/app/huiswerk'
     | '/app/import'
     | '/app/leerlingen'
     | '/app/opdrachten'
     | '/app/personeel'
-    | '/app/rooster'
-    | '/app/vervanging'
-    | '/app/studieplanner'
-    | '/app/toetsen'
-    | '/app/toestemming'
     | '/app/rapporten'
-    | '/app/avg'
+    | '/app/rooster'
+    | '/app/studieplanner'
+    | '/app/toestemming'
+    | '/app/toetsen'
+    | '/app/vervanging'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -339,22 +359,24 @@ export interface FileRouteTypes {
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
+    | '/app/agenda'
+    | '/app/avg'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gebruikersbeheer'
     | '/app/gesprekken'
     | '/app/huiswerk'
     | '/app/import'
     | '/app/leerlingen'
     | '/app/opdrachten'
     | '/app/personeel'
-    | '/app/rooster'
-    | '/app/vervanging'
-    | '/app/studieplanner'
-    | '/app/toetsen'
-    | '/app/toestemming'
     | '/app/rapporten'
-    | '/app/avg'
+    | '/app/rooster'
+    | '/app/studieplanner'
+    | '/app/toestemming'
+    | '/app/toetsen'
+    | '/app/vervanging'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -372,22 +394,24 @@ export interface FileRouteTypes {
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
+    | '/app/agenda'
+    | '/app/avg'
     | '/app/berichten'
     | '/app/cijfers'
     | '/app/documenten'
+    | '/app/gebruikersbeheer'
     | '/app/gesprekken'
     | '/app/huiswerk'
     | '/app/import'
     | '/app/leerlingen'
     | '/app/opdrachten'
     | '/app/personeel'
-    | '/app/rooster'
-    | '/app/vervanging'
-    | '/app/studieplanner'
-    | '/app/toetsen'
-    | '/app/toestemming'
     | '/app/rapporten'
-    | '/app/avg'
+    | '/app/rooster'
+    | '/app/studieplanner'
+    | '/app/toestemming'
+    | '/app/toetsen'
+    | '/app/vervanging'
     | '/features/communicatie'
     | '/features/notificaties'
     | '/features/opdrachten'
@@ -504,11 +528,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVervangingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/toetsen': {
+      id: '/app/toetsen'
+      path: '/toetsen'
+      fullPath: '/app/toetsen'
+      preLoaderRoute: typeof AppToetsenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/toestemming': {
+      id: '/app/toestemming'
+      path: '/toestemming'
+      fullPath: '/app/toestemming'
+      preLoaderRoute: typeof AppToestemmingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/studieplanner': {
+      id: '/app/studieplanner'
+      path: '/studieplanner'
+      fullPath: '/app/studieplanner'
+      preLoaderRoute: typeof AppStudieplannerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/rooster': {
       id: '/app/rooster'
       path: '/rooster'
       fullPath: '/app/rooster'
       preLoaderRoute: typeof AppRoosterRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rapporten': {
+      id: '/app/rapporten'
+      path: '/rapporten'
+      fullPath: '/app/rapporten'
+      preLoaderRoute: typeof AppRapportenRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/personeel': {
@@ -553,6 +605,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGesprekkenRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/gebruikersbeheer': {
+      id: '/app/gebruikersbeheer'
+      path: '/gebruikersbeheer'
+      fullPath: '/app/gebruikersbeheer'
+      preLoaderRoute: typeof AppGebruikersbeheerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/documenten': {
       id: '/app/documenten'
       path: '/documenten'
@@ -572,6 +631,20 @@ declare module '@tanstack/react-router' {
       path: '/berichten'
       fullPath: '/app/berichten'
       preLoaderRoute: typeof AppBerichtenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/avg': {
+      id: '/app/avg'
+      path: '/avg'
+      fullPath: '/app/avg'
+      preLoaderRoute: typeof AppAvgRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/agenda': {
+      id: '/app/agenda'
+      path: '/agenda'
+      fullPath: '/app/agenda'
+      preLoaderRoute: typeof AppAgendaRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/activiteiten': {
@@ -595,41 +668,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAanwezigheidRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/studieplanner': {
-      id: '/app/studieplanner'
-      path: '/studieplanner'
-      fullPath: '/app/studieplanner'
-      preLoaderRoute: typeof AppStudieplannerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/toetsen': {
-      id: '/app/toetsen'
-      path: '/toetsen'
-      fullPath: '/app/toetsen'
-      preLoaderRoute: typeof AppToetsenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/toestemming': {
-      id: '/app/toestemming'
-      path: '/toestemming'
-      fullPath: '/app/toestemming'
-      preLoaderRoute: typeof AppToestemmingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/rapporten': {
-      id: '/app/rapporten'
-      path: '/rapporten'
-      fullPath: '/app/rapporten'
-      preLoaderRoute: typeof AppRapportenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/avg': {
-      id: '/app/avg'
-      path: '/avg'
-      fullPath: '/app/avg'
-      preLoaderRoute: typeof AppAvgRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
@@ -637,22 +675,24 @@ interface AppRouteChildren {
   AppAanwezigheidRoute: typeof AppAanwezigheidRoute
   AppAbsentieRoute: typeof AppAbsentieRoute
   AppActiviteitenRoute: typeof AppActiviteitenRoute
+  AppAgendaRoute: typeof AppAgendaRoute
+  AppAvgRoute: typeof AppAvgRoute
   AppBerichtenRoute: typeof AppBerichtenRoute
   AppCijfersRoute: typeof AppCijfersRoute
   AppDocumentenRoute: typeof AppDocumentenRoute
+  AppGebruikersbeheerRoute: typeof AppGebruikersbeheerRoute
   AppGesprekkenRoute: typeof AppGesprekkenRoute
   AppHuiswerkRoute: typeof AppHuiswerkRoute
   AppImportRoute: typeof AppImportRoute
   AppLeerlingenRoute: typeof AppLeerlingenRoute
   AppOpdrachtenRoute: typeof AppOpdrachtenRoute
   AppPersoneelRoute: typeof AppPersoneelRoute
-  AppRoosterRoute: typeof AppRoosterRoute
-  AppVervangingRoute: typeof AppVervangingRoute
-  AppStudieplannerRoute: typeof AppStudieplannerRoute
-  AppToetsenRoute: typeof AppToetsenRoute
-  AppToestemmingRoute: typeof AppToestemmingRoute
   AppRapportenRoute: typeof AppRapportenRoute
-  AppAvgRoute: typeof AppAvgRoute
+  AppRoosterRoute: typeof AppRoosterRoute
+  AppStudieplannerRoute: typeof AppStudieplannerRoute
+  AppToestemmingRoute: typeof AppToestemmingRoute
+  AppToetsenRoute: typeof AppToetsenRoute
+  AppVervangingRoute: typeof AppVervangingRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -660,22 +700,24 @@ const AppRouteChildren: AppRouteChildren = {
   AppAanwezigheidRoute: AppAanwezigheidRoute,
   AppAbsentieRoute: AppAbsentieRoute,
   AppActiviteitenRoute: AppActiviteitenRoute,
+  AppAgendaRoute: AppAgendaRoute,
+  AppAvgRoute: AppAvgRoute,
   AppBerichtenRoute: AppBerichtenRoute,
   AppCijfersRoute: AppCijfersRoute,
   AppDocumentenRoute: AppDocumentenRoute,
+  AppGebruikersbeheerRoute: AppGebruikersbeheerRoute,
   AppGesprekkenRoute: AppGesprekkenRoute,
   AppHuiswerkRoute: AppHuiswerkRoute,
   AppImportRoute: AppImportRoute,
   AppLeerlingenRoute: AppLeerlingenRoute,
   AppOpdrachtenRoute: AppOpdrachtenRoute,
   AppPersoneelRoute: AppPersoneelRoute,
-  AppRoosterRoute: AppRoosterRoute,
-  AppVervangingRoute: AppVervangingRoute,
-  AppStudieplannerRoute: AppStudieplannerRoute,
-  AppToetsenRoute: AppToetsenRoute,
-  AppToestemmingRoute: AppToestemmingRoute,
   AppRapportenRoute: AppRapportenRoute,
-  AppAvgRoute: AppAvgRoute,
+  AppRoosterRoute: AppRoosterRoute,
+  AppStudieplannerRoute: AppStudieplannerRoute,
+  AppToestemmingRoute: AppToestemmingRoute,
+  AppToetsenRoute: AppToetsenRoute,
+  AppVervangingRoute: AppVervangingRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

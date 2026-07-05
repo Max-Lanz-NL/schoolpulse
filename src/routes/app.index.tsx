@@ -1,12 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
 import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels, weekRooster, personeel, berichten } from "@/lib/demo-data";
+import type { LucideIcon } from "lucide-react";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
-  ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users,
+  ArrowUpRight, CheckCircle2, Clock, AlertCircle, Users, Search, Download,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/")({ component: Dashboard });
 
@@ -27,7 +30,7 @@ function Dashboard() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, hint, tone = "default", to }: { icon: any; label: string; value: string; hint?: string; tone?: "default" | "success" | "warning"; to?: string }) {
+function StatCard({ icon: Icon, label, value, hint, tone = "default", to }: { icon: LucideIcon; label: string; value: string; hint?: string; tone?: "default" | "success" | "warning"; to?: string }) {
   const toneClass = tone === "success" ? "text-success" : tone === "warning" ? "text-warning" : "text-muted-foreground";
   const content = (
     <>
@@ -226,37 +229,56 @@ function DocentView() {
 
 function OuderView() {
   const navigate = useNavigate();
+  const [selectedKind, setSelectedKind] = useState(0);
+  const kinderen = [
+    { naam: "Sanne de Vries", klas: "V4B", niveau: "4 VWO", mentor: "L. de Boer", initials: "SV", gemiddelde: "7.4", aanwezigheid: "96%", taken: "3", meldingen: "2", hint_gem: "+0.3", hint_aanw: "", hint_taken: "1 deadline morgen", hint_meld: "" },
+    { naam: "Tom de Vries", klas: "V2A", niveau: "2 VWO", mentor: "P. Smit", initials: "TV", gemiddelde: "6.8", aanwezigheid: "94%", taken: "2", meldingen: "1", hint_gem: "-0.1", hint_aanw: "", hint_taken: "", hint_meld: "" },
+  ];
+  const kind = kinderen[selectedKind];
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-lg font-bold text-primary">SV</div>
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-lg font-bold text-primary">{kind.initials}</div>
           <div>
-            <div className="text-lg font-bold">Sanne de Vries</div>
-            <div className="text-sm text-muted-foreground">4 VWO · Klas V4B · Mentor: L. de Boer</div>
+            <div className="text-lg font-bold">{kind.naam}</div>
+            <div className="text-sm text-muted-foreground">{kind.niveau} · Klas {kind.klas} · Mentor: {kind.mentor}</div>
           </div>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => navigate({ to: "/app/berichten" })}
-              className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
-            >
-              Mentor bereiken
-            </button>
-            <button
-              onClick={() => navigate({ to: "/app/cijfers" })}
-              className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
-            >
-              Volledige voortgang
-            </button>
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex overflow-hidden rounded-lg border border-border">
+              {kinderen.map((k, i) => (
+                <button
+                  key={k.naam}
+                  onClick={() => setSelectedKind(i)}
+                  className={`px-3 py-1.5 text-xs font-semibold transition-colors ${selectedKind === i ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                >
+                  {k.naam.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate({ to: "/app/berichten" })}
+                className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
+              >
+                Mentor bereiken
+              </button>
+              <button
+                onClick={() => navigate({ to: "/app/cijfers" })}
+                className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                Volledige voortgang
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={BarChart3} label="Gemiddelde" value="7.4" hint="+0.3" tone="success" />
-        <StatCard icon={CheckCircle2} label="Aanwezigheid" value="96%" tone="success" />
-        <StatCard icon={FileCheck} label="Openstaande taken" value="3" tone="warning" />
-        <StatCard icon={AlertCircle} label="Meldingen" value="2" />
+        <StatCard to="/app/cijfers" icon={BarChart3} label="Gemiddelde" value={kind.gemiddelde} hint={kind.hint_gem} tone="success" />
+        <StatCard to="/app/aanwezigheid" icon={CheckCircle2} label="Aanwezigheid" value={kind.aanwezigheid} tone="success" />
+        <StatCard to="/app/opdrachten" icon={FileCheck} label="Openstaande taken" value={kind.taken} hint={kind.hint_taken} tone="warning" />
+        <StatCard to="/app/berichten" icon={AlertCircle} label="Meldingen" value={kind.meldingen} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -295,7 +317,7 @@ function OuderView() {
         </Card>
       </div>
 
-      <Card title="Weekoverzicht Sanne — week 28">
+      <Card title={`Weekoverzicht ${kind.naam.split(" ")[0]} — week 28`}>
         <div className="grid grid-cols-5 gap-2">
           {[
             { dag: "Ma", datum: "7 jul", lessen: weekRooster["Ma"].length, toets: null, deadline: null, afwezig: false },
@@ -324,7 +346,10 @@ function OuderView() {
 }
 
 function TeamleiderView() {
+  const [searchQ, setSearchQ] = useState("");
   const docentenAfwezig = personeel.filter((p) => !p.aanwezig);
+  const filteredKlassen = searchQ.trim() ? klassen.filter((k) => k.klas.toLowerCase().includes(searchQ.toLowerCase())) : klassen;
+  const filteredPersoneel = searchQ.trim() ? personeel.filter((p) => p.naam.toLowerCase().includes(searchQ.toLowerCase())) : personeel;
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -334,11 +359,16 @@ function TeamleiderView() {
         <StatCard to="/app/vervanging" icon={AlertCircle} label="Openstaande vervangingen" value="1" hint="Regelen vereist" tone="warning" />
       </div>
 
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <input value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder="Zoek klas of docent..." className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="Klassenoverzicht bovenbouw">
             <div className="grid gap-3 sm:grid-cols-2">
-              {klassen.map((k) => (
+              {filteredKlassen.map((k) => (
                 <div key={k.klas} className="rounded-xl border border-border p-4">
                   <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">{k.klas}</div>
@@ -386,15 +416,19 @@ function TeamleiderView() {
 
           <Card title="Docenten afwezig vandaag">
             <div className="space-y-2">
-              {docentenAfwezig.map((p) => (
+              {filteredPersoneel.map((p) => (
                 <div key={p.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2">
                   <div>
                     <div className="text-sm font-medium">{p.naam}</div>
-                    <div className="text-[11px] text-muted-foreground">{p.verlof ?? "Afwezig"}</div>
+                    <div className="text-[11px] text-muted-foreground">{p.verlof ?? (p.aanwezig ? "Aanwezig" : "Afwezig")}</div>
                   </div>
-                  <Link to="/app/vervanging" className="rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground">
-                    Regelen →
-                  </Link>
+                  {p.aanwezig ? (
+                    <span className="rounded-lg bg-success/10 px-2.5 py-1.5 text-[11px] font-semibold text-success">Beschikbaar</span>
+                  ) : (
+                    <Link to="/app/vervanging" className="rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground">
+                      Regelen →
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>
@@ -440,14 +474,40 @@ function TeamleiderView() {
 }
 
 function DirectieView() {
+  const [barDetail, setBarDetail] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
   const bars = [72, 68, 75, 71, 78, 74, 80, 77, 82, 79, 84, 81];
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <div className="relative">
+          <button onClick={() => setExportOpen((v) => !v)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold hover:bg-muted">
+            <Download className="h-4 w-4" /> Exporteer rapport
+          </button>
+          {exportOpen && (
+            <div className="absolute right-0 top-full z-10 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+              {[{ label: "PDF exporteren", ext: "pdf", mime: "application/pdf" }, { label: "Excel exporteren", ext: "xlsx", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, { label: "CSV exporteren", ext: "csv", mime: "text/csv" }].map((opt) => (
+                <button key={opt.ext} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted" onClick={() => {
+                  setExportOpen(false);
+                  const blob = new Blob(["Schoolrapport data..."], { type: opt.mime });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `schoolrapport.${opt.ext}`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success(`Schoolrapport geëxporteerd als ${opt.ext.toUpperCase()}`);
+                }}>{opt.label}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={Users} label="Leerlingen totaal" value="1.284" hint="+42 dit schooljaar" tone="success" />
-        <StatCard icon={BarChart3} label="Slagingspercentage" value="94%" hint="+2% t.o.v. vorig jaar" tone="success" />
-        <StatCard icon={CheckCircle2} label="Aanwezigheid" value="95.2%" hint="Boven landelijke norm" tone="success" />
-        <StatCard icon={AlertCircle} label="Meldingen dit jaar" value="63" hint="-12%" tone="success" />
+        <StatCard to="/app/leerlingen" icon={Users} label="Leerlingen totaal" value="1.284" hint="+42 dit schooljaar" tone="success" />
+        <StatCard to="/app/rapporten" icon={BarChart3} label="Slagingspercentage" value="94%" hint="+2% t.o.v. vorig jaar" tone="success" />
+        <StatCard to="/app/aanwezigheid" icon={CheckCircle2} label="Aanwezigheid" value="95.2%" hint="Boven landelijke norm" tone="success" />
+        <StatCard to="/app/berichten" icon={AlertCircle} label="Meldingen dit jaar" value="63" hint="-12%" tone="success" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -463,23 +523,28 @@ function DirectieView() {
             </div>
           </Card>
         </div>
-        <Card title="Resultaten per afdeling">
-          <div className="space-y-3">
+        <Card title="Slagingspercentage per afdeling">
+          <div className="space-y-2">
             {[
-              { a: "VWO", g: 7.6, k: "success" },
-              { a: "HAVO", g: 7.2, k: "success" },
-              { a: "VMBO-T", g: 6.9, k: "warning" },
-              { a: "Onderbouw", g: 7.4, k: "success" },
+              { a: "VWO", pct: 97, avg: 7.6, onvold: 12 },
+              { a: "HAVO", pct: 92, avg: 7.2, onvold: 28 },
+              { a: "VMBO", pct: 88, avg: 6.9, onvold: 41 },
             ].map((r) => (
-              <div key={r.a}>
+              <button key={r.a} onClick={() => setBarDetail(barDetail === r.a ? null : r.a)} className="w-full rounded-lg p-1 text-left transition-colors hover:bg-muted/30">
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="font-medium">{r.a}</span>
-                  <span className="font-semibold">{r.g.toFixed(1)}</span>
+                  <span className="font-semibold">{r.pct}%</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div className={`h-full ${r.k === "warning" ? "bg-warning" : "bg-primary"}`} style={{ width: `${(r.g / 10) * 100}%` }} />
+                  <div className="h-full bg-primary transition-all" style={{ width: `${r.pct}%` }} />
                 </div>
-              </div>
+                {barDetail === r.a && (
+                  <div className="mt-2 space-y-1 rounded-lg bg-muted/50 p-2 text-xs">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Gemiddeld cijfer</span><span className="font-semibold">{r.avg}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Aantal onvoldoendes</span><span className="font-semibold text-destructive">{r.onvold}</span></div>
+                  </div>
+                )}
+              </button>
             ))}
           </div>
         </Card>
@@ -518,6 +583,25 @@ function DirectieView() {
               </div>
             );
           })}
+        </div>
+      </Card>
+
+      <Card title="Verzuim per maand" action={<span className="text-xs text-muted-foreground">2026</span>}>
+        <div className="flex h-40 items-end gap-1.5">
+          {[
+            { m: "Jan", p: 5.2 }, { m: "Feb", p: 4.8 }, { m: "Mrt", p: 5.5 }, { m: "Apr", p: 4.2 },
+            { m: "Mei", p: 6.1 }, { m: "Jun", p: 5.8 }, { m: "Jul", p: 4.5 },
+          ].map((r) => (
+            <button key={r.m} onClick={() => setBarDetail(barDetail === `verzuim-${r.m}` ? null : `verzuim-${r.m}`)} className="group flex flex-1 flex-col items-center gap-1">
+              {barDetail === `verzuim-${r.m}` && (
+                <div className="absolute -translate-y-full rounded border border-border bg-popover px-2 py-1 text-[10px] shadow">{r.p}%</div>
+              )}
+              <div className="relative w-full">
+                <div className="w-full rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${r.p * 12}px` }} />
+              </div>
+              <div className="text-[9px] text-muted-foreground">{r.m}</div>
+            </button>
+          ))}
         </div>
       </Card>
 

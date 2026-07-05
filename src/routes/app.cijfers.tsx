@@ -5,6 +5,7 @@ import { cijfers, docentKlassen, klassen, type Leerling } from "@/lib/demo-data"
 import { useRole } from "@/lib/role-context";
 import { TrendingUp, TrendingDown, Minus, ArrowLeft, Plus, Pencil, Trash2, X, Users, BarChart3 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/cijfers")({ component: CijfersPage });
 
@@ -18,12 +19,41 @@ function CijfersPage() {
 // ─────────────── LEERLING ───────────────
 function LeerlingCijfers() {
   const [tab, setTab] = useState<"recent" | "overzicht" | "prognose">("recent");
+  const [filterVak, setFilterVak] = useState("alle");
+  const [filterPeriode, setFilterPeriode] = useState("alle");
+
+  const vakken = Array.from(new Set(cijfers.map((c) => c.vak)));
+  const getPeriode = (iso: string) => {
+    const m = parseInt(iso.split("-")[1]);
+    if (m >= 9 && m <= 11) return "P1";
+    if (m === 12 || m <= 2) return "P2";
+    if (m >= 3 && m <= 5) return "P3";
+    return "P4";
+  };
 
   // Flatten en sorteer alle cijfers nieuw → oud
   const alle = cijfers.flatMap((c) => c.toetsen.map((t) => ({ ...t, vak: c.vak }))).sort((a, b) => b.iso.localeCompare(a.iso));
+  const alleFiltered = alle.filter((t) => {
+    if (filterVak !== "alle" && t.vak !== filterVak) return false;
+    if (filterPeriode !== "alle" && getPeriode(t.iso) !== filterPeriode) return false;
+    return true;
+  });
 
   return (
     <AppShell title="Cijfers" subtitle="Schooljaar 2025-2026">
+      <div className="mb-4 flex flex-wrap gap-2">
+        <select value={filterVak} onChange={(e) => setFilterVak(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary">
+          <option value="alle">Alle vakken</option>
+          {vakken.map((v) => <option key={v} value={v}>{v}</option>)}
+        </select>
+        <select value={filterPeriode} onChange={(e) => setFilterPeriode(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary">
+          <option value="alle">Alle periodes</option>
+          <option value="P1">Periode 1 (sep–nov)</option>
+          <option value="P2">Periode 2 (dec–feb)</option>
+          <option value="P3">Periode 3 (mrt–mei)</option>
+          <option value="P4">Periode 4 (jun–aug)</option>
+        </select>
+      </div>
       <div className="mb-6 inline-flex rounded-lg border border-border bg-card p-1">
         <button onClick={() => setTab("recent")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "recent" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Recent</button>
         <button onClick={() => setTab("overzicht")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "overzicht" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Overzicht</button>
@@ -33,7 +63,7 @@ function LeerlingCijfers() {
       {tab === "recent" ? (
         <Card title="Recente cijfers">
           <div className="space-y-2">
-            {alle.map((t, i) => (
+            {alleFiltered.map((t, i) => (
               <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">{t.vak}</div>
@@ -47,7 +77,7 @@ function LeerlingCijfers() {
           </div>
         </Card>
       ) : tab === "overzicht" ? (
-        <Overzicht />
+        <Overzicht filterVak={filterVak} filterPeriode={filterPeriode} />
       ) : (
         <Prognose />
       )}
@@ -108,17 +138,28 @@ function Prognose() {
   );
 }
 
-function Overzicht() {
+function Overzicht({ filterVak, filterPeriode }: { filterVak: string; filterPeriode: string }) {
   const norm = 5.5;
+  const getPeriode = (iso: string) => {
+    const m = parseInt(iso.split("-")[1]);
+    if (m >= 9 && m <= 11) return "P1";
+    if (m === 12 || m <= 2) return "P2";
+    if (m >= 3 && m <= 5) return "P3";
+    return "P4";
+  };
+  const cijfersFiltered = cijfers
+    .filter((c) => filterVak === "alle" || c.vak === filterVak)
+    .map((c) => ({ ...c, toetsen: c.toetsen.filter((t) => filterPeriode === "alle" || getPeriode(t.iso) === filterPeriode) }))
+    .filter((c) => c.toetsen.length > 0 || filterPeriode === "alle");
   return (
     <div className="space-y-3">
       <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-xs text-muted-foreground">
         <span className="font-semibold text-foreground">Voldoende-norm: 5.5.</span> Onder deze grens tel je als tekort. Hieronder zie je per vak wat je nog nodig hebt om weer voldoende te staan.
       </div>
-      {cijfers.map((c) => {
+      {cijfersFiltered.map((c) => {
         const totWeging = c.toetsen.reduce((a, t) => a + t.weging, 0);
         const totSom = c.toetsen.reduce((a, t) => a + t.cijfer * t.weging, 0);
-        const gem = totSom / totWeging;
+        const gem = totWeging ? totSom / totWeging : 0;
         const isOnvold = gem < norm;
         // Nodig cijfer (weging 1 extra toets) om op 5.5 te komen: (5.5 * (W+1)) − som
         const nodig = Math.max(1, Math.min(10, norm * (totWeging + 1) - totSom));
@@ -170,6 +211,7 @@ function DocentCijfers() {
   const [leerlingId, setLeerlingId] = useState<string | null>(null);
   const [data, setData] = useState(() => JSON.parse(JSON.stringify(docentKlassen)) as typeof docentKlassen);
   const [modal, setModal] = useState<{ leerling: Leerling; index: number | null } | null>(null);
+  const [docentTab, setDocentTab] = useState<"leerlingen" | "snel">("leerlingen");
 
   if (klasIdx === null) {
     return (
@@ -193,21 +235,29 @@ function DocentCijfers() {
     return (
       <AppShell title={`Cijfers · ${klas.klas}`} subtitle={klas.vak}>
         <button onClick={() => setKlasIdx(null)} className="mb-4 inline-flex items-center gap-1 text-xs font-semibold text-primary"><ArrowLeft className="h-3.5 w-3.5" /> Terug naar klassen</button>
-        <Card title="Leerlingen">
-          <div className="space-y-2">
-            {klas.leerlingen.map((l) => {
-              const c = l.cijfers[klas.vak] ?? [];
-              const gem = c.length ? c.reduce((a, t) => a + t.cijfer * t.weging, 0) / c.reduce((a, t) => a + t.weging, 0) : 0;
-              return (
-                <button key={l.id} onClick={() => setLeerlingId(l.id)}
-                  className="flex w-full items-center justify-between rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50">
-                  <div className="text-sm font-semibold">{l.naam}</div>
-                  <div className={`text-base font-bold ${gem < 5.5 && gem > 0 ? "text-destructive" : ""}`}>{gem ? gem.toFixed(1) : "—"}</div>
-                </button>
-              );
-            })}
-          </div>
-        </Card>
+        <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
+          <button onClick={() => setDocentTab("leerlingen")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${docentTab === "leerlingen" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Leerlingen</button>
+          <button onClick={() => setDocentTab("snel")} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${docentTab === "snel" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Snel invoeren</button>
+        </div>
+        {docentTab === "snel" ? (
+          <SnelInvoerTab klas={klas} klasIdx={klasIdx} data={data} setData={setData} />
+        ) : (
+          <Card title="Leerlingen">
+            <div className="space-y-2">
+              {klas.leerlingen.map((l) => {
+                const c = l.cijfers[klas.vak] ?? [];
+                const gem = c.length ? c.reduce((a, t) => a + t.cijfer * t.weging, 0) / c.reduce((a, t) => a + t.weging, 0) : 0;
+                return (
+                  <button key={l.id} onClick={() => setLeerlingId(l.id)}
+                    className="flex w-full items-center justify-between rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50">
+                    <div className="text-sm font-semibold">{l.naam}</div>
+                    <div className={`text-base font-bold ${gem < 5.5 && gem > 0 ? "text-destructive" : ""}`}>{gem ? gem.toFixed(1) : "—"}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+        )}
       </AppShell>
     );
   }
@@ -269,6 +319,82 @@ function DocentCijfers() {
         onClose={() => setModal(null)}
       />}
     </AppShell>
+  );
+}
+
+function SnelInvoerTab({
+  klas,
+  klasIdx,
+  data: _data,
+  setData,
+}: {
+  klas: typeof docentKlassen[0];
+  klasIdx: number;
+  data: typeof docentKlassen;
+  setData: (updater: (d: typeof docentKlassen) => typeof docentKlassen) => void;
+}) {
+  const [toetsnaam, setToetsnaam] = useState("");
+  const [invoerCijfers, setInvoerCijfers] = useState<Record<string, string>>({});
+  void _data;
+
+  const heeftData = Object.values(invoerCijfers).some(Boolean) && toetsnaam.trim();
+
+  return (
+    <Card title="Snel invoeren">
+      <div className="mb-4 space-y-3">
+        <input value={toetsnaam} onChange={(e) => setToetsnaam(e.target.value)} placeholder="Toetsnaam (bijv. SO Hoofdstuk 5)" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr><th className="px-4 py-2 text-left">Leerling</th><th className="w-32 px-4 py-2 text-right">Cijfer</th></tr>
+          </thead>
+          <tbody>
+            {klas.leerlingen.map((l, li) => (
+              <tr key={l.id} className="border-t border-border">
+                <td className="px-4 py-2 font-medium">{l.naam}</td>
+                <td className="px-4 py-2 text-right">
+                  <input
+                    autoFocus={li === 0}
+                    type="number" step="0.1" min="1" max="10"
+                    value={invoerCijfers[l.id] ?? ""}
+                    onChange={(e) => setInvoerCijfers((s) => ({ ...s, [l.id]: e.target.value }))}
+                    placeholder="—"
+                    className="w-24 rounded-lg border border-border bg-background px-2 py-1 text-right text-sm outline-none focus:border-primary"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 flex justify-end">
+        <button
+          disabled={!heeftData}
+          onClick={() => {
+            const nu = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
+            const count = Object.values(invoerCijfers).filter(Boolean).length;
+            setData((d) => {
+              const nd = JSON.parse(JSON.stringify(d)) as typeof d;
+              klas.leerlingen.forEach((l, li) => {
+                const val = invoerCijfers[l.id];
+                if (!val) return;
+                const vak = klas.vak;
+                if (!nd[klasIdx].leerlingen[li].cijfers[vak]) nd[klasIdx].leerlingen[li].cijfers[vak] = [];
+                nd[klasIdx].leerlingen[li].cijfers[vak].push({ naam: toetsnaam, cijfer: parseFloat(val), weging: 1, datum: nu });
+              });
+              return nd;
+            });
+            setInvoerCijfers({});
+            setToetsnaam("");
+            toast.success(`${count} cijfers opgeslagen`);
+          }}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          Opslaan alle cijfers
+        </button>
+      </div>
+    </Card>
   );
 }
 
