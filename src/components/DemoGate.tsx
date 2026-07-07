@@ -1,8 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useRole } from "@/lib/role-context";
-import logo from "@/assets/schoolpulse-logo.png";
-import { ShieldCheck, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { ShieldCheck, ArrowRight } from "lucide-react";
+import type { Session } from "@supabase/supabase-js";
+
+import logo from "@/assets/schoolpulse-logo.png";
+import type { Role } from "@/lib/demo-data";
+import { useRole } from "@/lib/role-context";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 export function DemoGate({ children }: { children: ReactNode }) {
@@ -23,7 +26,7 @@ export function DemoGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isProductionAppHost) return <ProductionAppGate />;
+  if (isProductionAppHost) return <ProductionAppGate>{children}</ProductionAppGate>;
 
   return <DemoAccessGate>{children}</DemoAccessGate>;
 }
@@ -116,13 +119,45 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
   );
 }
 
-function ProductionAppGate() {
+type ProductionRole = "platform_admin" | "school_admin" | "teacher" | "student" | "parent";
+
+type ProductionProfile = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: ProductionRole;
+  school_name: string | null;
+  created_at: string;
+};
+
+const allowedProductionRoles = new Set<ProductionRole>([
+  "platform_admin",
+  "school_admin",
+  "teacher",
+  "student",
+  "parent",
+]);
+
+function toDemoRole(role: ProductionRole): Role {
+  const roleMap: Record<ProductionRole, Role> = {
+    platform_admin: "directie",
+    school_admin: "teamleider",
+    teacher: "docent",
+    student: "leerling",
+    parent: "ouder",
+  };
+  return roleMap[role];
+}
+
+function ProductionAppGate({ children }: { children: ReactNode }) {
+  const { setRole } = useRole();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState<ProductionProfile | null>(null);
   const [supabase, setSupabase] = useState<ReturnType<typeof getSupabaseBrowserClient> | null>(
     null,
   );
@@ -137,35 +172,80 @@ function ProductionAppGate() {
   }, []);
 
   useEffect(() => {
-    if (!supabase) {
-      return;
-    }
+    if (!profile) return;
+    setRole(toDemoRole(profile.role));
+  }, [profile, setRole]);
+
+  useEffect(() => {
+    if (!supabase) return;
 
     let active = true;
+
+    const loadProfile = async (userId: string): Promise<ProductionProfile | null> => {
+      const { data: loadedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id,email,full_name,role,school_name,created_at")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profileError) {
+        setError("Profiel kon niet worden geladen. Neem contact op met je beheerder.");
+        return null;
+      }
+
+      if (!loadedProfile) {
+        setError("Je account heeft nog geen Schoolpulse profiel. Vraag toegang bij je beheerder.");
+        return null;
+      }
+
+      if (!allowedProductionRoles.has(loadedProfile.role as ProductionRole)) {
+        setError("Je accountrol is ongeldig. Neem contact op met je beheerder.");
+        return null;
+      }
+
+      return loadedProfile as ProductionProfile;
+    };
+
+    const syncSession = async (session: Session | null) => {
+      if (!active) return;
+      if (!session?.user) {
+        setIsLoggedIn(false);
+        setProfile(null);
+        setReady(true);
+        return;
+      }
+
+      setIsLoggedIn(true);
+      const loadedProfile = await loadProfile(session.user.id);
+      if (!active) return;
+      setProfile(loadedProfile);
+      setReady(true);
+    };
+
     supabase.auth
       .getSession()
-      .then(({ data, error: sessionError }) => {
+      .then(async ({ data, error: sessionError }) => {
         if (!active) return;
         if (sessionError) {
           setError("Sessie kon niet worden geladen.");
           setIsLoggedIn(false);
+          setProfile(null);
           setReady(true);
           return;
         }
 
-        setIsLoggedIn(Boolean(data.session?.user));
-        setReady(true);
+        await syncSession(data.session);
       })
       .catch(() => {
         if (!active) return;
         setError("Sessie kon niet worden geladen.");
         setIsLoggedIn(false);
+        setProfile(null);
         setReady(true);
       });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!active) return;
-      setIsLoggedIn(Boolean(session?.user));
+      void syncSession(session);
     });
 
     return () => {
@@ -219,19 +299,22 @@ function ProductionAppGate() {
     );
   }
 
-  if (isLoggedIn) {
+  if (isLoggedIn && !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">
         <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-[var(--shadow-elegant)]">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-warning/15 text-warning">
             <ShieldCheck className="h-6 w-6" />
           </div>
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">
-            Je bent ingelogd bij Schoolpulse
-          </h1>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">Geen toegang tot Schoolpulse</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            De productie-app wordt hier binnenkort beschikbaar.
+            Je bent ingelogd, maar je profiel is niet gekoppeld of heeft geen geldige rol.
           </p>
+          {error && (
+            <div className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+              {error}
+            </div>
+          )}
           <button
             type="button"
             onClick={signOut}
@@ -243,6 +326,10 @@ function ProductionAppGate() {
         </div>
       </div>
     );
+  }
+
+  if (isLoggedIn && profile) {
+    return <>{children}</>;
   }
 
   return (
