@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
+import { DOMAIN_ORIGINS } from "@/lib/domains";
 
 const berichtenBadge = (role: Role): number => {
   const map = { leerling: leerlingBerichten, docent: docentBerichten, ouder: ouderBerichten, teamleider: teamleiderBerichten, directie: directieBerichten };
@@ -342,13 +343,38 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                 </div>
                 <div className="py-1">
                   {[
-                    { icon: User, label: "Mijn profiel", msg: "Profielbeheer komt binnenkort beschikbaar" },
-                    { icon: Shield, label: "Privacy & 2FA", msg: "Privacy- en 2FA-instellingen komen binnenkort" },
-                    { icon: HelpCircle, label: "Help & support", msg: "Meer info op docs.schoolpulse.nl" },
+                    {
+                      icon: User,
+                      label: "Mijn profiel",
+                      onClick: () => {
+                        navigate({ to: "/app" });
+                        toast.success("Profieloverzicht geopend");
+                      },
+                    },
+                    {
+                      icon: Shield,
+                      label: "Privacy & 2FA",
+                      onClick: () => {
+                        navigate({ to: "/app/avg" });
+                        toast.success("Privacy instellingen geopend");
+                      },
+                    },
+                    {
+                      icon: HelpCircle,
+                      label: "Help & support",
+                      onClick: () => {
+                        if (typeof window !== "undefined") {
+                          window.open(DOMAIN_ORIGINS.docs, "_blank", "noopener,noreferrer");
+                        }
+                      },
+                    },
                   ].map((it) => (
                     <button
                       key={it.label}
-                      onClick={() => { toast(it.label, { description: it.msg }); setSettingsOpen(false); }}
+                      onClick={() => {
+                        it.onClick();
+                        setSettingsOpen(false);
+                      }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
                     >
                       <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
