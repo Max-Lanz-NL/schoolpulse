@@ -41,7 +41,7 @@ function Landing() {
           <div className="flex items-center gap-2">
             <Link to="/contact" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted sm:inline-flex">Contact</Link>
             <Link to="/contact" className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90">
-              Demo aanvragen <ArrowRight className="h-4 w-4" />
+              Offerte aanvragen <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -53,7 +53,7 @@ function Landing() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-20 pt-16 md:grid-cols-[1.15fr_0.85fr] md:px-6 md:pb-24 md:pt-24">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-[var(--shadow-soft)]">
-              <Sparkles className="h-3.5 w-3.5 text-primary" /> Demo-ready voor Nederlandse scholen
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Live demo voor Nederlandse scholen
             </div>
             <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
               Eén platform voor <span className="text-primary">rooster, communicatie en voortgang</span>.
@@ -63,7 +63,7 @@ function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
-                Plan een demo
+                Vraag offerte aan
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a href="#demo" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
@@ -78,7 +78,9 @@ function Landing() {
           </div>
 
           <div className="rounded-3xl border border-border/80 bg-card p-5 shadow-[var(--shadow-elegant)] md:p-6">
-            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Waarom scholen kiezen</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Waarom voor <span className="text-primary">Schoolpulse</span> kiezen
+            </div>
             <div className="mt-4 space-y-3">
               {[
                 { t: "Minder losse tools", d: "Rooster, berichten, dossiers en voortgang in één omgeving." },
@@ -102,7 +104,7 @@ function Landing() {
             "AVG-minded ontwerp",
             "Veilig berichtenverkeer",
             "Rollen met passende toegang",
-            "Demo-ready voor besluitvorming",
+            "Live demo voor besluitvorming",
           ].map((item) => (
             <div key={item} className="rounded-xl border border-border/70 bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-[var(--shadow-soft)]">
               {item}
@@ -173,16 +175,13 @@ function Landing() {
             <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wider text-primary">Volgende stap</div>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Vraag een demo aan voor jouw schoolteam</h2>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Vraag een offerte aan voor jouw schoolteam</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  In een korte sessie laten we de flow zien voor directie, docenten, ouders en leerlingen. Zo zie je direct of Schoolpulse past bij jullie school.
+                  De openbare live demo is direct beschikbaar. Vraag een offerte aan voor implementatie, onboarding en inrichting voor jullie school.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-                    Demo aanvragen <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
-                    Contact opnemen
+                    Offerte aanvragen / Contact opnemen <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
