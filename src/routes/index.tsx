@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
+import { DEMO_APP_URL } from "@/lib/domains";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
@@ -66,7 +67,7 @@ function Landing() {
                 Vraag offerte aan
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
+              <a href={DEMO_APP_URL} className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
                 Bekijk live demo
               </a>
             </div>
