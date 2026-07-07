@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, ArrowLeft, TrendingUp, CheckCircle2, AlertCircle } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
+import { DEMO_APP_URL } from "@/lib/domains";
 
 export const Route = createFileRoute("/features/voortgang")({
   component: FeatureVoortgang,
@@ -92,12 +93,12 @@ function FeatureVoortgang() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link
-              to="/app"
+            <a
+              href={DEMO_APP_URL}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Bekijk in de demo
-            </Link>
+            </a>
           </div>
         </div>
       </section>

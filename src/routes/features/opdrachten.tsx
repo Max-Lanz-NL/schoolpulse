@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FileText, ArrowLeft, Upload, Search, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
+import { DEMO_APP_URL } from "@/lib/domains";
 
 export const Route = createFileRoute("/features/opdrachten")({
   component: FeatureDetail,
@@ -109,12 +110,12 @@ function FeatureDetail() {
           {/* CTA */}
           <div className="mt-16 rounded-2xl border border-border bg-muted/40 p-8 text-center">
             <h3 className="text-xl font-semibold">Digitaliseer je beoordeling?</h3>
-            <Link
-              to="/app"
+            <a
+              href={DEMO_APP_URL}
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Bekijk Schoolpulse demo
-            </Link>
+            </a>
           </div>
         </div>
       </section>
