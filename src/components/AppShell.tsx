@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
-import { roleLabels, roleUsers, meldingen, docentMeldingen, teamleiderMeldingen, directieMeldingen, type Role } from "@/lib/demo-data";
+import { roleLabels, roleUsers, meldingen, docentMeldingen, teamleiderMeldingen, directieMeldingen, berichten as leerlingBerichten, docentBerichten, ouderBerichten, teamleiderBerichten, directieBerichten, type Role } from "@/lib/demo-data";
 import {
   LayoutDashboard, Calendar, BarChart3, MessageSquare, FileCheck,
   FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
@@ -13,12 +13,18 @@ import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
 
+const berichtenBadge = (role: Role): number => {
+  const map = { leerling: leerlingBerichten, docent: docentBerichten, ouder: ouderBerichten, teamleider: teamleiderBerichten, directie: directieBerichten };
+  return map[role].filter((b) => b.ongelezen).length;
+};
+
 const getModules = (role: Role) => {
+  const badge = berichtenBadge(role) || undefined;
   const base = [
     { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/app/rooster", label: "Rooster", icon: Calendar },
     { to: "/app/cijfers", label: "Cijfers", icon: BarChart3 },
-    { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge: 2 },
+    { to: "/app/berichten", label: "Berichten", icon: MessageSquare, badge },
     { to: "/app/opdrachten", label: "Opdrachten", icon: FileCheck },
     { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
     { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
