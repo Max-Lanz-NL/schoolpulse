@@ -211,7 +211,7 @@ export function handleDomainRouting(request: Request): Response | null {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.marketing, pathname, search));
     }
     if (isAppPath(pathname)) {
-      return redirect(toOriginUrl(DOMAIN_ORIGINS.app, pathname, search));
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, `${adminPrefix}/dashboard`, ""));
     }
     if (pathname === "/api" || pathname.startsWith("/api/")) {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.api, pathname, search));

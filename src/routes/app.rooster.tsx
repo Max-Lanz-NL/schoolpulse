@@ -97,8 +97,8 @@ function Rooster() {
               const nr = uurNummer(l.start);
               return (
                 <button key={l.start} onClick={() => openDetail(l, currentDag)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50">
-                  <div className={`h-10 w-1 rounded-full ${l.kleur}`} />
+                  className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50">
+                  <div className={`h-10 w-1 shrink-0 rounded-full ${l.kleur}`} />
                   <div className="w-8 shrink-0 text-center">
                     <div className="text-[10px] font-semibold uppercase text-muted-foreground">uur</div>
                     <div className="text-sm font-bold">{nr}</div>
@@ -193,7 +193,7 @@ function FragmentRow({ start, uur, onOpen }: { start: string; uur: number; onOpe
         if (!cell) return <div key={d + start} className="min-h-[64px] rounded-lg bg-muted/40" />;
         return (
           <button key={d + start} onClick={() => onOpen(cell, d)}
-            className={`relative min-h-[64px] rounded-lg border border-border bg-background p-2 text-left hover:border-primary/50 ${cell.wijziging ? "ring-1 ring-warning" : ""}`}>
+            className={`relative min-h-[64px] overflow-hidden rounded-lg border border-border bg-background p-2 text-left hover:border-primary/50 ${cell.wijziging ? "ring-1 ring-warning" : ""}`}>
             <div className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${cell.kleur}`} />
             <div className="pl-2 text-xs font-semibold">{cell.vak}</div>
             <div className="pl-2 text-[10px] text-muted-foreground">{cell.lokaal} · {cell.docent}</div>

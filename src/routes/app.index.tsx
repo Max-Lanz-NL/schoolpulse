@@ -66,9 +66,9 @@ function LeerlingView() {
                 <Link
                   key={l.tijd}
                   to="/app/rooster"
-                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
+                  className="flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
                 >
-                  <div className={`h-10 w-1 rounded-full ${l.kleur}`} />
+                  <div className={`h-10 w-1 shrink-0 rounded-full ${l.kleur}`} />
                   <div className="w-28 shrink-0 text-xs text-muted-foreground">{l.tijd}</div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">{l.vak}</div>
