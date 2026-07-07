@@ -34,6 +34,31 @@ export function getAdminSupabaseClient() {
   return getSupabaseBrowserClient();
 }
 
+function isMissingSchoolIdColumnError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String(error.message) : "";
+  return message.includes("school_id") && message.toLowerCase().includes("column");
+}
+
+function normalizeProfileRecord(
+  record: Omit<Profile, "school_id"> & { school_id?: string | null },
+): Profile {
+  return {
+    ...record,
+    school_id: record.school_id ?? null,
+  };
+}
+
+export function getReadableAdminError(error: unknown, fallback: string): string {
+  if (!error || typeof error !== "object") return fallback;
+  const message = "message" in error ? String(error.message) : "";
+  if (!message) return fallback;
+  if (isMissingSchoolIdColumnError(error)) {
+    return "Database migraties zijn nog niet volledig uitgevoerd (profiles.school_id ontbreekt).";
+  }
+  return message;
+}
+
 export async function getCurrentProfile(userId: string): Promise<Profile | null> {
   const supabase = getAdminSupabaseClient();
   const { data, error } = await supabase
@@ -42,8 +67,17 @@ export async function getCurrentProfile(userId: string): Promise<Profile | null>
     .eq("id", userId)
     .maybeSingle();
 
-  if (error) throw error;
-  return data as Profile | null;
+  if (!error) return data ? normalizeProfileRecord(data as Profile) : null;
+  if (!isMissingSchoolIdColumnError(error)) throw error;
+
+  const fallback = await supabase
+    .from("profiles")
+    .select("id,email,full_name,role,school_name,created_at")
+    .eq("id", userId)
+    .maybeSingle();
+  if (fallback.error) throw fallback.error;
+
+  return fallback.data ? normalizeProfileRecord(fallback.data as Omit<Profile, "school_id">) : null;
 }
 
 export async function listProfiles(): Promise<Profile[]> {
@@ -53,8 +87,18 @@ export async function listProfiles(): Promise<Profile[]> {
     .select("id,email,full_name,role,school_name,school_id,created_at")
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
-  return (data ?? []) as Profile[];
+  if (!error) return (data ?? []).map((row) => normalizeProfileRecord(row as Profile));
+  if (!isMissingSchoolIdColumnError(error)) throw error;
+
+  const fallback = await supabase
+    .from("profiles")
+    .select("id,email,full_name,role,school_name,created_at")
+    .order("created_at", { ascending: false });
+  if (fallback.error) throw fallback.error;
+
+  return (fallback.data ?? []).map((row) =>
+    normalizeProfileRecord(row as Omit<Profile, "school_id">),
+  );
 }
 
 export async function listSchools(): Promise<School[]> {

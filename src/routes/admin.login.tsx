@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
 import logo from "@/assets/schoolpulse-logo.png";
-import { getAdminSupabaseClient, getCurrentProfile } from "@/lib/admin-client";
+import {
+  getAdminSupabaseClient,
+  getCurrentProfile,
+  getReadableAdminError,
+} from "@/lib/admin-client";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLoginPage,
@@ -29,14 +33,21 @@ function AdminLoginPage() {
           setLoading(false);
           return;
         }
-        const profile = await getCurrentProfile(data.session.user.id);
-        if (!active) return;
-        if (profile?.role === "platform_admin") {
-          void navigate({ to: "/admin/dashboard", replace: true });
-          return;
+        try {
+          const profile = await getCurrentProfile(data.session.user.id);
+          if (!active) return;
+          if (profile?.role === "platform_admin") {
+            void navigate({ to: "/admin/dashboard", replace: true });
+            return;
+          }
+          await supabase.auth.signOut();
+          setLoading(false);
+        } catch (profileError) {
+          if (!active) return;
+          await supabase.auth.signOut();
+          setError(getReadableAdminError(profileError, "Profiel kon niet worden geladen."));
+          setLoading(false);
         }
-        await supabase.auth.signOut();
-        setLoading(false);
       })
       .catch(() => {
         if (!active) return;
@@ -75,16 +86,22 @@ function AdminLoginPage() {
       return;
     }
 
-    const profile = await getCurrentProfile(data.user.id);
-    if (!profile || profile.role !== "platform_admin") {
+    try {
+      const profile = await getCurrentProfile(data.user.id);
+      if (!profile || profile.role !== "platform_admin") {
+        await supabase.auth.signOut();
+        setSubmitting(false);
+        setError("Geen toegang: alleen platform_admin accounts mogen inloggen.");
+        return;
+      }
+
+      setSubmitting(false);
+      void navigate({ to: "/admin/dashboard", replace: true });
+    } catch (profileError) {
       await supabase.auth.signOut();
       setSubmitting(false);
-      setError("Geen toegang: alleen platform_admin accounts mogen inloggen.");
-      return;
+      setError(getReadableAdminError(profileError, "Profielcontrole is mislukt. Probeer opnieuw."));
     }
-
-    setSubmitting(false);
-    void navigate({ to: "/admin/dashboard", replace: true });
   };
 
   if (loading) {

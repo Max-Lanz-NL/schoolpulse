@@ -2,7 +2,12 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 
-import { getAdminSupabaseClient, getCurrentProfile, type Profile } from "@/lib/admin-client";
+import {
+  getAdminSupabaseClient,
+  getCurrentProfile,
+  getReadableAdminError,
+  type Profile,
+} from "@/lib/admin-client";
 
 export function AdminGuard({ children }: { children: (profile: Profile) => ReactNode }) {
   const navigate = useNavigate();
@@ -36,9 +41,9 @@ export function AdminGuard({ children }: { children: (profile: Profile) => React
         }
         setProfile(currentProfile);
         setLoading(false);
-      } catch {
+      } catch (profileError) {
         if (!active) return;
-        setError("Profiel kon niet worden geladen.");
+        setError(getReadableAdminError(profileError, "Profiel kon niet worden geladen."));
         setLoading(false);
       }
     };
