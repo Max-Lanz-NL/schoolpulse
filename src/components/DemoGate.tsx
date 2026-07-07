@@ -13,7 +13,10 @@ export function DemoGate({ children }: { children: ReactNode }) {
   }, []);
 
   const isProductionAppHost =
-    mounted && typeof window !== "undefined" && window.location.hostname === "app.schoolpulse.nl";
+    mounted &&
+    typeof window !== "undefined" &&
+    (window.location.hostname === "app.schoolpulse.nl" ||
+      window.location.hostname === "admin.schoolpulse.nl");
 
   if (!mounted) {
     return (
@@ -23,7 +26,7 @@ export function DemoGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isProductionAppHost) return <ProductionAppGate />;
+  if (isProductionAppHost) return <ProductionAppGate>{children}</ProductionAppGate>;
 
   return <DemoAccessGate>{children}</DemoAccessGate>;
 }
@@ -116,7 +119,7 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
   );
 }
 
-function ProductionAppGate() {
+function ProductionAppGate({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -204,13 +207,6 @@ function ProductionAppGate() {
     setPassword("");
   };
 
-  const signOut = async () => {
-    if (!supabase) return;
-    setBusy(true);
-    await supabase.auth.signOut();
-    setBusy(false);
-  };
-
   if (!ready) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">
@@ -219,31 +215,7 @@ function ProductionAppGate() {
     );
   }
 
-  if (isLoggedIn) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">
-        <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-[var(--shadow-elegant)]">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-success/15 text-success">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">
-            Je bent ingelogd bij Schoolpulse
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            De productie-app wordt hier binnenkort beschikbaar.
-          </p>
-          <button
-            type="button"
-            onClick={signOut}
-            disabled={busy}
-            className="mt-6 inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
-          >
-            Uitloggen
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoggedIn) return <>{children}</>;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">

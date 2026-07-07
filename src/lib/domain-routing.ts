@@ -1,7 +1,12 @@
 import { DOMAIN_ORIGINS } from "./domains";
 
 const marketingHosts = new Set(["schoolpulse.nl", "www.schoolpulse.nl"]);
-const appHosts = new Set(["app.schoolpulse.nl", "demo.schoolpulse.nl", "test.schoolpulse.nl"]);
+const appHosts = new Set([
+  "app.schoolpulse.nl",
+  "admin.schoolpulse.nl",
+  "demo.schoolpulse.nl",
+  "test.schoolpulse.nl",
+]);
 const apiHost = "api.schoolpulse.nl";
 const docsHost = "docs.schoolpulse.nl";
 
@@ -160,7 +165,9 @@ export function handleDomainRouting(request: Request): Response | null {
 
   if (appHosts.has(hostname)) {
     const appOrigin =
-      hostname === "demo.schoolpulse.nl"
+      hostname === "admin.schoolpulse.nl"
+        ? DOMAIN_ORIGINS.admin
+        : hostname === "demo.schoolpulse.nl"
         ? DOMAIN_ORIGINS.demo
         : hostname === "test.schoolpulse.nl"
           ? DOMAIN_ORIGINS.test

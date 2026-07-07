@@ -1,110 +1,165 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
 import { roleLabels, type Role } from "@/lib/demo-data";
-import { buildDemoAppUrl, DEMO_APP_URL } from "@/lib/domains";
 import {
-  Calendar, BarChart3, MessageSquare, FileText, Bell, ShieldCheck,
-  GraduationCap, Users, Building2, ArrowRight, CheckCircle2,
+  ArrowRight,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  GraduationCap,
+  MessageSquare,
+  ShieldCheck,
+  Sparkles,
+  Users,
 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
+  const navigate = useNavigate();
   const { setRole } = useRole();
 
   const pickRole = (r: Role) => {
     setRole(r);
-    window.location.assign(buildDemoAppUrl({ role: r }));
+    navigate({ to: "/app" });
   };
-
-  const features = [
-    { icon: Calendar, t: "Slim roosterbeheer", d: "AI-optimalisatie, minder tussenuren en directe melding bij lesuitval.", link: "/features/roosterbeheer" },
-    { icon: BarChart3, t: "Resultaten & voortgang", d: "Realtime cijfers, gemiddelden en trends per leerling en klas.", link: "/features/voortgang" },
-    { icon: MessageSquare, t: "Veilige communicatie", d: "Interne chat tussen leerlingen, docenten, ouders en mentoren.", link: "/features/communicatie" },
-    { icon: FileText, t: "Opdrachten & toetsing", d: "Digitale inlevering, beoordeling en plagiaatsignalering.", link: "/features/opdrachten" },
-    { icon: Bell, t: "Slimme notificaties", d: "Push voor cijfers, berichten, rooster en deadlines — instelbaar.", link: "/features/notificaties" },
-    { icon: ShieldCheck, t: "AVG & 2FA", d: "Versleutelde communicatie, rollenbeheer en tweestapsverificatie.", link: "/features/veiligheid" },
-  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Nav */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">Schoolpulse</span>
           </Link>
-          <nav className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground">Functies</a>
-            <a href="#rollen" className="text-sm font-medium text-muted-foreground hover:text-foreground">Voor wie</a>
-            <a href="#veiligheid" className="text-sm font-medium text-muted-foreground hover:text-foreground">Veiligheid</a>
+          <nav className="hidden items-center gap-7 md:flex">
+            <a href="#waarde" className="text-sm font-medium text-muted-foreground hover:text-foreground">Waarom Schoolpulse</a>
+            <a href="#doelgroepen" className="text-sm font-medium text-muted-foreground hover:text-foreground">Voor wie</a>
+            <a href="#vertrouwen" className="text-sm font-medium text-muted-foreground hover:text-foreground">Vertrouwen</a>
           </nav>
           <div className="flex items-center gap-2">
-            <a href="#demo" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted sm:inline-block">Plan gesprek</a>
-            <a href={DEMO_APP_URL} className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:bg-secondary/90">
-              Bekijk demo <ArrowRight className="h-4 w-4" />
-            </a>
+            <Link to="/contact" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted sm:inline-flex">Contact</Link>
+            <Link to="/contact" className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90">
+              Demo aanvragen <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/60 to-background" />
-        <div className="mx-auto max-w-7xl px-6 pb-20 pt-20 md:pt-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              Live demo — probeer alle rollen
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.10] via-background to-background" />
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-72 w-[46rem] -translate-x-1/2 rounded-full bg-primary/[0.08] blur-3xl" />
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-20 pt-16 md:grid-cols-[1.15fr_0.85fr] md:px-6 md:pb-24 md:pt-24">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-[var(--shadow-soft)]">
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Demo-ready voor Nederlandse scholen
             </div>
-            <h1 className="text-5xl font-bold tracking-tight md:text-6xl">
-              Het digitale hart van<br />jouw school.
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+              Eén platform voor <span className="text-primary">rooster, communicatie en voortgang</span>.
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              Roosters, cijfers, communicatie en administratie in één veilig, modern platform. Rustig ontworpen, snel in gebruik.
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+              Schoolpulse helpt schoolteams sneller schakelen, ouders beter informeren en leerlingen meer overzicht geven — zonder extra complexiteit.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90">
-                Ervaar Schoolpulse <ArrowRight className="h-4 w-4" />
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
+                Plan een demo
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
+                Bekijk live demo
               </a>
-              <a href={DEMO_APP_URL} className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
-                Bekijk demo
-              </a>
+            </div>
+            <div className="mt-6 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+              <div className="rounded-lg border border-border/70 bg-background/80 px-3 py-2">Snelle implementatie</div>
+              <div className="rounded-lg border border-border/70 bg-background/80 px-3 py-2">Rollen & rechten per gebruiker</div>
+              <div className="rounded-lg border border-border/70 bg-background/80 px-3 py-2">Duidelijke communicatieflow</div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-border/80 bg-card p-5 shadow-[var(--shadow-elegant)] md:p-6">
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Waarom scholen kiezen</div>
+            <div className="mt-4 space-y-3">
+              {[
+                { t: "Minder losse tools", d: "Rooster, berichten, dossiers en voortgang in één omgeving." },
+                { t: "Meer rust voor teams", d: "Taken en communicatie op de juiste plek per rol." },
+                { t: "Betere ouderbetrokkenheid", d: "Heldere, veilige en tijdige communicatie met ouders." },
+                { t: "Management-overzicht", d: "Teamleider/directie sturen op agenda, verzuim en kwaliteit." },
+              ].map((item) => (
+                <div key={item.t} className="rounded-xl border border-border/70 bg-background/80 p-3">
+                  <div className="text-sm font-semibold">{item.t}</div>
+                  <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.d}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Role picker */}
-      <section id="demo" className="border-t border-border bg-muted/40 py-20">
-        <div className="mx-auto max-w-7xl px-6">
+      <section id="vertrouwen" className="border-b border-border/60 bg-muted/35 py-10">
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 md:grid-cols-4 md:px-6">
+          {[
+            "AVG-minded ontwerp",
+            "Veilig berichtenverkeer",
+            "Rollen met passende toegang",
+            "Demo-ready voor besluitvorming",
+          ].map((item) => (
+            <div key={item} className="rounded-xl border border-border/70 bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-[var(--shadow-soft)]">
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="waarde" className="py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Interactieve demo</div>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Kies een rol en stap naar binnen</h2>
-            <p className="mt-3 text-muted-foreground">Elke rol krijgt een eigen realistisch dashboard met echte schooldata.</p>
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Waardepropositie</div>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Gebouwd voor de praktijk op school</h2>
           </div>
-          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-4 md:grid-cols-5">
-            {([
-              { r: "leerling", icon: GraduationCap, desc: "Rooster, cijfers en taken" },
-              { r: "docent", icon: Users, desc: "Klassen en beoordelen" },
-              { r: "ouder", icon: Users, desc: "Voortgang van je kind" },
-              { r: "teamleider", icon: Building2, desc: "Klassen en verzuim" },
-              { r: "directie", icon: BarChart3, desc: "Schoolbrede analytics" },
-            ] as { r: Role; icon: typeof Users; desc: string }[]).map(({ r, icon: Icon, desc }) => (
-              <button
-                key={r}
-                onClick={() => pickRole(r)}
-                className="group flex flex-col items-start rounded-2xl border border-border bg-background p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-soft)]"
-              >
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { icon: Calendar, t: "Rooster & planning", d: "Actueel rooster, management-agenda en wijzigingsinzicht in één flow." },
+              { icon: MessageSquare, t: "Communicatie per rol", d: "Leerling, ouder, docent en management zien alleen relevante berichten." },
+              { icon: ShieldCheck, t: "Veilig en controleerbaar", d: "Heldere rechten, privacybewuste defaults en veilige workflows." },
+            ].map(({ icon: Icon, t, d }) => (
+              <div key={t} className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-soft)]">
+                <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="mt-4 text-base font-semibold">{roleLabels[r]}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
-                <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                  Open dashboard <ArrowRight className="h-3 w-3" />
+                <h3 className="mt-4 text-base font-semibold">{t}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="doelgroepen" className="border-y border-border/60 bg-muted/35 py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Per doelgroep</div>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Iedereen het juiste overzicht</h2>
+          </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              { r: "directie", icon: Building2, d: "Schoolbrede inzichten, rapportages en bestuurlijke voortgang." },
+              { r: "docent", icon: Users, d: "Klassenbeheer, opdrachten, cijfers en communicatie zonder ruis." },
+              { r: "ouder", icon: Users, d: "Voortgang van kind, gesprekken en schoolberichten op één plek." },
+              { r: "leerling", icon: GraduationCap, d: "Rooster, taken en berichten overzichtelijk en snel." },
+            ].map(({ r, icon: Icon, d }) => (
+              <button
+                key={r}
+                onClick={() => pickRole(r as Role)}
+                className="group rounded-2xl border border-border/80 bg-background p-5 text-left shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/60"
+              >
+                <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="mt-4 text-base font-semibold">{roleLabels[r as Role]}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+                <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  Open demo <ArrowRight className="h-3 w-3" />
                 </div>
               </button>
             ))}
@@ -112,109 +167,52 @@ function Landing() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="text-xs font-semibold uppercase tracking-wider text-primary">Eén platform</div>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Alles wat een moderne school nodig heeft</h2>
-          </div>
-          <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, t, d, link }) => (
-              <Link key={t} to={link} className="group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50 hover:bg-card/80 cursor-pointer">
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
+      <section id="demo" className="py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="rounded-3xl border border-border/80 bg-card p-8 shadow-[var(--shadow-elegant)] md:p-10">
+            <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary">Volgende stap</div>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Vraag een demo aan voor jouw schoolteam</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  In een korte sessie laten we de flow zien voor directie, docenten, ouders en leerlingen. Zo zie je direct of Schoolpulse past bij jullie school.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                    Demo aanvragen <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link to="/contact" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
+                    Contact opnemen
+                  </Link>
                 </div>
-                <h3 className="mt-4 text-base font-semibold group-hover:text-primary transition-colors">{t}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                  Meer info <ArrowRight className="h-3 w-3" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Rollen */}
-      <section id="rollen" className="border-t border-border bg-muted/40 py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-primary">Voor elke rol</div>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Eén platform, vijf dashboards</h2>
-              <p className="mt-4 text-muted-foreground">Iedere gebruiker ziet precies wat hij of zij nodig heeft. Rustig, overzichtelijk en snel.</p>
-              <ul className="mt-6 space-y-3">
+              </div>
+              <div className="space-y-3">
                 {[
-                  "Leerlingen zien hun rooster, cijfers en taken in één blik.",
-                  "Docenten voeren cijfers in en beoordelen digitaal.",
-                  "Ouders volgen realtime de voortgang van hun kind.",
-                  "Teamleiders bewaken verzuim en klassen.",
-                  "Directie krijgt schoolbrede trends en rapportages.",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <span className="text-sm text-foreground">{t}</span>
-                  </li>
+                  "30 minuten online demo",
+                  "Gericht op jullie rollen en processen",
+                  "Geen technische voorbereiding nodig",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-2 rounded-xl border border-border/70 bg-background p-3 text-sm">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    {item}
+                  </div>
                 ))}
-              </ul>
-            </div>
-            <div className="rounded-3xl border border-border bg-background p-6 shadow-[var(--shadow-soft)]">
-              <div className="grid grid-cols-2 gap-3">
-                {(["leerling","docent","ouder","teamleider","directie"] as Role[]).map((r) => (
-                  <button key={r} onClick={() => pickRole(r)} className="rounded-xl border border-border p-4 text-left transition-all hover:border-primary hover:bg-muted/60">
-                    <div className="text-xs text-muted-foreground">Dashboard</div>
-                    <div className="mt-1 text-sm font-semibold">{roleLabels[r]}</div>
-                    <div className="mt-3 flex gap-1">
-                      <span className="h-1 w-6 rounded-full bg-primary" />
-                      <span className="h-1 w-3 rounded-full bg-primary/40" />
-                      <span className="h-1 w-2 rounded-full bg-primary/20" />
-                    </div>
-                  </button>
-                ))}
-                <div className="rounded-xl bg-secondary p-4 text-secondary-foreground">
-                  <div className="text-xs opacity-70">Klaar?</div>
-                  <div className="mt-1 text-sm font-semibold">Start de demo</div>
-                  <a href={DEMO_APP_URL} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-foreground">
-                    Open <ArrowRight className="h-3 w-3" />
-                  </a>
-                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Security */}
-      <section id="veiligheid" className="py-20">
-        <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-secondary p-10 text-secondary-foreground md:p-14">
-          <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-                <ShieldCheck className="h-3.5 w-3.5" /> AVG-proof & versleuteld
-              </div>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight">Veiligheid is geen extra — het is standaard.</h2>
-              <p className="mt-3 text-sm text-white/70">Rollen- en rechtenbeheer, tweestapsverificatie, en versleutelde communicatie. Gebouwd volgens Nederlandse onderwijsnormen.</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {["AVG-proof", "2FA", "SSO", "SURF-ready"].map((b) => (
-                <div key={b} className="rounded-xl bg-white/5 p-4 text-center text-sm font-semibold">{b}</div>
-              ))}
             </div>
           </div>
         </div>
       </section>
 
       <footer className="border-t border-border py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 md:flex-row md:px-6">
           <div className="flex items-center gap-2">
             <img src={logo} alt="" className="h-6 w-6" />
-            <span className="text-sm text-muted-foreground">© 2026 Schoolpulse — demo</span>
+            <span className="text-sm text-muted-foreground">© 2026 Schoolpulse</span>
           </div>
           <div className="flex flex-wrap justify-center gap-6 md:justify-end">
-            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/voorwaarden" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Voorwaarden</Link>
-            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            <Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Privacy</Link>
+            <Link to="/voorwaarden" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Voorwaarden</Link>
+            <Link to="/contact" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Contact</Link>
           </div>
         </div>
       </footer>
