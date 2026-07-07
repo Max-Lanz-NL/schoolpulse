@@ -13,8 +13,10 @@ import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as FeaturesVoortgangRouteImport } from './routes/features/voortgang'
 import { Route as FeaturesVeiligheidRouteImport } from './routes/features/veiligheid'
 import { Route as FeaturesRoosterbeheerRouteImport } from './routes/features/roosterbeheer'
@@ -42,6 +44,10 @@ import { Route as AppAgendaRouteImport } from './routes/app.agenda'
 import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
+import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
 
 const VoorwaardenRoute = VoorwaardenRouteImport.update({
   id: '/voorwaarden',
@@ -63,6 +69,11 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,6 +83,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const FeaturesVoortgangRoute = FeaturesVoortgangRouteImport.update({
   id: '/features/voortgang',
@@ -208,13 +224,38 @@ const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
   path: '/aanwezigheid',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
+  id: '/schools',
+  path: '/schools',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAccountsRoute = AdminAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -242,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -249,6 +291,10 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -276,15 +322,21 @@ export interface FileRoutesByTo {
   '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/voorwaarden': typeof VoorwaardenRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -312,16 +364,22 @@ export interface FileRoutesById {
   '/features/roosterbeheer': typeof FeaturesRoosterbeheerRoute
   '/features/veiligheid': typeof FeaturesVeiligheidRoute
   '/features/voortgang': typeof FeaturesVoortgangRoute
+  '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/app'
     | '/contact'
     | '/privacy'
     | '/voorwaarden'
+    | '/admin/accounts'
+    | '/admin/dashboard'
+    | '/admin/login'
+    | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -349,6 +407,7 @@ export interface FileRouteTypes {
     | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/admin/'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -356,6 +415,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/voorwaarden'
+    | '/admin/accounts'
+    | '/admin/dashboard'
+    | '/admin/login'
+    | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -383,14 +446,20 @@ export interface FileRouteTypes {
     | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/admin'
     | '/app'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/app'
     | '/contact'
     | '/privacy'
     | '/voorwaarden'
+    | '/admin/accounts'
+    | '/admin/dashboard'
+    | '/admin/login'
+    | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -418,11 +487,13 @@ export interface FileRouteTypes {
     | '/features/roosterbeheer'
     | '/features/veiligheid'
     | '/features/voortgang'
+    | '/admin/'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -465,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -478,6 +556,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/features/voortgang': {
       id: '/features/voortgang'
@@ -668,8 +753,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAanwezigheidRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/schools': {
+      id: '/admin/schools'
+      path: '/schools'
+      fullPath: '/admin/schools'
+      preLoaderRoute: typeof AdminSchoolsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/accounts': {
+      id: '/admin/accounts'
+      path: '/accounts'
+      fullPath: '/admin/accounts'
+      preLoaderRoute: typeof AdminAccountsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminSchoolsRoute: typeof AdminSchoolsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAccountsRoute: AdminAccountsRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminSchoolsRoute: AdminSchoolsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppRouteChildren {
   AppAanwezigheidRoute: typeof AppAanwezigheidRoute
@@ -725,6 +856,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,

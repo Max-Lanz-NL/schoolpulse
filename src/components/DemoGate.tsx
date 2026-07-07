@@ -1,35 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useRole } from "@/lib/role-context";
-import logo from "@/assets/schoolpulse-logo.png";
-import { ShieldCheck, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { getSupabaseBrowserClient } from "@/lib/supabase-client";
-import { DOMAIN_ORIGINS } from "@/lib/domains";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
-import { AdminDashboard } from "./AdminDashboard";
 
-function hasPlatformAdminRole(session: Session | null): boolean {
-  if (!session?.user) return false;
-
-  const appMetadataRole = session.user.app_metadata?.role;
-  const userMetadataRole = session.user.user_metadata?.role;
-  const appMetadataRoles = session.user.app_metadata?.roles;
-  const userMetadataRoles = session.user.user_metadata?.roles;
-
-  if (appMetadataRole === "platform_admin" || userMetadataRole === "platform_admin") {
-    return true;
-  }
-
-  if (Array.isArray(appMetadataRoles) && appMetadataRoles.includes("platform_admin")) {
-    return true;
-  }
-
-  if (Array.isArray(userMetadataRoles) && userMetadataRoles.includes("platform_admin")) {
-    return true;
-  }
-
-  return false;
-}
+import logo from "@/assets/schoolpulse-logo.png";
+import type { Role } from "@/lib/demo-data";
+import { useRole } from "@/lib/role-context";
+import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 export function DemoGate({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -39,10 +16,7 @@ export function DemoGate({ children }: { children: ReactNode }) {
   }, []);
 
   const isProductionAppHost =
-    mounted &&
-    typeof window !== "undefined" &&
-    (window.location.hostname === "app.schoolpulse.nl" ||
-      window.location.hostname === "admin.schoolpulse.nl");
+    mounted && typeof window !== "undefined" && window.location.hostname === "app.schoolpulse.nl";
 
   if (!mounted) {
     return (
@@ -145,19 +119,48 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
   );
 }
 
+type ProductionRole = "platform_admin" | "school_admin" | "teacher" | "student" | "parent";
+
+type ProductionProfile = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: ProductionRole;
+  school_name: string | null;
+  created_at: string;
+};
+
+const allowedProductionRoles = new Set<ProductionRole>([
+  "platform_admin",
+  "school_admin",
+  "teacher",
+  "student",
+  "parent",
+]);
+
+function toDemoRole(role: ProductionRole): Role {
+  const roleMap: Record<ProductionRole, Role> = {
+    platform_admin: "directie",
+    school_admin: "teamleider",
+    teacher: "docent",
+    student: "leerling",
+    parent: "ouder",
+  };
+  return roleMap[role];
+}
+
 function ProductionAppGate({ children }: { children: ReactNode }) {
+  const { setRole } = useRole();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
+  const [profile, setProfile] = useState<ProductionProfile | null>(null);
   const [supabase, setSupabase] = useState<ReturnType<typeof getSupabaseBrowserClient> | null>(
     null,
   );
-  const isAdminHost =
-    typeof window !== "undefined" && window.location.hostname === "admin.schoolpulse.nl";
 
   useEffect(() => {
     try {
@@ -169,40 +172,80 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!supabase) {
-      return;
-    }
+    if (!profile) return;
+    setRole(toDemoRole(profile.role));
+  }, [profile, setRole]);
+
+  useEffect(() => {
+    if (!supabase) return;
 
     let active = true;
+
+    const loadProfile = async (userId: string): Promise<ProductionProfile | null> => {
+      const { data: loadedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id,email,full_name,role,school_name,created_at")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profileError) {
+        setError("Profiel kon niet worden geladen. Neem contact op met je beheerder.");
+        return null;
+      }
+
+      if (!loadedProfile) {
+        setError("Je account heeft nog geen Schoolpulse profiel. Vraag toegang bij je beheerder.");
+        return null;
+      }
+
+      if (!allowedProductionRoles.has(loadedProfile.role as ProductionRole)) {
+        setError("Je accountrol is ongeldig. Neem contact op met je beheerder.");
+        return null;
+      }
+
+      return loadedProfile as ProductionProfile;
+    };
+
+    const syncSession = async (session: Session | null) => {
+      if (!active) return;
+      if (!session?.user) {
+        setIsLoggedIn(false);
+        setProfile(null);
+        setReady(true);
+        return;
+      }
+
+      setIsLoggedIn(true);
+      const loadedProfile = await loadProfile(session.user.id);
+      if (!active) return;
+      setProfile(loadedProfile);
+      setReady(true);
+    };
+
     supabase.auth
       .getSession()
-      .then(({ data, error: sessionError }) => {
+      .then(async ({ data, error: sessionError }) => {
         if (!active) return;
         if (sessionError) {
           setError("Sessie kon niet worden geladen.");
           setIsLoggedIn(false);
-          setIsPlatformAdmin(false);
+          setProfile(null);
           setReady(true);
           return;
         }
 
-        const session = data.session;
-        setIsLoggedIn(Boolean(session?.user));
-        setIsPlatformAdmin(hasPlatformAdminRole(session));
-        setReady(true);
+        await syncSession(data.session);
       })
       .catch(() => {
         if (!active) return;
         setError("Sessie kon niet worden geladen.");
         setIsLoggedIn(false);
-        setIsPlatformAdmin(false);
+        setProfile(null);
         setReady(true);
       });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!active) return;
-      setIsLoggedIn(Boolean(session?.user));
-      setIsPlatformAdmin(hasPlatformAdminRole(session));
+      void syncSession(session);
     });
 
     return () => {
@@ -239,10 +282,6 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
 
     setBusy(false);
     setPassword("");
-
-    if (isAdminHost && typeof window !== "undefined") {
-      window.location.assign("/app");
-    }
   };
 
   const signOut = async () => {
@@ -250,22 +289,7 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
     setBusy(true);
     await supabase.auth.signOut();
     setBusy(false);
-    if (typeof window !== "undefined") {
-      window.location.replace(DOMAIN_ORIGINS.marketing);
-    }
   };
-
-  useEffect(() => {
-    if (!supabase || !ready || !isAdminHost || !isLoggedIn || isPlatformAdmin) {
-      return;
-    }
-
-    void supabase.auth.signOut().finally(() => {
-      if (typeof window !== "undefined") {
-        window.location.replace(DOMAIN_ORIGINS.marketing);
-      }
-    });
-  }, [isAdminHost, isLoggedIn, isPlatformAdmin, ready, supabase]);
 
   if (!ready) {
     return (
@@ -275,25 +299,38 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isAdminHost && isLoggedIn && !isPlatformAdmin) {
+  if (isLoggedIn && !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">
-        <div className="w-full max-w-md rounded-2xl border border-destructive/30 bg-card p-7 text-center shadow-[var(--shadow-elegant)]">
-          <h1 className="text-xl font-bold tracking-tight">Admin omgeving afgesloten</h1>
+        <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-[var(--shadow-elegant)]">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-warning/15 text-warning">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">Geen toegang tot Schoolpulse</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Alleen accounts met de rol <strong>platform_admin</strong> hebben toegang. Je wordt om
-            privacy- en databescherming teruggestuurd.
+            Je bent ingelogd, maar je profiel is niet gekoppeld of heeft geen geldige rol.
           </p>
+          {error && (
+            <div className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+              {error}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={signOut}
+            disabled={busy}
+            className="mt-6 inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+          >
+            Uitloggen
+          </button>
         </div>
       </div>
     );
   }
 
-  if (isAdminHost && isLoggedIn && isPlatformAdmin && supabase) {
-    return <AdminDashboard supabase={supabase} onSignOut={signOut} />;
+  if (isLoggedIn && profile) {
+    return <>{children}</>;
   }
-
-  if (isLoggedIn) return <>{children}</>;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/70 via-background to-background px-4 py-10">
@@ -303,13 +340,9 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
           <span className="text-xl font-bold tracking-tight">Schoolpulse Login</span>
         </div>
         <div className="rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-elegant)]">
-          <h1 className="text-xl font-bold tracking-tight">
-            {isAdminHost ? "Admin inloggen" : "Inloggen met schoolaccount"}
-          </h1>
+          <h1 className="text-xl font-bold tracking-tight">Inloggen met schoolaccount</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isAdminHost
-              ? "Alleen platform_admin accounts hebben toegang tot admin.schoolpulse.nl."
-              : "Alleen geregistreerde Schoolpulse accounts hebben toegang tot de productieomgeving."}
+            Alleen geregistreerde Schoolpulse accounts hebben toegang tot de productieomgeving.
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">

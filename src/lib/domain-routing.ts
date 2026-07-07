@@ -1,18 +1,16 @@
 import { DOMAIN_ORIGINS } from "./domains";
 
 const marketingHosts = new Set(["schoolpulse.nl", "www.schoolpulse.nl"]);
-const appHosts = new Set([
-  "app.schoolpulse.nl",
-  "admin.schoolpulse.nl",
-  "demo.schoolpulse.nl",
-  "test.schoolpulse.nl",
-]);
+const appHosts = new Set(["app.schoolpulse.nl", "demo.schoolpulse.nl", "test.schoolpulse.nl"]);
+const adminHost = "admin.schoolpulse.nl";
 const apiHost = "api.schoolpulse.nl";
 const docsHost = "docs.schoolpulse.nl";
 
 const marketingPages = new Set(["/", "/contact", "/privacy", "/voorwaarden"]);
 const marketingPrefixPages = ["/features/"];
 const appPrefix = "/app";
+const adminPrefix = "/admin";
+const adminShortcutPaths = new Set(["/login", "/dashboard", "/accounts", "/schools"]);
 
 function isInternalAssetPath(pathname: string): boolean {
   if (pathname.startsWith("/_")) return true;
@@ -30,6 +28,10 @@ function isMarketingPath(pathname: string): boolean {
 
 function isAppPath(pathname: string): boolean {
   return pathname === appPrefix || pathname.startsWith(`${appPrefix}/`);
+}
+
+function isAdminPath(pathname: string): boolean {
+  return pathname === adminPrefix || pathname.startsWith(`${adminPrefix}/`);
 }
 
 function normalizeHost(rawHost: string | null): string {
@@ -154,6 +156,9 @@ export function handleDomainRouting(request: Request): Response | null {
     if (isAppPath(pathname)) {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.app, pathname, search));
     }
+    if (isAdminPath(pathname)) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, pathname, search));
+    }
     if (pathname === "/api" || pathname.startsWith("/api/")) {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.api, pathname, search));
     }
@@ -165,9 +170,7 @@ export function handleDomainRouting(request: Request): Response | null {
 
   if (appHosts.has(hostname)) {
     const appOrigin =
-      hostname === "admin.schoolpulse.nl"
-        ? DOMAIN_ORIGINS.admin
-        : hostname === "demo.schoolpulse.nl"
+      hostname === "demo.schoolpulse.nl"
         ? DOMAIN_ORIGINS.demo
         : hostname === "test.schoolpulse.nl"
           ? DOMAIN_ORIGINS.test
@@ -188,7 +191,35 @@ export function handleDomainRouting(request: Request): Response | null {
     if (pathname === "/docs" || pathname.startsWith("/docs/")) {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.docs, docsPathFromPathname(pathname), search));
     }
+    if (isAdminPath(pathname)) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, pathname, search));
+    }
     return redirect(toOriginUrl(appOrigin, appPrefix, ""));
+  }
+
+  if (hostname === adminHost) {
+    if (pathname === "/") {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, adminPrefix, search));
+    }
+    if (adminShortcutPaths.has(pathname)) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, `${adminPrefix}${pathname}`, search));
+    }
+    if (isAdminPath(pathname)) {
+      return null;
+    }
+    if (isMarketingPath(pathname)) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.marketing, pathname, search));
+    }
+    if (isAppPath(pathname)) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.app, pathname, search));
+    }
+    if (pathname === "/api" || pathname.startsWith("/api/")) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.api, pathname, search));
+    }
+    if (pathname === "/docs" || pathname.startsWith("/docs/")) {
+      return redirect(toOriginUrl(DOMAIN_ORIGINS.docs, docsPathFromPathname(pathname), search));
+    }
+    return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, `${adminPrefix}/login`, ""));
   }
 
   if (hostname === apiHost) {
@@ -197,7 +228,10 @@ export function handleDomainRouting(request: Request): Response | null {
 
   if (hostname === docsHost) {
     if (pathname === "/docs" || pathname.startsWith("/docs/")) {
-      return redirect(toOriginUrl(DOMAIN_ORIGINS.docs, docsPathFromPathname(pathname), search), 308);
+      return redirect(
+        toOriginUrl(DOMAIN_ORIGINS.docs, docsPathFromPathname(pathname), search),
+        308,
+      );
     }
     return docsDomainResponse(pathname);
   }
