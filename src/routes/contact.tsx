@@ -12,7 +12,12 @@ function Contact() {
     naam: "",
     email: "",
     telefoon: "",
-    vraag: "",
+    leerlingen: "",
+    medewerkers: "",
+    modules: "",
+    startdatum: "",
+    huidigeSystemen: "",
+    extraWensen: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -21,7 +26,12 @@ function Contact() {
     if (!form.school.trim()) next.school = "Vul de schoolnaam in.";
     if (!form.naam.trim()) next.naam = "Vul uw naam in.";
     if (!form.email.trim() || !form.email.includes("@")) next.email = "Vul een geldig e-mailadres in.";
-    if (!form.vraag.trim() || form.vraag.trim().length < 15) next.vraag = "Geef een korte toelichting (minimaal 15 tekens).";
+    if (!form.leerlingen.trim()) next.leerlingen = "Vul een indicatie van het aantal leerlingen in.";
+    if (!form.medewerkers.trim()) next.medewerkers = "Vul een indicatie van het aantal medewerkers in.";
+    if (!form.modules.trim() || form.modules.trim().length < 10) next.modules = "Noem de gewenste modules (minimaal 10 tekens).";
+    if (!form.startdatum.trim()) next.startdatum = "Geef een gewenste startperiode op.";
+    if (!form.huidigeSystemen.trim()) next.huidigeSystemen = "Beschrijf kort jullie huidige systemen.";
+    if (!form.extraWensen.trim() || form.extraWensen.trim().length < 15) next.extraWensen = "Geef aanvullende wensen (minimaal 15 tekens).";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -35,7 +45,18 @@ function Contact() {
     toast.success("Offerte-aanvraag ontvangen", {
       description: "Bedankt! In deze demo-omgeving wordt niets verzonden, maar in productie sturen we binnen 1 werkdag een reactie.",
     });
-    setForm({ school: "", naam: "", email: "", telefoon: "", vraag: "" });
+    setForm({
+      school: "",
+      naam: "",
+      email: "",
+      telefoon: "",
+      leerlingen: "",
+      medewerkers: "",
+      modules: "",
+      startdatum: "",
+      huidigeSystemen: "",
+      extraWensen: "",
+    });
     setErrors({});
   };
 
@@ -135,22 +156,71 @@ function Contact() {
                   onChange={(v) => setForm((s) => ({ ...s, telefoon: v }))}
                   placeholder="+31 ..."
                 />
+                <Field
+                  id="leerlingen"
+                  label="Aantal leerlingen *"
+                  value={form.leerlingen}
+                  error={errors.leerlingen}
+                  onChange={(v) => setForm((s) => ({ ...s, leerlingen: v }))}
+                  placeholder="Bijv. 850"
+                />
+                <Field
+                  id="medewerkers"
+                  label="Aantal medewerkers *"
+                  value={form.medewerkers}
+                  error={errors.medewerkers}
+                  onChange={(v) => setForm((s) => ({ ...s, medewerkers: v }))}
+                  placeholder="Bijv. 90"
+                />
+                <Field
+                  id="startdatum"
+                  label="Gewenste startperiode *"
+                  value={form.startdatum}
+                  error={errors.startdatum}
+                  onChange={(v) => setForm((s) => ({ ...s, startdatum: v }))}
+                  placeholder="Bijv. Q1 2027"
+                />
+                <Field
+                  id="huidigeSystemen"
+                  label="Huidige systemen *"
+                  value={form.huidigeSystemen}
+                  error={errors.huidigeSystemen}
+                  onChange={(v) => setForm((s) => ({ ...s, huidigeSystemen: v }))}
+                  placeholder="Bijv. Magister + losse mailtools"
+                />
               </div>
 
               <div className="mt-4">
-                <label htmlFor="vraag" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Wat zijn jullie wensen voor de offerte? *
+                <label htmlFor="modules" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Gewenste modules in offerte *
                 </label>
                 <textarea
-                  id="vraag"
-                  rows={5}
-                  value={form.vraag}
-                  onChange={(e) => setForm((s) => ({ ...s, vraag: e.target.value }))}
-                  placeholder="Bijv. aantal gebruikers, gewenste modules, planning en implementatiebehoefte."
-                  className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none ${errors.vraag ? "border-destructive" : "border-border focus:border-primary"}`}
+                  id="modules"
+                  rows={3}
+                  value={form.modules}
+                  onChange={(e) => setForm((s) => ({ ...s, modules: e.target.value }))}
+                  placeholder="Bijv. rooster, berichten, opdrachten, ouderportaal, management dashboard."
+                  className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none ${errors.modules ? "border-destructive" : "border-border focus:border-primary"}`}
                 />
-                <div className={`mt-1 text-xs ${errors.vraag ? "text-destructive" : "text-muted-foreground"}`}>
-                  {errors.vraag ?? "Tip: noem aantal gebruikers en welke modules prioriteit hebben."}
+                <div className={`mt-1 text-xs ${errors.modules ? "text-destructive" : "text-muted-foreground"}`}>
+                  {errors.modules ?? "Noem vooral welke onderdelen in fase 1 live moeten."}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="extraWensen" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Aanvullende eisen en wensen *
+                </label>
+                <textarea
+                  id="extraWensen"
+                  rows={4}
+                  value={form.extraWensen}
+                  onChange={(e) => setForm((s) => ({ ...s, extraWensen: e.target.value }))}
+                  placeholder="Bijv. koppelingen, datamigratie, onboarding, supportniveau en security-eisen."
+                  className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none ${errors.extraWensen ? "border-destructive" : "border-border focus:border-primary"}`}
+                />
+                <div className={`mt-1 text-xs ${errors.extraWensen ? "text-destructive" : "text-muted-foreground"}`}>
+                  {errors.extraWensen ?? "Hoe concreter dit is, hoe nauwkeuriger de offerte."}
                 </div>
               </div>
 
