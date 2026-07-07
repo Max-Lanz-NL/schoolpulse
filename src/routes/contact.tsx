@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarCheck2, Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/schoolpulse-logo.png";
+import { createQuoteRequest, getReadableAdminError } from "@/lib/admin-client";
 
 export const Route = createFileRoute("/contact")({ component: Contact });
 
@@ -20,6 +21,7 @@ function Contact() {
     extraWensen: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -32,19 +34,48 @@ function Contact() {
     if (!form.startdatum.trim()) next.startdatum = "Geef een gewenste startperiode op.";
     if (!form.huidigeSystemen.trim()) next.huidigeSystemen = "Beschrijf kort jullie huidige systemen.";
     if (!form.extraWensen.trim() || form.extraWensen.trim().length < 15) next.extraWensen = "Geef aanvullende wensen (minimaal 15 tekens).";
+    if (form.leerlingen.trim() && !/^\d+$/.test(form.leerlingen.trim())) next.leerlingen = "Gebruik alleen cijfers.";
+    if (form.medewerkers.trim() && !/^\d+$/.test(form.medewerkers.trim())) next.medewerkers = "Gebruik alleen cijfers.";
+    if (form.leerlingen.trim() && Number(form.leerlingen) < 1) next.leerlingen = "Aantal leerlingen moet minimaal 1 zijn.";
+    if (form.medewerkers.trim() && Number(form.medewerkers) < 1) next.medewerkers = "Aantal medewerkers moet minimaal 1 zijn.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       toast.error("Controleer het formulier", { description: "Niet alle verplichte velden zijn correct ingevuld." });
       return;
     }
-    toast.success("Offerte-aanvraag ontvangen", {
-      description: "Bedankt! In deze demo-omgeving wordt niets verzonden, maar in productie sturen we binnen 1 werkdag een reactie.",
-    });
+    setSubmitting(true);
+    try {
+      await createQuoteRequest({
+        school_name: form.school,
+        contact_name: form.naam,
+        contact_email: form.email,
+        contact_phone: form.telefoon,
+        student_count: Number(form.leerlingen),
+        staff_count: Number(form.medewerkers),
+        requested_modules: form.modules,
+        desired_start_period: form.startdatum,
+        current_systems: form.huidigeSystemen,
+        additional_requirements: form.extraWensen,
+      });
+      toast.success("Offerte-aanvraag ontvangen", {
+        description: "Bedankt! We nemen binnen 1 werkdag contact op.",
+      });
+    } catch (submitError) {
+      toast.error("Offerte-aanvraag mislukt", {
+        description: getReadableAdminError(
+          submitError,
+          "Probeer opnieuw of neem contact op via info@schoolpulse.nl.",
+        ),
+      });
+      setSubmitting(false);
+      return;
+    }
+
     setForm({
       school: "",
       naam: "",
@@ -58,6 +89,7 @@ function Contact() {
       extraWensen: "",
     });
     setErrors({});
+    setSubmitting(false);
   };
 
   return (
@@ -225,10 +257,14 @@ function Contact() {
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-                  Verstuur offerte-aanvraag
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {submitting ? "Versturen..." : "Verstuur offerte-aanvraag"}
                 </button>
-                <div className="text-xs text-muted-foreground">In deze demo wordt het formulier niet extern verzonden.</div>
+                <div className="text-xs text-muted-foreground">Je aanvraag wordt veilig opgeslagen voor opvolging.</div>
               </div>
             </form>
           </div>

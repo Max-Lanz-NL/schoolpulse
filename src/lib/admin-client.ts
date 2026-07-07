@@ -30,6 +30,25 @@ export type AuditLog = {
   created_at: string;
 };
 
+export type QuoteStatus = "new" | "in_review" | "quoted" | "closed";
+
+export type QuoteRequest = {
+  id: string;
+  school_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string | null;
+  student_count: number;
+  staff_count: number;
+  requested_modules: string;
+  desired_start_period: string;
+  current_systems: string;
+  additional_requirements: string;
+  status: QuoteStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 export function getAdminSupabaseClient() {
   return getSupabaseBrowserClient();
 }
@@ -122,6 +141,59 @@ export async function listAuditLogs(limit = 12): Promise<AuditLog[]> {
 
   if (error) throw error;
   return (data ?? []) as AuditLog[];
+}
+
+export async function createQuoteRequest(payload: {
+  school_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string;
+  student_count: number;
+  staff_count: number;
+  requested_modules: string;
+  desired_start_period: string;
+  current_systems: string;
+  additional_requirements: string;
+}): Promise<void> {
+  const supabase = getAdminSupabaseClient();
+  const { error } = await supabase.from("quote_requests").insert({
+    school_name: payload.school_name.trim(),
+    contact_name: payload.contact_name.trim(),
+    contact_email: payload.contact_email.trim().toLowerCase(),
+    contact_phone: payload.contact_phone?.trim() || null,
+    student_count: payload.student_count,
+    staff_count: payload.staff_count,
+    requested_modules: payload.requested_modules.trim(),
+    desired_start_period: payload.desired_start_period.trim(),
+    current_systems: payload.current_systems.trim(),
+    additional_requirements: payload.additional_requirements.trim(),
+  });
+  if (error) throw error;
+}
+
+export async function listQuoteRequests(): Promise<QuoteRequest[]> {
+  const supabase = getAdminSupabaseClient();
+  const { data, error } = await supabase
+    .from("quote_requests")
+    .select(
+      "id,school_name,contact_name,contact_email,contact_phone,student_count,staff_count,requested_modules,desired_start_period,current_systems,additional_requirements,status,created_at,updated_at",
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as QuoteRequest[];
+}
+
+export async function updateQuoteRequestStatus(
+  quoteRequestId: string,
+  status: QuoteStatus,
+): Promise<void> {
+  const supabase = getAdminSupabaseClient();
+  const { error } = await supabase
+    .from("quote_requests")
+    .update({ status })
+    .eq("id", quoteRequestId);
+  if (error) throw error;
 }
 
 export async function createSchool(payload: {

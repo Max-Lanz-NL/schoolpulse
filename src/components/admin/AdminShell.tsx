@@ -1,20 +1,22 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Building2, LayoutDashboard, LogOut, Users } from "lucide-react";
+import { Building2, FileText, LayoutDashboard, LogOut, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import logo from "@/assets/schoolpulse-logo.png";
 import { getAdminSupabaseClient, type Profile } from "@/lib/admin-client";
 
 type NavItem = {
-  to: "/admin/dashboard" | "/admin/accounts" | "/admin/schools";
+  to: "/admin/dashboard" | "/admin/accounts" | "/admin/schools" | "/admin/offertes";
   label: string;
-  icon: typeof LayoutDashboard;
+  icon: LucideIcon;
 };
 
 const navItems: NavItem[] = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/accounts", label: "Accounts", icon: Users },
   { to: "/admin/schools", label: "Scholen", icon: Building2 },
+  { to: "/admin/offertes", label: "Offertes", icon: FileText },
 ];
 
 export function AdminShell({

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { listAuditLogs, listProfiles, listSchools, type AdminRole } from "@/lib/admin-client";
+import { listAuditLogs, listProfiles, listQuoteRequests, listSchools, type AdminRole } from "@/lib/admin-client";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: AdminDashboardPage,
@@ -14,6 +14,7 @@ function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [schoolsCount, setSchoolsCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
+  const [openQuotesCount, setOpenQuotesCount] = useState(0);
   const [roleCounts, setRoleCounts] = useState<Record<AdminRole, number>>({
     platform_admin: 0,
     school_admin: 0,
@@ -29,15 +30,17 @@ function AdminDashboardPage() {
     let active = true;
     const load = async () => {
       try {
-        const [schools, profiles, logs] = await Promise.all([
+        const [schools, profiles, logs, quotes] = await Promise.all([
           listSchools(),
           listProfiles(),
           listAuditLogs(10),
+          listQuoteRequests(),
         ]);
         if (!active) return;
 
         setSchoolsCount(schools.length);
         setUsersCount(profiles.length);
+        setOpenQuotesCount(quotes.filter((quote) => quote.status === "new" || quote.status === "in_review").length);
         setRoleCounts(
           profiles.reduce(
             (acc, profile) => {
@@ -80,8 +83,9 @@ function AdminDashboardPage() {
       { label: "Scholen", value: schoolsCount },
       { label: "Gebruikers", value: usersCount },
       { label: "Platform admins", value: roleCounts.platform_admin },
+      { label: "Open offertes", value: openQuotesCount },
     ],
-    [schoolsCount, usersCount, roleCounts.platform_admin],
+    [schoolsCount, usersCount, roleCounts.platform_admin, openQuotesCount],
   );
 
   return (
@@ -100,7 +104,7 @@ function AdminDashboardPage() {
           )}
           {!loading && !error && (
             <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {cards.map((card) => (
                   <div key={card.label} className="rounded-2xl border border-border bg-card p-5">
                     <div className="text-xs font-medium text-muted-foreground">{card.label}</div>

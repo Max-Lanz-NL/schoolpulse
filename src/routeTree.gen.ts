@@ -45,6 +45,7 @@ import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminOffertesRouteImport } from './routes/admin.offertes'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
@@ -229,6 +230,11 @@ const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
   path: '/schools',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOffertesRoute = AdminOffertesRouteImport.update({
+  id: '/offertes',
+  path: '/offertes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/offertes': typeof AdminOffertesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/offertes': typeof AdminOffertesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/offertes': typeof AdminOffertesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -379,6 +388,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/offertes'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/offertes'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/offertes'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -760,6 +772,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSchoolsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/offertes': {
+      id: '/admin/offertes'
+      path: '/offertes'
+      fullPath: '/admin/offertes'
+      preLoaderRoute: typeof AdminOffertesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -788,6 +807,7 @@ interface AdminRouteChildren {
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminOffertesRoute: typeof AdminOffertesRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -796,6 +816,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAccountsRoute: AdminAccountsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminOffertesRoute: AdminOffertesRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
