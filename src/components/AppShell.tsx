@@ -344,7 +344,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   {[
                     { icon: User, label: "Mijn profiel", msg: "Profielbeheer komt binnenkort beschikbaar" },
                     { icon: Shield, label: "Privacy & 2FA", msg: "Privacy- en 2FA-instellingen komen binnenkort" },
-                    { icon: HelpCircle, label: "Help & support", msg: "Meer info op schoolpulse.nl/support" },
+                    { icon: HelpCircle, label: "Help & support", msg: "Meer info op docs.schoolpulse.nl" },
                   ].map((it) => (
                     <button
                       key={it.label}

@@ -1,6 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
 import { roleLabels, type Role } from "@/lib/demo-data";
+import { buildDemoAppUrl, DEMO_APP_URL } from "@/lib/domains";
 import {
   Calendar, BarChart3, MessageSquare, FileText, Bell, ShieldCheck,
   GraduationCap, Users, Building2, ArrowRight, CheckCircle2,
@@ -10,12 +11,11 @@ import logo from "@/assets/schoolpulse-logo.png";
 export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
-  const navigate = useNavigate();
   const { setRole } = useRole();
 
   const pickRole = (r: Role) => {
     setRole(r);
-    navigate({ to: "/app" });
+    window.location.assign(buildDemoAppUrl({ role: r }));
   };
 
   const features = [
@@ -43,9 +43,9 @@ function Landing() {
           </nav>
           <div className="flex items-center gap-2">
             <a href="#demo" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted sm:inline-block">Plan gesprek</a>
-            <Link to="/app" className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:bg-secondary/90">
+            <a href={DEMO_APP_URL} className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:bg-secondary/90">
               Bekijk demo <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -69,9 +69,9 @@ function Landing() {
               <a href="#demo" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90">
                 Ervaar Schoolpulse <ArrowRight className="h-4 w-4" />
               </a>
-              <Link to="/app" className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
+              <a href={DEMO_APP_URL} className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
                 Bekijk demo
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -175,9 +175,9 @@ function Landing() {
                 <div className="rounded-xl bg-secondary p-4 text-secondary-foreground">
                   <div className="text-xs opacity-70">Klaar?</div>
                   <div className="mt-1 text-sm font-semibold">Start de demo</div>
-                  <Link to="/app" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-foreground">
+                  <a href={DEMO_APP_URL} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-foreground">
                     Open <ArrowRight className="h-3 w-3" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

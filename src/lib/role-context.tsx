@@ -2,6 +2,11 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Role } from "./demo-data";
 
 export type DemoUser = { name: string; email: string } | null;
+const validRoles: Role[] = ["leerling", "docent", "ouder", "teamleider", "directie"];
+
+function isRole(value: string | null): value is Role {
+  return value !== null && validRoles.includes(value as Role);
+}
 
 type Ctx = {
   role: Role;
@@ -18,9 +23,16 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = window.localStorage.getItem("schoolpulse.role");
-    if (saved && ["leerling", "docent", "ouder", "teamleider", "directie"].includes(saved)) {
-      setRoleState(saved as Role);
+    if (isRole(saved)) {
+      setRoleState(saved);
     }
+
+    const roleFromQuery = new URL(window.location.href).searchParams.get("role");
+    if (isRole(roleFromQuery)) {
+      setRoleState(roleFromQuery);
+      window.localStorage.setItem("schoolpulse.role", roleFromQuery);
+    }
+
     const u = window.localStorage.getItem("schoolpulse.demoUser");
     if (u) {
       try { setDemoUserState(JSON.parse(u)); } catch { /* noop */ }
