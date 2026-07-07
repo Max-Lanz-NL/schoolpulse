@@ -39,6 +39,7 @@ function Activiteiten() {
     { label: "Rome", stemmen: 41 },
   ];
   const totaal = pollOpties.reduce((a, o) => a + o.stemmen, 0);
+  const heeftGestemd = pollAns !== null;
 
   const toggleAanmelden = (titel: string) => {
     const wasIn = !!aangemeld[titel];
@@ -58,6 +59,13 @@ function Activiteiten() {
     <AppShell title="Activiteiten" subtitle="Aanmeldingen, polls en aankondigingen">
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          {zichtbaar.length === 0 && (
+            <Card title="Activiteiten">
+              <div className="rounded-xl border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground">
+                Er zijn momenteel geen activiteiten beschikbaar voor jouw rol.
+              </div>
+            </Card>
+          )}
           {zichtbaar.map((a) => {
             const currentDeelnemers = a.deelnemers + (deelnemersDelta[a.titel] ?? 0);
             const pct = Math.round((currentDeelnemers / a.plekken) * 100);
@@ -128,6 +136,11 @@ function Activiteiten() {
 
           <Card title="Aankondigingen">
             <div className="space-y-3">
+              {aankondigingen.length === 0 && (
+                <div className="rounded-lg border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
+                  Er zijn nog geen aankondigingen beschikbaar.
+                </div>
+              )}
               {aankondigingen.map((a) => (
                 <div key={a.t} className="rounded-lg border border-border p-3">
                   <div className="text-sm font-semibold">{a.t}</div>
@@ -243,4 +256,3 @@ function NieuweAankondigingModal({ onClose, onSave }: { onClose: () => void; onS
     </div>
   );
 }
-

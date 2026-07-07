@@ -1,20 +1,36 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { gesprekken as gesprekkenData, type Gesprek } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Calendar, Clock, User, Plus, X } from "lucide-react";
 
-export const Route = createFileRoute("/app/gesprekken")({ component: GesprekkenPage });
+type GesprekkenTab = "gepland" | "beschikbaar" | "afgerond";
+
+const isGesprekkenTab = (value: unknown): value is GesprekkenTab =>
+  value === "gepland" || value === "beschikbaar" || value === "afgerond";
+
+export const Route = createFileRoute("/app/gesprekken")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    tab: isGesprekkenTab(search.tab) ? search.tab : undefined,
+  }),
+  component: GesprekkenPage,
+});
 
 function GesprekkenPage() {
   const { role } = useRole();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/app/gesprekken" });
   const [gesprekken, setGesprekken] = useState<Gesprek[]>(() => JSON.parse(JSON.stringify(gesprekkenData)));
-  const [tab, setTab] = useState<"gepland" | "beschikbaar" | "afgerond">("gepland");
+  const [tab, setTab] = useState<GesprekkenTab>(search.tab ?? "gepland");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ datum: "", tijd: "", onderwerp: "" });
+
+  useEffect(() => {
+    setTab(search.tab ?? "gepland");
+  }, [search.tab]);
 
   const gepland = gesprekken.filter((g) => g.status === "gepland");
   const beschikbaar = gesprekken.filter((g) => g.status === "beschikbaar");
@@ -67,7 +83,13 @@ function GesprekkenPage() {
           ] as const).map(([key, label]) => (
             <button
               key={key}
-              onClick={() => setTab(key)}
+              onClick={() => {
+                setTab(key);
+                navigate({
+                  search: (prev) => ({ ...prev, tab: key }),
+                  replace: true,
+                });
+              }}
               className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {label}

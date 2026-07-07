@@ -42,7 +42,13 @@ function Landing() {
             <a href="#veiligheid" className="text-sm font-medium text-muted-foreground hover:text-foreground">Veiligheid</a>
           </nav>
           <div className="flex items-center gap-2">
-            <a href="#demo" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted sm:inline-block">Plan gesprek</a>
+            <Link
+              to="/app/gesprekken"
+              search={{ tab: "beschikbaar" }}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+            >
+              Plan gesprek
+            </Link>
             <Link to="/app" className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:bg-secondary/90">
               Bekijk demo <ArrowRight className="h-4 w-4" />
             </Link>
