@@ -12,6 +12,46 @@ const dagen = ["Ma", "Di", "Wo", "Do", "Vr"] as const;
 const dagLabels: Record<string, string> = { Ma: "Maandag 6 jul", Di: "Dinsdag 7 jul", Wo: "Woensdag 8 jul", Do: "Donderdag 9 jul", Vr: "Vrijdag 10 jul" };
 type DagCode = typeof dagen[number];
 const isDagCode = (value: unknown): value is DagCode => typeof value === "string" && (dagen as readonly string[]).includes(value);
+type AgendaType = "vergadering" | "oudergesprek" | "personeel" | "operationeel";
+type AgendaItem = {
+  id: string;
+  dag: DagCode;
+  start: string;
+  eind: string;
+  titel: string;
+  type: AgendaType;
+  locatie: string;
+  deelnemers: string;
+  notitie?: string;
+  kleur: string;
+};
+
+const agendaTypeLabel: Record<AgendaType, string> = {
+  vergadering: "Vergadering",
+  oudergesprek: "Oudergesprek",
+  personeel: "Personeel",
+  operationeel: "Operationeel",
+};
+
+const teamleiderAgenda: AgendaItem[] = [
+  { id: "tl-1", dag: "Ma", start: "08:30", eind: "09:15", titel: "Dagstart bovenbouwteam", type: "vergadering", locatie: "Kamer TL-2", deelnemers: "Mentoren V4/V5", kleur: "bg-indigo-500" },
+  { id: "tl-2", dag: "Ma", start: "13:30", eind: "14:15", titel: "Verzuimoverleg weekstart", type: "operationeel", locatie: "Zorglokaal", deelnemers: "Zorgcoördinator + administratie", kleur: "bg-amber-500" },
+  { id: "tl-3", dag: "Di", start: "10:30", eind: "11:15", titel: "Voortgangsgesprek ouder Emma B.", type: "oudergesprek", locatie: "Gespreksruimte 1", deelnemers: "Ouder + mentor", kleur: "bg-emerald-500" },
+  { id: "tl-4", dag: "Di", start: "15:00", eind: "16:00", titel: "Sectie-overleg wiskunde", type: "vergadering", locatie: "Lokaal 204", deelnemers: "Docenten Wiskunde", kleur: "bg-blue-500" },
+  { id: "tl-5", dag: "Wo", start: "09:00", eind: "10:00", titel: "MT-overleg planning toetsweek", type: "vergadering", locatie: "Bestuurskamer", deelnemers: "Directie + teamleiders", kleur: "bg-rose-500" },
+  { id: "tl-6", dag: "Do", start: "11:20", eind: "12:00", titel: "Functioneringsgesprek K. Visser", type: "personeel", locatie: "Kamer TL-2", deelnemers: "K. Visser", kleur: "bg-teal-500" },
+  { id: "tl-7", dag: "Vr", start: "13:00", eind: "14:00", titel: "Rooster-evaluatie week 28", type: "operationeel", locatie: "Roosterbureau", deelnemers: "Roostercoördinator", kleur: "bg-slate-500" },
+];
+
+const directieAgenda: AgendaItem[] = [
+  { id: "dr-1", dag: "Ma", start: "09:00", eind: "10:00", titel: "Directieberaad weekstart", type: "vergadering", locatie: "Bestuurskamer", deelnemers: "Rector + conrectoren", kleur: "bg-slate-700" },
+  { id: "dr-2", dag: "Ma", start: "14:00", eind: "14:45", titel: "Bestuurscall stichting", type: "vergadering", locatie: "Online", deelnemers: "College van bestuur", kleur: "bg-indigo-500" },
+  { id: "dr-3", dag: "Di", start: "11:20", eind: "12:00", titel: "Escalatiegesprek ouder/verzorgers", type: "oudergesprek", locatie: "Gespreksruimte 3", deelnemers: "Ouder + teamleider", kleur: "bg-emerald-500" },
+  { id: "dr-4", dag: "Wo", start: "08:30", eind: "09:30", titel: "Financieel overleg Q3", type: "operationeel", locatie: "Bestuurskamer", deelnemers: "Controller + administratie", kleur: "bg-amber-500" },
+  { id: "dr-5", dag: "Wo", start: "13:50", eind: "14:40", titel: "Sollicitatiegesprek docent Engels", type: "personeel", locatie: "Directiekamer", deelnemers: "HR + sectiehoofd", kleur: "bg-teal-500" },
+  { id: "dr-6", dag: "Do", start: "10:30", eind: "11:20", titel: "Inspectievoorbereiding dossier", type: "operationeel", locatie: "Kwaliteitskamer", deelnemers: "Kwaliteitszorgteam", kleur: "bg-rose-500" },
+  { id: "dr-7", dag: "Vr", start: "12:10", eind: "13:00", titel: "MR-overleg", type: "vergadering", locatie: "Aula klein", deelnemers: "Medezeggenschapsraad", kleur: "bg-blue-500" },
+];
 
 export const Route = createFileRoute("/app/rooster")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -28,8 +68,11 @@ function Rooster() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const isDocent = role === "docent";
-  const toonAI = role === "teamleider" || role === "directie";
+  const isManagement = role === "teamleider" || role === "directie";
+  const toonAI = isManagement;
+  const agendaItems = role === "directie" ? directieAgenda : teamleiderAgenda;
   const [detail, setDetail] = useState<Detail | null>(null);
+  const [agendaDetail, setAgendaDetail] = useState<AgendaItem | null>(null);
   const [view, setView] = useState<"dag" | "week">("dag");
   const [aiOpen, setAiOpen] = useState(false);
   const [dagIdx, setDagIdx] = useState(1); // di default
@@ -44,6 +87,7 @@ function Rooster() {
 
   const currentDag = dagen[dagIdx];
   const dagLessen = weekRooster[currentDag] ?? roosterVandaag;
+  const dagAgenda = agendaItems.filter((a) => a.dag === currentDag).sort((a, b) => a.start.localeCompare(b.start));
   const swipe = useSwipe(
     () => setDagIdx((i) => Math.min(dagen.length - 1, i + 1)),
     () => setDagIdx((i) => Math.max(0, i - 1)),
@@ -75,6 +119,7 @@ function Rooster() {
   }, [dagIdx, search.dag]);
 
   useEffect(() => {
+    if (isManagement) return;
     if (!search.start) return;
     const targetDag = search.dag ?? currentDag;
     const les = (weekRooster[targetDag] ?? []).find((l) => l.start === search.start);
@@ -84,6 +129,107 @@ function Rooster() {
     const hw = huiswerken[key] ?? les.huiswerk;
     setDetail({ ...les, huiswerk: hw, dag: targetDag });
   }, [currentDag, detail?.dag, detail?.start, huiswerken, search.dag, search.start]);
+
+  if (isManagement) {
+    return (
+      <AppShell title="Agenda" subtitle="Week 28 · Vergaderingen en schoolbrede overleggen">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="inline-flex rounded-lg border border-border bg-card p-1">
+            <button onClick={() => setView("dag")} className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold ${view === "dag" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+              <CalIcon className="h-3.5 w-3.5" /> Dag
+            </button>
+            <button onClick={() => setView("week")} className={`hidden md:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold ${view === "week" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+              <Grid3x3 className="h-3.5 w-3.5" /> Week
+            </button>
+          </div>
+        </div>
+
+        {view === "dag" ? (
+          <Card title={dagLabels[currentDag]} action={
+            <div className="flex items-center gap-1">
+              <button onClick={() => setDagIdx((i) => Math.max(0, i - 1))} disabled={dagIdx === 0} className="rounded-md p-1 hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
+              <button onClick={() => setDagIdx((i) => Math.min(dagen.length - 1, i + 1))} disabled={dagIdx === dagen.length - 1} className="rounded-md p-1 hover:bg-muted disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+            </div>
+          }>
+            <div className="mb-3 flex gap-1 overflow-x-auto pb-1 md:hidden">
+              {dagen.map((d, i) => (
+                <button key={d} onClick={() => setDagIdx(i)} className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold ${i === dagIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{d}</button>
+              ))}
+            </div>
+            <div className="hidden gap-1 md:flex">
+              {dagen.map((d, i) => (
+                <button key={d} onClick={() => setDagIdx(i)} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${i === dagIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{d}</button>
+              ))}
+            </div>
+
+            <div className="mt-3 space-y-2 select-none" {...swipe}>
+              {dagAgenda.length === 0 && <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Geen afspraken op deze dag</div>}
+              {dagAgenda.map((a) => (
+                <button key={a.id} onClick={() => setAgendaDetail(a)}
+                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50">
+                  <div className={`h-10 w-1 rounded-full ${a.kleur}`} />
+                  <div className="w-20 shrink-0 text-xs font-semibold text-muted-foreground">{a.start}–{a.eind}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">{a.titel}</div>
+                    <div className="truncate text-xs text-muted-foreground">{agendaTypeLabel[a.type]} · {a.locatie}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 text-center text-[11px] text-muted-foreground md:hidden">← Swipe om van dag te wisselen →</div>
+          </Card>
+        ) : (
+          <Card title="Weekkalender management">
+            <div className="grid gap-3 md:grid-cols-5">
+              {dagen.map((d) => {
+                const items = agendaItems.filter((a) => a.dag === d).sort((a, b) => a.start.localeCompare(b.start));
+                return (
+                  <div key={d} className="rounded-xl border border-border bg-background p-3">
+                    <div className="mb-2 text-xs font-semibold text-muted-foreground">{dagLabels[d]}</div>
+                    <div className="space-y-2">
+                      {items.length === 0 && <div className="rounded-md bg-muted p-2 text-[11px] text-muted-foreground">Geen afspraken</div>}
+                      {items.map((a) => (
+                        <button key={a.id} onClick={() => setAgendaDetail(a)} className="w-full rounded-md border border-border p-2 text-left hover:bg-muted/50">
+                          <div className="text-[11px] font-semibold">{a.start}–{a.eind}</div>
+                          <div className="mt-0.5 text-xs font-medium">{a.titel}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
+        {agendaDetail && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setAgendaDetail(null)}>
+            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className={`h-2 w-full ${agendaDetail.kleur}`} />
+              <div className="p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{dagLabels[agendaDetail.dag]} · {agendaDetail.start}–{agendaDetail.eind}</div>
+                    <div className="mt-1 text-lg font-bold">{agendaDetail.titel}</div>
+                  </div>
+                  <button onClick={() => setAgendaDetail(null)} className="rounded-lg p-1.5 hover:bg-muted"><X className="h-4 w-4" /></button>
+                </div>
+                <div className="mt-4 space-y-2 text-sm">
+                  <div className="flex items-center gap-2"><CalIcon className="h-4 w-4 text-muted-foreground" /> {agendaTypeLabel[agendaDetail.type]}</div>
+                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {agendaDetail.locatie}</div>
+                  <div className="flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /> {agendaDetail.deelnemers}</div>
+                  {agendaDetail.notitie && <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-foreground/90">{agendaDetail.notitie}</div>}
+                </div>
+                <div className="mt-5 flex justify-end">
+                  <button className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted" onClick={() => setAgendaDetail(null)}>Sluiten</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title="Rooster" subtitle="Week 28 · 6 – 10 juli 2026">
