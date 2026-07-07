@@ -43,8 +43,7 @@ function Landing() {
           </nav>
           <div className="flex items-center gap-2">
             <Link
-              to="/app/gesprekken"
-              search={{ tab: "beschikbaar" }}
+              to="/contact"
               className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
             >
               Plan gesprek

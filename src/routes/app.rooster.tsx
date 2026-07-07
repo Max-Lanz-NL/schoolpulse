@@ -4,19 +4,28 @@ import { Card } from "@/components/Card";
 import { roosterVandaag, weekRooster, uurNummer, lesAanwezigheid, type Les, type LesStatus } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { Sparkles, AlertTriangle, X, BookOpen, MapPin, User, CheckCircle2, XCircle, ChevronLeft, ChevronRight, MessageSquare, UserX, Pencil, Trash2, Plus, Calendar as CalIcon, Grid3x3 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSwipe } from "@/hooks/use-swipe";
 import { useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/app/rooster")({ component: Rooster });
-
 const dagen = ["Ma", "Di", "Wo", "Do", "Vr"] as const;
 const dagLabels: Record<string, string> = { Ma: "Maandag 6 jul", Di: "Dinsdag 7 jul", Wo: "Woensdag 8 jul", Do: "Donderdag 9 jul", Vr: "Vrijdag 10 jul" };
+type DagCode = typeof dagen[number];
+const isDagCode = (value: unknown): value is DagCode => typeof value === "string" && (dagen as readonly string[]).includes(value);
+
+export const Route = createFileRoute("/app/rooster")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    dag: isDagCode(search.dag) ? search.dag : undefined,
+    start: typeof search.start === "string" && search.start.trim() ? search.start : undefined,
+  }),
+  component: Rooster,
+});
 
 type Detail = Les & { dag?: string };
 
 function Rooster() {
   const { role } = useRole();
+  const search = Route.useSearch();
   const navigate = useNavigate();
   const isDocent = role === "docent";
   const toonAI = role === "teamleider" || role === "directie";
@@ -40,11 +49,41 @@ function Rooster() {
     () => setDagIdx((i) => Math.max(0, i - 1)),
   );
 
-  const openDetail = (l: Les, dag?: string) => {
-    const key = (dag ?? currentDag) + l.start;
+  const openDetail = (l: Les, dag?: DagCode) => {
+    const targetDag = dag ?? currentDag;
+    const key = targetDag + l.start;
     const hw = huiswerken[key] ?? l.huiswerk;
-    setDetail({ ...l, huiswerk: hw, dag });
+    setDetail({ ...l, huiswerk: hw, dag: targetDag });
+    navigate({
+      search: (prev) => ({ ...prev, dag: targetDag, start: l.start }),
+      replace: true,
+    });
   };
+
+  const closeDetail = () => {
+    setDetail(null);
+    navigate({
+      search: (prev) => ({ ...prev, start: undefined }),
+      replace: true,
+    });
+  };
+
+  useEffect(() => {
+    if (!search.dag) return;
+    const idx = dagen.indexOf(search.dag);
+    if (idx >= 0 && idx !== dagIdx) setDagIdx(idx);
+  }, [dagIdx, search.dag]);
+
+  useEffect(() => {
+    if (!search.start) return;
+    const targetDag = search.dag ?? currentDag;
+    const les = (weekRooster[targetDag] ?? []).find((l) => l.start === search.start);
+    if (!les) return;
+    if (detail?.start === les.start && detail?.dag === targetDag) return;
+    const key = targetDag + les.start;
+    const hw = huiswerken[key] ?? les.huiswerk;
+    setDetail({ ...les, huiswerk: hw, dag: targetDag });
+  }, [currentDag, detail?.dag, detail?.start, huiswerken, search.dag, search.start]);
 
   return (
     <AppShell title="Rooster" subtitle="Week 28 · 6 – 10 juli 2026">
@@ -138,7 +177,7 @@ function Rooster() {
         detail={detail}
         isDocent={isDocent}
         selfName="M. Jansen"
-        onClose={() => setDetail(null)}
+        onClose={closeDetail}
         onHuiswerk={() => setHuiswerkModal(detail)}
         onAbsenties={() => setAbsentiesLes(detail)}
         onBericht={() => {
@@ -156,13 +195,13 @@ function Rooster() {
           const key = (huiswerkModal.dag ?? currentDag) + huiswerkModal.start;
           setHuiswerken((s) => ({ ...s, [key]: t }));
           setHuiswerkModal(null);
-          setDetail(null);
+          closeDetail();
         }}
         onDelete={() => {
           const key = (huiswerkModal.dag ?? currentDag) + huiswerkModal.start;
           setHuiswerken((s) => ({ ...s, [key]: "" }));
           setHuiswerkModal(null);
-          setDetail(null);
+          closeDetail();
         }}
         onClose={() => setHuiswerkModal(null)}
       />}
@@ -181,7 +220,7 @@ function Rooster() {
   );
 }
 
-function FragmentRow({ start, uur, onOpen }: { start: string; uur: number; onOpen: (l: Les, d: string) => void }) {
+function FragmentRow({ start, uur, onOpen }: { start: string; uur: number; onOpen: (l: Les, d: DagCode) => void }) {
   return (
     <>
       <div className="pt-2 text-right">

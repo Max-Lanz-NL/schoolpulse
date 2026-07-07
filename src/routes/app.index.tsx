@@ -66,6 +66,7 @@ function LeerlingView() {
                 <Link
                   key={l.tijd}
                   to="/app/rooster"
+                  search={{ dag: "Di", start: l.start }}
                   className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
                 >
                   <div className={`h-10 w-1 rounded-full ${l.kleur}`} />
