@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { DOMAIN_ORIGINS } from "@/lib/domains";
 import type { Session } from "@supabase/supabase-js";
+import { AdminDashboard } from "./AdminDashboard";
 
 function hasPlatformAdminRole(session: Session | null): boolean {
   if (!session?.user) return false;
@@ -244,6 +245,16 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
     }
   };
 
+  const signOut = async () => {
+    if (!supabase) return;
+    setBusy(true);
+    await supabase.auth.signOut();
+    setBusy(false);
+    if (typeof window !== "undefined") {
+      window.location.replace(DOMAIN_ORIGINS.marketing);
+    }
+  };
+
   useEffect(() => {
     if (!supabase || !ready || !isAdminHost || !isLoggedIn || isPlatformAdmin) {
       return;
@@ -276,6 +287,10 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
         </div>
       </div>
     );
+  }
+
+  if (isAdminHost && isLoggedIn && isPlatformAdmin && supabase) {
+    return <AdminDashboard supabase={supabase} onSignOut={signOut} />;
   }
 
   if (isLoggedIn) return <>{children}</>;
