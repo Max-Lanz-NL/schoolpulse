@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import {
   createSchool,
   deleteSchool,
+  getReadableAdminError,
   listProfiles,
   listSchools,
   updateSchool,
@@ -64,8 +65,8 @@ function AdminSchoolsPage() {
       setSchools(loadedSchools);
       setProfiles(loadedProfiles);
       setLoading(false);
-    } catch {
-      setError("Scholen konden niet worden geladen.");
+    } catch (loadError) {
+      setError(getReadableAdminError(loadError, "Scholen konden niet worden geladen."));
       setLoading(false);
     }
   };
@@ -80,6 +81,10 @@ function AdminSchoolsPage() {
       setError("Schoolnaam is verplicht.");
       return;
     }
+    if (createEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createEmail.trim())) {
+      setError("Vul een geldig contact e-mailadres in.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -92,8 +97,8 @@ function AdminSchoolsPage() {
       setCreateAddress("");
       setCreateEmail("");
       await load();
-    } catch {
-      setError("School toevoegen is mislukt.");
+    } catch (createError) {
+      setError(getReadableAdminError(createError, "School toevoegen is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -108,6 +113,14 @@ function AdminSchoolsPage() {
 
   const saveEdit = async () => {
     if (!editingId) return;
+    if (!editName.trim()) {
+      setError("Schoolnaam is verplicht.");
+      return;
+    }
+    if (editEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editEmail.trim())) {
+      setError("Vul een geldig contact e-mailadres in.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -118,8 +131,8 @@ function AdminSchoolsPage() {
       });
       setEditingId(null);
       await load();
-    } catch {
-      setError("School wijzigen is mislukt.");
+    } catch (updateError) {
+      setError(getReadableAdminError(updateError, "School wijzigen is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -134,8 +147,8 @@ function AdminSchoolsPage() {
       setDeleteNameInput("");
       setDeleteConfirmed(false);
       await load();
-    } catch {
-      setError("School verwijderen is mislukt.");
+    } catch (deleteError) {
+      setError(getReadableAdminError(deleteError, "School verwijderen is mislukt."));
     } finally {
       setSaving(false);
     }

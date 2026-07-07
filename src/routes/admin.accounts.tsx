@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import {
   createAccount,
   deleteAccount,
+  getReadableAdminError,
   listProfiles,
   listSchools,
   updateAccount,
@@ -38,6 +39,9 @@ function AdminAccountsPage() {
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<AdminRole>("teacher");
   const [editSchoolId, setEditSchoolId] = useState<string>("");
+  const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null);
+  const [deleteEmailInput, setDeleteEmailInput] = useState("");
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const schoolsById = useMemo(
     () => new Map(schools.map((school) => [school.id, school])),
@@ -52,8 +56,8 @@ function AdminAccountsPage() {
       setProfiles(loadedProfiles);
       setSchools(loadedSchools);
       setLoading(false);
-    } catch {
-      setError("Accounts konden niet worden geladen.");
+    } catch (loadError) {
+      setError(getReadableAdminError(loadError, "Accounts konden niet worden geladen."));
       setLoading(false);
     }
   };
@@ -66,6 +70,14 @@ function AdminAccountsPage() {
     e.preventDefault();
     if (!createName.trim() || !createEmail.trim() || !createPassword) {
       setError("Naam, e-mail en wachtwoord zijn verplicht.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createEmail.trim())) {
+      setError("Vul een geldig e-mailadres in.");
+      return;
+    }
+    if (createPassword.length < 8) {
+      setError("Wachtwoord moet minimaal 8 tekens bevatten.");
       return;
     }
 
@@ -87,8 +99,8 @@ function AdminAccountsPage() {
       setCreateRole("school_admin");
       setCreateSchoolId("");
       await load();
-    } catch {
-      setError("Account aanmaken is mislukt.");
+    } catch (createError) {
+      setError(getReadableAdminError(createError, "Account aanmaken is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -104,6 +116,14 @@ function AdminAccountsPage() {
 
   const saveEdit = async () => {
     if (!editingId) return;
+    if (!editName.trim()) {
+      setError("Naam is verplicht.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editEmail.trim())) {
+      setError("Vul een geldig e-mailadres in.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -118,8 +138,8 @@ function AdminAccountsPage() {
       });
       setEditingId(null);
       await load();
-    } catch {
-      setError("Account wijzigen is mislukt.");
+    } catch (updateError) {
+      setError(getReadableAdminError(updateError, "Account wijzigen is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -130,9 +150,12 @@ function AdminAccountsPage() {
     setError(null);
     try {
       await deleteAccount(userId);
+      setDeleteTarget(null);
+      setDeleteEmailInput("");
+      setDeleteConfirmed(false);
       await load();
-    } catch {
-      setError("Account verwijderen is mislukt.");
+    } catch (deleteError) {
+      setError(getReadableAdminError(deleteError, "Account verwijderen is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -321,7 +344,11 @@ function AdminAccountsPage() {
                               )}
                               <button
                                 type="button"
-                                onClick={() => removeAccount(account.id)}
+                                onClick={() => {
+                                  setDeleteTarget(account);
+                                  setDeleteEmailInput("");
+                                  setDeleteConfirmed(false);
+                                }}
                                 disabled={saving || account.id === profile.id}
                                 className="ml-1 rounded-md px-2 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
                               >
@@ -337,6 +364,58 @@ function AdminAccountsPage() {
               )}
             </div>
           </div>
+          {deleteTarget && (
+            <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+              <div className="w-full max-w-lg rounded-2xl border border-border bg-background p-6">
+                <h2 className="text-lg font-bold">Account verwijderen</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Deze actie is definitief. Verwijderen kan alleen na dubbele bevestiging.
+                </p>
+                <p className="mt-3 rounded-lg bg-muted p-3 text-sm">
+                  Typ exact: <strong>{deleteTarget.email}</strong>
+                </p>
+                <input
+                  value={deleteEmailInput}
+                  onChange={(e) => setDeleteEmailInput(e.target.value)}
+                  className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  placeholder="Bevestig account e-mail"
+                />
+                <label className="mt-3 inline-flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={deleteConfirmed}
+                    onChange={(e) => setDeleteConfirmed(e.target.checked)}
+                  />
+                  Ik begrijp dat dit definitief is en niet teruggedraaid kan worden.
+                </label>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteTarget(null);
+                      setDeleteEmailInput("");
+                      setDeleteConfirmed(false);
+                    }}
+                    className="rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    Annuleren
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      saving ||
+                      !deleteConfirmed ||
+                      deleteEmailInput.trim().toLowerCase() !== deleteTarget.email.toLowerCase()
+                    }
+                    onClick={() => void removeAccount(deleteTarget.id)}
+                    className="rounded-lg bg-destructive px-3 py-2 text-xs font-semibold text-destructive-foreground disabled:opacity-60"
+                  >
+                    Definitief verwijderen
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </AdminShell>
       )}
     </AdminGuard>
