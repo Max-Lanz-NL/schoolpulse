@@ -30,7 +30,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Nav */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
@@ -52,24 +52,25 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/60 to-background" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.08] via-muted/40 to-background" />
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-primary/[0.06] blur-3xl" />
         <div className="mx-auto max-w-7xl px-6 pb-20 pt-20 md:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-[var(--shadow-soft)]">
               <span className="h-1.5 w-1.5 rounded-full bg-success" />
               Live demo — probeer alle rollen
             </div>
             <h1 className="text-5xl font-bold tracking-tight md:text-6xl">
               Het digitale hart van<br />jouw school.
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               Roosters, cijfers, communicatie en administratie in één veilig, modern platform. Rustig ontworpen, snel in gebruik.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90">
+              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
                 Ervaar Schoolpulse <ArrowRight className="h-4 w-4" />
               </a>
-              <Link to="/app" className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold hover:bg-muted">
+              <Link to="/app" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] transition-colors hover:bg-muted">
                 Bekijk demo
               </Link>
             </div>
@@ -121,7 +122,7 @@ function Landing() {
           </div>
           <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, t, d, link }) => (
-              <Link key={t} to={link} className="group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50 hover:bg-card/80 cursor-pointer">
+              <Link key={t} to={link} className="group cursor-pointer rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card/80">
                 <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
@@ -137,7 +138,7 @@ function Landing() {
       </section>
 
       {/* Rollen */}
-      <section id="rollen" className="border-t border-border bg-muted/40 py-20">
+      <section id="rollen" className="border-t border-border/70 bg-muted/40 py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
@@ -159,10 +160,10 @@ function Landing() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-3xl border border-border bg-background p-6 shadow-[var(--shadow-soft)]">
+            <div className="rounded-3xl border border-border/80 bg-background p-6 shadow-[var(--shadow-soft)]">
               <div className="grid grid-cols-2 gap-3">
                 {(["leerling","docent","ouder","teamleider","directie"] as Role[]).map((r) => (
-                  <button key={r} onClick={() => pickRole(r)} className="rounded-xl border border-border p-4 text-left transition-all hover:border-primary hover:bg-muted/60">
+                  <button key={r} onClick={() => pickRole(r)} className="rounded-xl border border-border/80 p-4 text-left transition-all hover:border-primary hover:bg-muted/60">
                     <div className="text-xs text-muted-foreground">Dashboard</div>
                     <div className="mt-1 text-sm font-semibold">{roleLabels[r]}</div>
                     <div className="mt-3 flex gap-1">
@@ -187,7 +188,7 @@ function Landing() {
 
       {/* Security */}
       <section id="veiligheid" className="py-20">
-        <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-secondary p-10 text-secondary-foreground md:p-14">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-border/80 bg-secondary p-10 text-secondary-foreground shadow-[var(--shadow-elegant)] md:p-14">
           <div className="grid gap-8 md:grid-cols-2 md:items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">

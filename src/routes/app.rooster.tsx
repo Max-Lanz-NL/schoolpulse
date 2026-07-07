@@ -289,7 +289,7 @@ function AIVoorstelModal({ onClose }: { onClose: () => void }) {
           <div className="rounded-xl border border-border bg-background p-3">
             <div className="text-xs font-semibold text-muted-foreground">Voorstel #1 — donderdag</div>
             <div className="mt-1">Verplaats <strong>Wiskunde B (V4B)</strong> van uur 4 (11:20) naar uur 2 (09:20) om een tussenuur op te lossen.</div>
-            <div className="mt-2 text-xs text-success">Verwacht effect: −1 tussenuur voor 26 leerlingen</div>
+            <div className="mt-2 text-xs text-success">Verwacht effect: −1 tussenuur voor 24 leerlingen</div>
           </div>
           <div className="rounded-xl border border-border bg-background p-3">
             <div className="text-xs font-semibold text-muted-foreground">Voorstel #2 — vrijdag</div>

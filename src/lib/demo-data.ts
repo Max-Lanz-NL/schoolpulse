@@ -124,14 +124,14 @@ export type DocentOpdracht = {
   telaatLeerlingen?: { naam: string; dagenTeLaat: number }[];
 };
 export const docentOpdrachten: DocentOpdracht[] = [
-  { id: "o1", titel: "SO Herhaling Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
-  { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "28 nov 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 26 },
-  { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "24 nov 23:59", weging: 1, status: "te-laat", ingeleverd: 22, totaal: 24,
+  { id: "o1", titel: "SO Herhaling Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 22, totaal: 24 },
+  { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "28 nov 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 24 },
+  { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "24 nov 23:59", weging: 1, status: "te-laat", ingeleverd: 19, totaal: 21,
     telaatLeerlingen: [
       { naam: "Tom Bakker", dagenTeLaat: 2 },
       { naam: "Julia Smit", dagenTeLaat: 1 },
     ] },
-  { id: "o4", titel: "Praktische opdracht statistiek", vak: "Wiskunde B", klas: "V4A", deadline: "22 nov 23:59", weging: 3, status: "ingeleverd", ingeleverd: 28, totaal: 28 },
+  { id: "o4", titel: "Praktische opdracht statistiek", vak: "Wiskunde B", klas: "V4A", deadline: "22 nov 23:59", weging: 3, status: "ingeleverd", ingeleverd: 23, totaal: 23 },
 ];
 
 // Docent — klassen met leerlingen en per leerling de vakken waarin docent lesgeeft
@@ -378,10 +378,10 @@ export const documenten: Bestand[] = [
 ];
 
 export const klassen = [
-  { klas: "V4A", leerlingen: 28, gemiddelde: 7.2, aanwezigheid: 96 },
-  { klas: "V4B", leerlingen: 26, gemiddelde: 7.4, aanwezigheid: 94 },
-  { klas: "V5A", leerlingen: 24, gemiddelde: 6.9, aanwezigheid: 92 },
-  { klas: "H4A", leerlingen: 30, gemiddelde: 7.0, aanwezigheid: 95 },
+  { klas: "V4A", leerlingen: 23, gemiddelde: 7.2, aanwezigheid: 96 },
+  { klas: "V4B", leerlingen: 24, gemiddelde: 7.4, aanwezigheid: 94 },
+  { klas: "V5A", leerlingen: 21, gemiddelde: 6.9, aanwezigheid: 92 },
+  { klas: "H4A", leerlingen: 22, gemiddelde: 7.0, aanwezigheid: 95 },
 ];
 
 export const meldingen: { titel: string; tijd: string; type: "cijfer" | "rooster" | "bericht" | "deadline"; link: string }[] = [

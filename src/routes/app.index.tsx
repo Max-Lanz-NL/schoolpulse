@@ -36,21 +36,21 @@ function StatCard({ icon: Icon, label, value, hint, tone = "default", to }: { ic
     <>
       <div className="flex items-center justify-between">
         <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" /></div>
-        <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground/90" />
       </div>
-      <div className="mt-4 text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="mt-1 text-2xl font-bold tracking-tight">{value}</div>
-      {hint && <div className={`mt-1 text-xs ${toneClass}`}>{hint}</div>}
+      {hint && <div className={`mt-1 text-xs font-medium ${toneClass}`}>{hint}</div>}
     </>
   );
-  const cls = "block rounded-2xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-elegant)]";
+  const cls = "block rounded-2xl border border-border/80 bg-card p-5 text-left shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-elegant)]";
   if (to) return <Link to={to} className={cls}>{content}</Link>;
-  return <div className="rounded-2xl border border-border bg-card p-5">{content}</div>;
+  return <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)]">{content}</div>;
 }
 
 function LeerlingView() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard to="/app/cijfers" icon={BarChart3} label="Gemiddelde" value="7.4" hint="+0.3 t.o.v. vorige periode" tone="success" />
         <StatCard to="/app/rooster" icon={Calendar} label="Lessen vandaag" value="6" hint="1 wijziging" tone="warning" />
@@ -103,7 +103,7 @@ function LeerlingView() {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-7">
           <Card title="Meldingen">
             <div className="space-y-1">
               {meldingen.map((m) => (
@@ -150,7 +150,7 @@ function DocentView() {
   const teBeoordelen = docentOpdrachten.filter((o) => o.status === "ingeleverd" || o.status === "te-laat");
   const ongelezen = 2; // docentBerichten filtered ongelezen
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard to="/app/cijfers" icon={Users} label="Klassen" value={String(aantalKlassen)} hint={`${docentKlassen.reduce((s, k) => s + k.leerlingen.length, 0)} leerlingen`} />
         <StatCard to="/app/opdrachten" icon={FileCheck} label="Te beoordelen" value={String(teBeoordelen.length)} hint={teBeoordelen.length > 0 ? `${teBeoordelen.filter(o => o.status === "te-laat").length} te laat ingeleverd` : "Alles bijgewerkt"} tone={teBeoordelen.length > 0 ? "warning" : "success"} />
@@ -186,7 +186,7 @@ function DocentView() {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-7">
           <Card title="Nieuwe meldingen" action={<span className="text-[11px] text-muted-foreground">{docentMeldingen.length} nieuw</span>}>
             <div className="space-y-1">
               {docentMeldingen.map((m) => (
@@ -236,7 +236,7 @@ function OuderView() {
   ];
   const kind = kinderen[selectedKind];
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex flex-wrap items-center gap-4">
           <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-lg font-bold text-primary">{kind.initials}</div>

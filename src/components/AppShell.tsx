@@ -163,8 +163,8 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
         </div>
       )}
       {/* Sidebar — altijd fixed, met eigen scroll */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5">
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto border-r border-sidebar-border/70 bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border/80 px-5">
           <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
           <div className="min-w-0">
             <div className="truncate text-sm font-bold tracking-tight text-white">Schoolpulse</div>
@@ -174,7 +174,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
 
         <div className="px-3 pt-4">
           <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">Modules</div>
-          <nav className="space-y-0.5">
+          <nav className="space-y-1">
             {modules.map((m) => {
               const active = isActive(m.to, m.exact);
               return (
@@ -183,13 +183,13 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   to={m.to}
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
+                    active ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-[var(--shadow-soft)]" : "text-sidebar-foreground/85 hover:bg-sidebar-accent/90 hover:text-white"
                   }`}
                 >
                   <m.icon className="h-4 w-4" />
                   <span className="flex-1">{m.label}</span>
                   {m.badge ? (
-                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">{m.badge}</span>
+                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">{m.badge}</span>
                   ) : null}
                 </Link>
               );
@@ -241,7 +241,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
 
       {/* Main — met marge voor sidebar */}
       <div className="flex min-h-screen min-w-0 flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur md:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/70 bg-background/90 px-4 backdrop-blur md:px-8">
           <button className="md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
             <span className="block h-0.5 w-5 bg-foreground" />
             <span className="mt-1 block h-0.5 w-5 bg-foreground" />
@@ -254,14 +254,14 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
 
           {/* Zoekbalk */}
           <div ref={searchRef} className="relative hidden md:block">
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
+            <div className="flex items-center gap-2 rounded-lg border border-border/70 bg-muted/40 px-3 py-1.5 focus-within:border-primary/40 focus-within:bg-background">
               <Search className="h-4 w-4 text-muted-foreground" />
               <input
                 value={searchQ}
                 onChange={(e) => { setSearchQ(e.target.value); setSearchOpen(true); }}
                 onFocus={() => setSearchOpen(true)}
                 placeholder="Zoek in Schoolpulse..."
-                className="w-56 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                className="w-56 bg-transparent text-sm outline-none placeholder:text-muted-foreground/90"
               />
             </div>
             {searchOpen && searchQ && (
@@ -285,7 +285,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
           <div ref={notifRef} className="relative">
             <button
               onClick={() => setNotifOpen((v) => !v)}
-              className="relative rounded-lg p-2 hover:bg-muted"
+              className="relative rounded-lg p-2 transition-colors hover:bg-muted/70"
               aria-label="Notificaties"
             >
               <Bell className="h-4 w-4" />
@@ -390,7 +390,7 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-8 md:pb-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-7 md:pb-8">{children}</main>
       </div>
 
       {/* Mobile bottom nav */}

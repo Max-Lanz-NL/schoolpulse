@@ -22,14 +22,14 @@ type Rapport = {
 };
 
 const initRapporten: Rapport[] = [
-  { id: "r1", klas: "V4B", docent: "M. Jansen", vak: "Wiskunde B", datum: "3 jul 2026", aantalLeerlingen: 26, status: "afwachting" },
-  { id: "r2", klas: "V5A", docent: "K. Visser", vak: "Scheikunde", datum: "4 jul 2026", aantalLeerlingen: 24, status: "afwachting" },
-  { id: "r3", klas: "H4A", docent: "J. Peters", vak: "Geschiedenis", datum: "4 jul 2026", aantalLeerlingen: 30, status: "afwachting" },
+  { id: "r1", klas: "V4B", docent: "M. Jansen", vak: "Wiskunde B", datum: "3 jul 2026", aantalLeerlingen: 24, status: "afwachting" },
+  { id: "r2", klas: "V5A", docent: "K. Visser", vak: "Scheikunde", datum: "4 jul 2026", aantalLeerlingen: 21, status: "afwachting" },
+  { id: "r3", klas: "H4A", docent: "J. Peters", vak: "Geschiedenis", datum: "4 jul 2026", aantalLeerlingen: 22, status: "afwachting" },
 ];
 
 const eerderGoedgekeurd: Rapport[] = [
-  { id: "rg1", klas: "V4A", docent: "M. Jansen", vak: "Wiskunde B", datum: "28 jun 2026", aantalLeerlingen: 28, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
-  { id: "rg2", klas: "V4B", docent: "L. de Boer", vak: "Nederlands", datum: "29 jun 2026", aantalLeerlingen: 26, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
+  { id: "rg1", klas: "V4A", docent: "M. Jansen", vak: "Wiskunde B", datum: "28 jun 2026", aantalLeerlingen: 23, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
+  { id: "rg2", klas: "V4B", docent: "L. de Boer", vak: "Nederlands", datum: "29 jun 2026", aantalLeerlingen: 24, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
 ];
 
 // Modal leerlingen per rapport (hardcoded demo)
