@@ -32,6 +32,9 @@ function AdminSchoolsPage() {
   const [editName, setEditName] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<School | null>(null);
+  const [deleteNameInput, setDeleteNameInput] = useState("");
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const userCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -127,6 +130,9 @@ function AdminSchoolsPage() {
     setError(null);
     try {
       await deleteSchool(schoolId);
+      setDeleteTarget(null);
+      setDeleteNameInput("");
+      setDeleteConfirmed(false);
       await load();
     } catch {
       setError("School verwijderen is mislukt.");
@@ -272,7 +278,11 @@ function AdminSchoolsPage() {
                               )}
                               <button
                                 type="button"
-                                onClick={() => removeSchool(school.id)}
+                                onClick={() => {
+                                  setDeleteTarget(school);
+                                  setDeleteNameInput("");
+                                  setDeleteConfirmed(false);
+                                }}
                                 disabled={saving}
                                 className="ml-1 rounded-md px-2 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60"
                               >
@@ -288,6 +298,56 @@ function AdminSchoolsPage() {
               )}
             </div>
           </div>
+          {deleteTarget && (
+            <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+              <div className="w-full max-w-lg rounded-2xl border border-border bg-background p-6">
+                <h2 className="text-lg font-bold">School verwijderen</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Deze actie is definitief. Verwijderen kan alleen na dubbele bevestiging.
+                </p>
+                <p className="mt-3 rounded-lg bg-muted p-3 text-sm">
+                  Typ exact: <strong>{deleteTarget.name}</strong>
+                </p>
+                <input
+                  value={deleteNameInput}
+                  onChange={(e) => setDeleteNameInput(e.target.value)}
+                  className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  placeholder="Bevestig schoolnaam"
+                />
+                <label className="mt-3 inline-flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={deleteConfirmed}
+                    onChange={(e) => setDeleteConfirmed(e.target.checked)}
+                  />
+                  Ik begrijp dat dit definitief is en data kan beïnvloeden.
+                </label>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteTarget(null);
+                      setDeleteNameInput("");
+                      setDeleteConfirmed(false);
+                    }}
+                    className="rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
+                  >
+                    Annuleren
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      saving || !deleteConfirmed || deleteNameInput.trim() !== deleteTarget.name
+                    }
+                    onClick={() => void removeSchool(deleteTarget.id)}
+                    className="rounded-lg bg-destructive px-3 py-2 text-xs font-semibold text-destructive-foreground disabled:opacity-60"
+                  >
+                    Definitief verwijderen
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </AdminShell>
       )}
     </AdminGuard>
