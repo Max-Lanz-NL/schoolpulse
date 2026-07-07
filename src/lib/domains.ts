@@ -2,6 +2,7 @@ export const DOMAIN_ORIGINS = {
   marketing: "https://schoolpulse.nl",
   marketingWww: "https://www.schoolpulse.nl",
   app: "https://app.schoolpulse.nl",
+  admin: "https://admin.schoolpulse.nl",
   demo: "https://demo.schoolpulse.nl",
   test: "https://test.schoolpulse.nl",
   api: "https://api.schoolpulse.nl",
