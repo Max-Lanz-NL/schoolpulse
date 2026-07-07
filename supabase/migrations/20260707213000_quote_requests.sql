@@ -17,6 +17,11 @@ create table if not exists public.quote_requests (
 
 alter table public.quote_requests enable row level security;
 
+drop policy if exists "Public can create quote requests" on public.quote_requests;
+drop policy if exists "Platform admins can read quote requests" on public.quote_requests;
+drop policy if exists "Platform admins can update quote requests" on public.quote_requests;
+drop policy if exists "Platform admins can delete quote requests" on public.quote_requests;
+
 create policy "Public can create quote requests"
 on public.quote_requests
 for insert
@@ -27,21 +32,60 @@ create policy "Platform admins can read quote requests"
 on public.quote_requests
 for select
 to authenticated
-using (public.is_platform_admin(auth.uid()));
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'platform_admin'
+  )
+);
 
 create policy "Platform admins can update quote requests"
 on public.quote_requests
 for update
 to authenticated
-using (public.is_platform_admin(auth.uid()))
-with check (public.is_platform_admin(auth.uid()));
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'platform_admin'
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'platform_admin'
+  )
+);
 
 create policy "Platform admins can delete quote requests"
 on public.quote_requests
 for delete
 to authenticated
-using (public.is_platform_admin(auth.uid()));
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'platform_admin'
+  )
+);
 
+create or replace function public.quote_requests_set_updated_at_fn()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists quote_requests_set_updated_at on public.quote_requests;
 create trigger quote_requests_set_updated_at
 before update on public.quote_requests
-for each row execute function public.set_updated_at();
+for each row execute function public.quote_requests_set_updated_at_fn();
