@@ -27,20 +27,20 @@ create policy "Platform admins can read quote requests"
 on public.quote_requests
 for select
 to authenticated
-using (public.is_platform_admin());
+using (public.is_platform_admin(auth.uid()));
 
 create policy "Platform admins can update quote requests"
 on public.quote_requests
 for update
 to authenticated
-using (public.is_platform_admin())
-with check (public.is_platform_admin());
+using (public.is_platform_admin(auth.uid()))
+with check (public.is_platform_admin(auth.uid()));
 
 create policy "Platform admins can delete quote requests"
 on public.quote_requests
 for delete
 to authenticated
-using (public.is_platform_admin());
+using (public.is_platform_admin(auth.uid()));
 
 create trigger quote_requests_set_updated_at
 before update on public.quote_requests
