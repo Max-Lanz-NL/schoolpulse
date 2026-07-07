@@ -124,7 +124,7 @@ export type DocentOpdracht = {
   telaatLeerlingen?: { naam: string; dagenTeLaat: number }[];
 };
 export const docentOpdrachten: DocentOpdracht[] = [
-  { id: "o1", titel: "Praktijkverslag Titratie", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
+  { id: "o1", titel: "SO Herhaling Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
   { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "28 nov 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 26 },
   { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "24 nov 23:59", weging: 1, status: "te-laat", ingeleverd: 22, totaal: 24,
     telaatLeerlingen: [
@@ -259,6 +259,99 @@ export const docentBerichten: Bericht[] = [
     thread: [
       { van: "Roostercoördinatie", tijd: "ma 08:30", mij: false, tekst: "Surveillance CSE tijdvak 1 indeling zit in de bijlage. Graag bevestigen." },
       { van: "Ik", tijd: "ma 09:00", mij: true, tekst: "Bevestigd." },
+    ]},
+];
+
+// Ouder-berichten (Petra de Vries ↔ school)
+export const ouderBerichten: Bericht[] = [
+  { id: "mentor-ouder", van: "L. de Boer", rol: "Mentor V4B",  tijd: "14:32",
+    preview: "Fijn om bij te praten over Sanne's voortgang.",
+    ongelezen: true, avatar: dicebear("Linda de Boer"), kleur: "bg-emerald-500", type: "mentor",
+    thread: [
+      { van: "L. de Boer", tijd: "14:30", mij: false, tekst: "Goedemiddag mevrouw De Vries, ik wilde even contact opnemen over Sanne's voortgang." },
+      { van: "L. de Boer", tijd: "14:31", mij: false, tekst: "Ze doet het over het algemeen goed, maar bij scheikunde zijn de cijfers wat aan de lage kant. Zou u volgende week een moment hebben voor een gesprek?" },
+      { van: "Ik", tijd: "14:45", mij: true, tekst: "Dank voor het bericht. Woensdag om 16:00 schikt mij goed." },
+    ]},
+  { id: "school-aankondiging-ouder", van: "Scholengemeenschap De Horizon", rol: "Schoolbericht", tijd: "Gisteren",
+    preview: "Ouderavond V4 — 8 oktober 2026 inschrijving open.",
+    ongelezen: false, avatar: dicebear("School"), kleur: "bg-primary", type: "admin",
+    thread: [
+      { van: "Scholengemeenschap De Horizon", tijd: "gis 09:00", mij: false, tekst: "Beste ouder/verzorger, de inschrijving voor de ouderavond V4 op 8 oktober 2026 is nu open. U kunt een tijdslot reserveren via de Activiteiten pagina." },
+    ]},
+  { id: "teamleider-ouder", van: "I. Bakker", rol: "Teamleider Bovenbouw", tijd: "Ma",
+    preview: "Betreft het voortgangsgesprek van 9 juli.",
+    ongelezen: false, avatar: dicebear("Ingrid Bakker"), kleur: "bg-amber-500", type: "teamleider",
+    thread: [
+      { van: "I. Bakker", tijd: "ma 09:15", mij: false, tekst: "Geachte mevrouw De Vries, ik wil u informeren dat het voortgangsgesprek op 9 juli om 16:00 bij de mentor doorgang vindt." },
+      { van: "Ik", tijd: "ma 10:00", mij: true, tekst: "Dank voor de bevestiging." },
+    ]},
+];
+
+// Teamleider-berichten (Ingrid Bakker ↔ directie/collega's)
+export const teamleiderBerichten: Bericht[] = [
+  { id: "directie-tl", van: "Dr. R. Hendriks", rol: "Rector", tijd: "10:15",
+    preview: "Graag je input voor de teamvergadering van donderdag.",
+    ongelezen: true, avatar: dicebear("Rob Hendriks"), kleur: "bg-slate-600", type: "admin",
+    thread: [
+      { van: "Dr. R. Hendriks", tijd: "10:12", mij: false, tekst: "Goedemorgen Ingrid, voor de teamvergadering donderdag heb ik jouw input nodig over de resultaten bovenbouw." },
+      { van: "Dr. R. Hendriks", tijd: "10:15", mij: false, tekst: "Kun je een kort overzicht sturen van de klassen met aandachtspunten?" },
+      { van: "Ik", tijd: "10:30", mij: true, tekst: "Komt voor elkaar, ik stuur het voor woensdag 17:00 door." },
+    ]},
+  { id: "jansen-tl", van: "M. Jansen", rol: "Docent Wiskunde", tijd: "09:02",
+    preview: "Tom Bakker scoort structureel onvoldoende — overleg?",
+    ongelezen: true, avatar: dicebear("Mark Jansen"), kleur: "bg-blue-500", type: "collega",
+    thread: [
+      { van: "M. Jansen", tijd: "09:00", mij: false, tekst: "Hoi Ingrid, ik maak me zorgen over Tom Bakker (V4B). Hij scoort nu drie toetsen op rij onvoldoende voor wiskunde." },
+      { van: "M. Jansen", tijd: "09:02", mij: false, tekst: "Kunnen we een multidisciplinair overleg plannen met de mentor?" },
+      { van: "Ik", tijd: "09:20", mij: true, tekst: "Goed idee — ik plan het voor donderdag na schooltijd." },
+    ]},
+  { id: "sectie-bovenbouw", van: "Bovenbouw Overleg", rol: "Groepschat · 8 docenten", tijd: "Gisteren",
+    preview: "Agenda sectievergadering 10 juli staat online.",
+    ongelezen: false, avatar: dicebear("Bovenbouw sectie"), kleur: "bg-indigo-500", type: "groep",
+    thread: [
+      { van: "I. Bakker", tijd: "gis 14:00", mij: true, tekst: "De agenda voor de sectievergadering op 10 juli staat nu in de gedeelde map. Graag punten aanleveren voor woensdag." },
+      { van: "M. Jansen", tijd: "gis 14:22", mij: false, tekst: "Ontvangen, dank!", avatar: dicebear("Mark Jansen") },
+      { van: "L. de Boer", tijd: "gis 14:45", mij: false, tekst: "Ik voeg het mentorpunt nog toe.", avatar: dicebear("Linda de Boer") },
+    ]},
+  { id: "rooster-tl", van: "Roostercoördinatie", rol: "Praktisch overleg", tijd: "Ma",
+    preview: "Vervangingsrooster week 28 ter goedkeuring.",
+    ongelezen: false, avatar: dicebear("Rooster"), kleur: "bg-slate-500", type: "admin",
+    thread: [
+      { van: "Roostercoördinatie", tijd: "ma 08:00", mij: false, tekst: "Het vervangingsrooster voor week 28 is klaar. Graag uw goedkeuring voor 09:00." },
+      { van: "Ik", tijd: "ma 08:45", mij: true, tekst: "Goedgekeurd." },
+    ]},
+];
+
+// Directie-berichten (Dr. Rob Hendriks ↔ teamleider/administratie)
+export const directieBerichten: Bericht[] = [
+  { id: "bakker-dir", van: "I. Bakker", rol: "Teamleider Bovenbouw", tijd: "11:03",
+    preview: "Overzicht bovenbouw resultaten — ter voorbereiding vergadering.",
+    ongelezen: true, avatar: dicebear("Ingrid Bakker"), kleur: "bg-amber-500", type: "teamleider",
+    thread: [
+      { van: "I. Bakker", tijd: "11:00", mij: false, tekst: "Goedemorgen Rob, bijgaand het overzicht van de bovenbouwresultaten als voorbereiding op de vergadering van donderdag." },
+      { van: "I. Bakker", tijd: "11:03", mij: false, tekst: "Aandachtspunt: V4B scheikunde gemiddelde onder de grens." },
+      { van: "Ik", tijd: "11:20", mij: true, tekst: "Bedankt, ik heb het bekeken. Laten we dit donderdag bespreken." },
+    ]},
+  { id: "admin-rooster-dir", van: "Administratie", rol: "Roosterwijziging", tijd: "09:30",
+    preview: "3 openstaande roosterwijzigingen wachten op goedkeuring.",
+    ongelezen: true, avatar: dicebear("Administratie"), kleur: "bg-slate-500", type: "admin",
+    thread: [
+      { van: "Administratie", tijd: "09:28", mij: false, tekst: "Geachte rector, er zijn 3 roosterwijzigingsverzoeken ingediend die uw goedkeuring vereisen." },
+      { van: "Administratie", tijd: "09:30", mij: false, tekst: "Het betreft wisseluren dinsdag en donderdag week 29. Zie bijgevoegd overzicht." },
+    ]},
+  { id: "directie-overleg", van: "Directie Overleg", rol: "Groepschat · Directie & MT", tijd: "Gisteren",
+    preview: "Notulen vergadering 4 juli beschikbaar.",
+    ongelezen: false, avatar: dicebear("Directie overleg"), kleur: "bg-slate-700", type: "groep",
+    thread: [
+      { van: "Secretariaat", tijd: "gis 10:00", mij: false, tekst: "De notulen van de MT-vergadering van 4 juli zijn beschikbaar in de gedeelde map.", avatar: dicebear("Secretariaat") },
+      { van: "Ik", tijd: "gis 11:00", mij: true, tekst: "Dank. Volgende vergadering is 11 juli om 09:00." },
+    ]},
+  { id: "teamleider-onderbouw", van: "P. Smit", rol: "Teamleider Onderbouw", tijd: "Ma",
+    preview: "Verzoek extra ondersteuning klas H3A.",
+    ongelezen: false, avatar: dicebear("Pieter Smit"), kleur: "bg-teal-500", type: "teamleider",
+    thread: [
+      { van: "P. Smit", tijd: "ma 09:00", mij: false, tekst: "Beste Rob, klas H3A vraagt om extra ondersteuning vanwege een hoog ziekteverzuim de afgelopen weken. Kunnen we dit oppakken?" },
+      { van: "Ik", tijd: "ma 10:15", mij: true, tekst: "Ik stem dit af met de zorgcoördinator en kom bij je terug." },
     ]},
 ];
 

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { berichten as leerlingBerichten, docentBerichten, type ChatBericht } from "@/lib/demo-data";
+import { berichten as leerlingBerichten, docentBerichten, ouderBerichten, teamleiderBerichten, directieBerichten, type ChatBericht } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { Send, Paperclip, ShieldCheck, Search, Users, ArrowLeft, Megaphone, X, MessageSquarePlus, UserPlus, CalendarClock } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
@@ -9,19 +9,40 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/app/berichten")({ component: Berichten });
 
 const autoAntwoorden: Record<string, string> = {
+  // leerling
   "jansen": "Goed, ik zal er naar kijken. Stuur het maar door!",
   "v4b": "👍",
   "deboer": "Bedankt! Tot de volgende keer.",
+  // docent
   "deboer-col": "Prima, ik stuur de lesstof vanavond door.",
   "sectie-wi": "Duidelijk, tot de vergadering!",
   "teamleider": "Ik zet het op de agenda voor volgende week.",
   "over-tom": "Goed idee. Ik reserveer de vergaderzaal.",
   "surveillance": "Ontvangen, bedankt voor de bevestiging.",
+  // ouder
+  "mentor-ouder": "Dank u wel, ik zal dit bespreken met Sanne.",
+  "school-aankondiging-ouder": "",
+  "teamleider-ouder": "Bedankt voor de bevestiging, wij zijn er bij.",
+  // teamleider
+  "directie-tl": "Komt voor elkaar, tot donderdag.",
+  "jansen-tl": "Ik plan het overleg voor donderdag na schooltijd.",
+  "sectie-bovenbouw": "Bedankt voor de terugkoppeling!",
+  "rooster-tl": "Ontvangen en goedgekeurd.",
+  // directie
+  "bakker-dir": "Bedankt, ik neem het mee naar de vergadering.",
+  "admin-rooster-dir": "Goedgekeurd, dank voor de melding.",
+  "directie-overleg": "Dank, ik heb het doorgenomen.",
+  "teamleider-onderbouw": "Ik neem contact op met de zorgcoördinator.",
 };
 
 function Berichten() {
   const { role } = useRole();
-  const baseBerichten = role === "docent" ? docentBerichten : leerlingBerichten;
+  const baseBerichten =
+    role === "docent" ? docentBerichten
+    : role === "ouder" ? ouderBerichten
+    : role === "teamleider" ? teamleiderBerichten
+    : role === "directie" ? directieBerichten
+    : leerlingBerichten;
 
   const [nieuwChatOpen, setNieuwChatOpen] = useState(false);
   const [ncSearch, setNcSearch] = useState("");
@@ -57,9 +78,12 @@ function Berichten() {
       ]
     : role === "ouder"
       ? [
-          { id: "nc-deboer", naam: "L. de Boer", rol: "Mentor" },
+        { id: "nc-deboer", naam: "L. de Boer", rol: "Mentor V4B" },
           { id: "nc-bakker", naam: "I. Bakker", rol: "Teamleider Bovenbouw" },
-        ]
+        { id: "nc-jansen", naam: "M. Jansen", rol: "Docent Wiskunde" },
+        { id: "nc-visser", naam: "K. Visser", rol: "Docent Scheikunde" },
+        { id: "nc-green", naam: "S. Green", rol: "Docent Engels" },
+      ]
       : role === "docent"
         ? [
             { id: "nc-visser", naam: "K. Visser", rol: "Collega · Scheikunde" },

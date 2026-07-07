@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useRole } from "@/lib/role-context";
-import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels, weekRooster, personeel, berichten } from "@/lib/demo-data";
+import { roleUsers, roosterVandaag, cijfers, opdrachten, meldingen, docentMeldingen, docentOpdrachten, docentKlassen, klassen, roleLabels, weekRooster, personeel, ouderBerichten } from "@/lib/demo-data";
 import type { LucideIcon } from "lucide-react";
 import {
   Calendar, BarChart3, MessageSquare, FileCheck, TrendingUp, TrendingDown, Minus,
@@ -301,7 +301,7 @@ function OuderView() {
 
         <Card title="Berichten van school">
           <div className="space-y-3">
-            {berichten.slice(0, 4).map((b) => (
+            {ouderBerichten.slice(0, 3).map((b) => (
               <div key={b.van} className="flex gap-3">
                 <img src={b.avatar} alt={b.van} className="h-9 w-9 shrink-0 rounded-full bg-muted object-cover" />
                 <div className="min-w-0 flex-1">
