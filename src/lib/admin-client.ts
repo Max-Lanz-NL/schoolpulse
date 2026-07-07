@@ -256,10 +256,39 @@ type ManageUserPayload =
       user_id: string;
     };
 
+async function getEdgeFunctionErrorMessage(error: unknown): Promise<string | null> {
+  if (!error || typeof error !== "object") return null;
+  if (!("context" in error)) return null;
+
+  const context = error.context;
+  if (!(context instanceof Response)) return null;
+
+  try {
+    const clone = context.clone();
+    const json = (await clone.json()) as { error?: string; message?: string };
+    if (typeof json.error === "string" && json.error.trim()) return json.error.trim();
+    if (typeof json.message === "string" && json.message.trim()) return json.message.trim();
+  } catch {
+    try {
+      const text = (await context.clone().text()).trim();
+      if (text) return text;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
 async function invokeManageUser(payload: ManageUserPayload): Promise<void> {
   const supabase = getAdminSupabaseClient();
   const { error } = await supabase.functions.invoke("admin-manage-user", { body: payload });
-  if (error) throw error;
+  if (error) {
+    const friendlyMessage =
+      (await getEdgeFunctionErrorMessage(error)) ??
+      "Gebruikersactie via admin functie is mislukt.";
+    throw new Error(friendlyMessage);
+  }
 }
 
 export async function createAccount(payload: {

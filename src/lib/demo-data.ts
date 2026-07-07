@@ -124,14 +124,14 @@ export type DocentOpdracht = {
   telaatLeerlingen?: { naam: string; dagenTeLaat: number }[];
 };
 export const docentOpdrachten: DocentOpdracht[] = [
-  { id: "o1", titel: "SO Herhaling Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "25 nov 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
-  { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "28 nov 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 26 },
-  { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "24 nov 23:59", weging: 1, status: "te-laat", ingeleverd: 22, totaal: 24,
+  { id: "o1", titel: "SO Herhaling Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "3 jul 23:59", weging: 2, status: "beoordeeld", ingeleverd: 24, totaal: 26 },
+  { id: "o2", titel: "Opgaven H4: Differentiëren", vak: "Wiskunde B", klas: "V4B", deadline: "9 jul 23:59", weging: 1, status: "openstaand", ingeleverd: 12, totaal: 26 },
+  { id: "o3", titel: "SO Herhaling Vectoren", vak: "Wiskunde B", klas: "V5A", deadline: "7 jul 23:59", weging: 1, status: "te-laat", ingeleverd: 22, totaal: 24,
     telaatLeerlingen: [
       { naam: "Tom Bakker", dagenTeLaat: 2 },
       { naam: "Julia Smit", dagenTeLaat: 1 },
     ] },
-  { id: "o4", titel: "Praktische opdracht statistiek", vak: "Wiskunde B", klas: "V4A", deadline: "22 nov 23:59", weging: 3, status: "ingeleverd", ingeleverd: 28, totaal: 28 },
+  { id: "o4", titel: "Praktische opdracht statistiek", vak: "Wiskunde B", klas: "V4A", deadline: "1 jul 23:59", weging: 3, status: "ingeleverd", ingeleverd: 28, totaal: 28 },
 ];
 
 // Docent — klassen met leerlingen en per leerling de vakken waarin docent lesgeeft
@@ -141,34 +141,34 @@ export const docentKlassen: { klas: string; vak: string; leerlingen: Leerling[] 
     klas: "V4B", vak: "Wiskunde B",
     leerlingen: [
       { id: "l1", naam: "Sanne de Vries", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
-        { naam: "SO H3", cijfer: 8.2, weging: 1, datum: "12 nov" },
-        { naam: "PW H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt" },
+      { naam: "SO H3", cijfer: 8.2, weging: 1, datum: "24 jun" },
+      { naam: "PW H1-H2", cijfer: 7.0, weging: 3, datum: "10 jun" },
       ]}},
       { id: "l2", naam: "Tom Bakker", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
-        { naam: "SO H3", cijfer: 6.4, weging: 1, datum: "12 nov" },
-        { naam: "PW H1-H2", cijfer: 5.8, weging: 3, datum: "18 okt" },
+      { naam: "SO H3", cijfer: 6.4, weging: 1, datum: "24 jun" },
+      { naam: "PW H1-H2", cijfer: 5.8, weging: 3, datum: "10 jun" },
       ]}},
       { id: "l3", naam: "Julia Smit", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
-        { naam: "SO H3", cijfer: 7.8, weging: 1, datum: "12 nov" },
+      { naam: "SO H3", cijfer: 7.8, weging: 1, datum: "24 jun" },
       ]}},
       { id: "l4", naam: "Ravi Kumar", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [
-        { naam: "SO H3", cijfer: 9.0, weging: 1, datum: "12 nov" },
-        { naam: "PW H1-H2", cijfer: 8.4, weging: 3, datum: "18 okt" },
+      { naam: "SO H3", cijfer: 9.0, weging: 1, datum: "24 jun" },
+      { naam: "PW H1-H2", cijfer: 8.4, weging: 3, datum: "10 jun" },
       ]}},
     ],
   },
   {
     klas: "V4A", vak: "Wiskunde B",
     leerlingen: [
-      { id: "a1", naam: "Emma Visser", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 7.6, weging: 3, datum: "18 okt" }] }},
-      { id: "a2", naam: "Noah Jansen", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 6.2, weging: 3, datum: "18 okt" }] }},
+      { id: "a1", naam: "Emma Visser", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 7.6, weging: 3, datum: "10 jun" }] }},
+      { id: "a2", naam: "Noah Jansen", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 6.2, weging: 3, datum: "10 jun" }] }},
     ],
   },
   {
     klas: "V5A", vak: "Wiskunde B",
     leerlingen: [
-      { id: "v1", naam: "Lisa Peters", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 7.2, weging: 1, datum: "24 nov" }] }},
-      { id: "v2", naam: "Daan de Wit", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 5.6, weging: 1, datum: "24 nov" }] }},
+      { id: "v1", naam: "Lisa Peters", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 7.2, weging: 1, datum: "7 jul" }] }},
+      { id: "v2", naam: "Daan de Wit", vakken: ["Wiskunde B"], cijfers: { "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 5.6, weging: 1, datum: "7 jul" }] }},
     ],
   },
 ];
@@ -371,10 +371,10 @@ export type Bestand = { naam: string; vak: string; grootte: string; datum: strin
 
 export const documenten: Bestand[] = [
   { naam: "Wiskunde H4 — Uitwerkingen.pdf", vak: "Wiskunde", grootte: "1.2 MB", datum: "Vandaag", versie: "v3", gedeeldMet: ["Klas V4B", "M. Jansen"] },
-  { naam: "Leeslijst Nederlands 2025-2026.docx", vak: "Nederlands", grootte: "84 KB", datum: "Ma", versie: "v2", gedeeldMet: ["Sectie Nederlands"] },
+  { naam: "Leeslijst Nederlands 2026-2027.docx", vak: "Nederlands", grootte: "84 KB", datum: "Ma", versie: "v2", gedeeldMet: ["Sectie Nederlands"] },
   { naam: "Practicum handleiding — Titratie.pdf", vak: "Scheikunde", grootte: "540 KB", datum: "3 jun", versie: "v1", gedeeldMet: ["Klas V4A", "Klas V4B"] },
   { naam: "Studiewijzer Engels periode 2.pdf", vak: "Engels", grootte: "320 KB", datum: "28 mei", versie: "v4", gedeeldMet: ["Bovenbouw"] },
-  { naam: "Schoolgids 2025-2026.pdf", vak: "Algemeen", grootte: "3.4 MB", datum: "01 sep", versie: "v1", gedeeldMet: ["Iedereen"] },
+  { naam: "Schoolgids 2026-2027.pdf", vak: "Algemeen", grootte: "3.4 MB", datum: "01 sep", versie: "v1", gedeeldMet: ["Iedereen"] },
 ];
 
 export const klassen = [
@@ -434,18 +434,18 @@ export const leerlingAanwezigheid: AanwezigheidEntry[] = [
   { datum: "Ma 6 jul", vak: "Biologie", status: "ziek", reden: "Doktersbezoek" },
   { datum: "Vr 4 jul", vak: "Geschiedenis", status: "aanwezig" },
   { datum: "Vr 4 jul", vak: "Wiskunde B", status: "aanwezig" },
-  { datum: "Do 3 jul", vak: "Nederlands", status: "afgemeld", reden: "Sportdag" },
+  { datum: "Vr 3 jul", vak: "Nederlands", status: "afgemeld", reden: "Sportdag" },
   { datum: "Do 3 jul", vak: "Scheikunde", status: "aanwezig" },
-  { datum: "Wo 2 jul", vak: "Engels", status: "aanwezig" },
+  { datum: "Do 2 jul", vak: "Engels", status: "aanwezig" },
 ];
 
 // Gesprekken (mentorgesprekken, oudergesprekken)
 export type Gesprek = { id: string; type: "mentor" | "ouder" | "teamleider"; datum: string; tijd: string; persoon: string; onderwerp: string; status: "gepland" | "afgerond" | "beschikbaar" };
 export const gesprekken: Gesprek[] = [
-  { id: "g1", type: "mentor", datum: "Di 8 jul", tijd: "14:30", persoon: "L. de Boer", onderwerp: "Voortgangsgesprek periode 2", status: "gepland" },
-  { id: "g2", type: "ouder", datum: "Wo 9 jul", tijd: "16:00", persoon: "Ouders de Vries", onderwerp: "Resultaten scheikunde", status: "gepland" },
+  { id: "g1", type: "mentor", datum: "Wo 8 jul", tijd: "14:30", persoon: "L. de Boer", onderwerp: "Voortgangsgesprek periode 2", status: "gepland" },
+  { id: "g2", type: "ouder", datum: "Do 9 jul", tijd: "16:00", persoon: "Ouders de Vries", onderwerp: "Resultaten scheikunde", status: "gepland" },
   { id: "g3", type: "mentor", datum: "Ma 14 jul", tijd: "15:00", persoon: "L. de Boer", onderwerp: "Beschikbaar tijdslot", status: "beschikbaar" },
-  { id: "g4", type: "mentor", datum: "Di 15 jul", tijd: "14:00", persoon: "L. de Boer", onderwerp: "Beschikbaar tijdslot", status: "beschikbaar" },
+  { id: "g4", type: "mentor", datum: "Wo 15 jul", tijd: "14:00", persoon: "L. de Boer", onderwerp: "Beschikbaar tijdslot", status: "beschikbaar" },
   { id: "g5", type: "mentor", datum: "Do 3 jul", tijd: "14:30", persoon: "L. de Boer", onderwerp: "Introductiegesprek schooljaar", status: "afgerond" },
 ];
 
