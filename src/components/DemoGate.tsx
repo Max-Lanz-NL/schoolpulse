@@ -7,6 +7,7 @@ import logo from "@/assets/schoolpulse-logo.png";
 import type { Role } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import { ProductionApp } from "@/components/ProductionApp";
 
 export function DemoGate({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -127,6 +128,7 @@ type ProductionProfile = {
   full_name: string | null;
   role: ProductionRole;
   school_name: string | null;
+  school_id: string | null;
   created_at: string;
 };
 
@@ -184,7 +186,7 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
     const loadProfile = async (userId: string): Promise<ProductionProfile | null> => {
       const { data: loadedProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("id,email,full_name,role,school_name,created_at")
+        .select("id,email,full_name,role,school_name,school_id,created_at")
         .eq("id", userId)
         .maybeSingle();
 
@@ -200,6 +202,13 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
 
       if (!allowedProductionRoles.has(loadedProfile.role as ProductionRole)) {
         setError("Je accountrol is ongeldig. Neem contact op met je beheerder.");
+        return null;
+      }
+
+      if (!loadedProfile.school_id && loadedProfile.role !== "platform_admin") {
+        setError(
+          "Je account is nog niet aan een school gekoppeld. Vraag je beheerder om dit te regelen.",
+        );
         return null;
       }
 
@@ -329,7 +338,7 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
   }
 
   if (isLoggedIn && profile) {
-    return <>{children}</>;
+    return <ProductionApp profile={profile} supabase={supabase!} onSignOut={signOut} />;
   }
 
   return (
