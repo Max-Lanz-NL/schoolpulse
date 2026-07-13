@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRole } from "@/lib/role-context";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { roleLabels, type Role } from "@/lib/demo-data";
+import { DOMAIN_ORIGINS } from "@/lib/domains";
 import {
   ArrowRight,
   Building2,
@@ -17,14 +17,6 @@ import logo from "@/assets/schoolpulse-logo.png";
 export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
-  const navigate = useNavigate();
-  const { setRole } = useRole();
-
-  const pickRole = (r: Role) => {
-    setRole(r);
-    navigate({ to: "/app" });
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
@@ -66,7 +58,7 @@ function Landing() {
                 Plan een demo
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="#demo" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
+              <a href={`${DOMAIN_ORIGINS.demo}/app`} className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted">
                 Bekijk live demo
               </a>
             </div>
@@ -148,9 +140,9 @@ function Landing() {
               { r: "ouder", icon: Users, d: "Voortgang van kind, gesprekken en schoolberichten op één plek." },
               { r: "leerling", icon: GraduationCap, d: "Rooster, taken en berichten overzichtelijk en snel." },
             ].map(({ r, icon: Icon, d }) => (
-              <button
+              <a
                 key={r}
-                onClick={() => pickRole(r as Role)}
+                href={`${DOMAIN_ORIGINS.demo}/app?role=${r}`}
                 className="group rounded-2xl border border-border/80 bg-background p-5 text-left shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-primary/60"
               >
                 <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -161,7 +153,7 @@ function Landing() {
                 <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
                   Open demo <ArrowRight className="h-3 w-3" />
                 </div>
-              </button>
+              </a>
             ))}
           </div>
         </div>
