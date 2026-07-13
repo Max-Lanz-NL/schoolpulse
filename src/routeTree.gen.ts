@@ -28,6 +28,7 @@ import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
 import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
 import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppRechtenAanvragenRouteImport } from './routes/app.rechten-aanvragen'
 import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
 import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
 import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
@@ -45,6 +46,7 @@ import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
@@ -144,6 +146,11 @@ const AppRoosterRoute = AppRoosterRouteImport.update({
   path: '/rooster',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRechtenAanvragenRoute = AppRechtenAanvragenRouteImport.update({
+  id: '/rechten-aanvragen',
+  path: '/rechten-aanvragen',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRapportenRoute = AppRapportenRouteImport.update({
   id: '/rapporten',
   path: '/rapporten',
@@ -229,6 +236,11 @@ const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
   path: '/schools',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -255,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -272,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
+  '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
@@ -294,6 +308,7 @@ export interface FileRoutesByTo {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -311,6 +326,7 @@ export interface FileRoutesByTo {
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
+  '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
@@ -336,6 +352,7 @@ export interface FileRoutesById {
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
@@ -353,6 +370,7 @@ export interface FileRoutesById {
   '/app/opdrachten': typeof AppOpdrachtenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
+  '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
@@ -379,6 +397,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/roles'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -396,6 +415,7 @@ export interface FileRouteTypes {
     | '/app/opdrachten'
     | '/app/personeel'
     | '/app/rapporten'
+    | '/app/rechten-aanvragen'
     | '/app/rooster'
     | '/app/studieplanner'
     | '/app/toestemming'
@@ -418,6 +438,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/roles'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -435,6 +456,7 @@ export interface FileRouteTypes {
     | '/app/opdrachten'
     | '/app/personeel'
     | '/app/rapporten'
+    | '/app/rechten-aanvragen'
     | '/app/rooster'
     | '/app/studieplanner'
     | '/app/toestemming'
@@ -459,6 +481,7 @@ export interface FileRouteTypes {
     | '/admin/accounts'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/roles'
     | '/admin/schools'
     | '/app/aanwezigheid'
     | '/app/absentie'
@@ -476,6 +499,7 @@ export interface FileRouteTypes {
     | '/app/opdrachten'
     | '/app/personeel'
     | '/app/rapporten'
+    | '/app/rechten-aanvragen'
     | '/app/rooster'
     | '/app/studieplanner'
     | '/app/toestemming'
@@ -641,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoosterRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/rechten-aanvragen': {
+      id: '/app/rechten-aanvragen'
+      path: '/rechten-aanvragen'
+      fullPath: '/app/rechten-aanvragen'
+      preLoaderRoute: typeof AppRechtenAanvragenRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/rapporten': {
       id: '/app/rapporten'
       path: '/rapporten'
@@ -760,6 +791,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSchoolsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -788,6 +826,7 @@ interface AdminRouteChildren {
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminRolesRoute: typeof AdminRolesRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -796,6 +835,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAccountsRoute: AdminAccountsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminRolesRoute: AdminRolesRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -819,6 +859,7 @@ interface AppRouteChildren {
   AppOpdrachtenRoute: typeof AppOpdrachtenRoute
   AppPersoneelRoute: typeof AppPersoneelRoute
   AppRapportenRoute: typeof AppRapportenRoute
+  AppRechtenAanvragenRoute: typeof AppRechtenAanvragenRoute
   AppRoosterRoute: typeof AppRoosterRoute
   AppStudieplannerRoute: typeof AppStudieplannerRoute
   AppToestemmingRoute: typeof AppToestemmingRoute
@@ -844,6 +885,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOpdrachtenRoute: AppOpdrachtenRoute,
   AppPersoneelRoute: AppPersoneelRoute,
   AppRapportenRoute: AppRapportenRoute,
+  AppRechtenAanvragenRoute: AppRechtenAanvragenRoute,
   AppRoosterRoute: AppRoosterRoute,
   AppStudieplannerRoute: AppStudieplannerRoute,
   AppToestemmingRoute: AppToestemmingRoute,
