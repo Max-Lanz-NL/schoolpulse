@@ -8,12 +8,37 @@ import { AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/app/absentie")({ component: AbsentiePage });
 
-const redenen = ["Ziek", "Doktersbezoek", "Tandartsbezoek", "Familieomstandigheden", "Sport/Muziek", "Overig"];
+const redenen = [
+  "Ziek",
+  "Doktersbezoek",
+  "Tandartsbezoek",
+  "Familieomstandigheden",
+  "Sport/Muziek",
+  "Overig",
+];
 
 const eerdereMeldingen = [
-  { datum: "Ma 30 jun", kind: "Sanne de Vries", reden: "Ziek", toelichting: "Koorts en keelpijn", status: "Goedgekeurd" },
-  { datum: "Wo 18 jun", kind: "Sanne de Vries", reden: "Doktersbezoek", toelichting: "Controle orthopeed", status: "Goedgekeurd" },
-  { datum: "Vr 6 jun", kind: "Sanne de Vries", reden: "Sport/Muziek", toelichting: "Regionaal kampioenschap zwemmen", status: "In behandeling" },
+  {
+    datum: "Ma 30 jun",
+    kind: "Sanne de Vries",
+    reden: "Ziek",
+    toelichting: "Koorts en keelpijn",
+    status: "Goedgekeurd",
+  },
+  {
+    datum: "Wo 18 jun",
+    kind: "Sanne de Vries",
+    reden: "Doktersbezoek",
+    toelichting: "Controle orthopeed",
+    status: "Goedgekeurd",
+  },
+  {
+    datum: "Vr 6 jun",
+    kind: "Sanne de Vries",
+    reden: "Sport/Muziek",
+    toelichting: "Regionaal kampioenschap zwemmen",
+    status: "In behandeling",
+  },
 ];
 
 function AbsentiePage() {
@@ -25,7 +50,9 @@ function AbsentiePage() {
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-12 text-center">
           <AlertCircle className="h-10 w-10 text-muted-foreground/40" />
           <div className="text-sm font-semibold">Niet beschikbaar</div>
-          <div className="text-xs text-muted-foreground">Deze pagina is alleen beschikbaar voor ouders.</div>
+          <div className="text-xs text-muted-foreground">
+            Deze pagina is alleen beschikbaar voor ouders.
+          </div>
         </div>
       </AppShell>
     );
@@ -49,7 +76,13 @@ function AbsentieFormulier() {
     toast.success("Absentie gemeld!", {
       description: `${form.reden} op ${form.datum} is doorgegeven aan school.`,
     });
-    setForm({ datum: vandaag, tijdVan: "08:30", tijdTot: "15:30", reden: redenen[0], toelichting: "" });
+    setForm({
+      datum: vandaag,
+      tijdVan: "08:30",
+      tijdTot: "15:30",
+      reden: redenen[0],
+      toelichting: "",
+    });
   };
 
   return (
@@ -58,7 +91,9 @@ function AbsentieFormulier() {
         <Card title="Nieuwe melding">
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Kind</span>
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Kind
+              </span>
               <input
                 disabled
                 value="Sanne de Vries (V4B)"
@@ -67,7 +102,9 @@ function AbsentieFormulier() {
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Datum</span>
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Datum
+              </span>
               <input
                 type="date"
                 value={form.datum}
@@ -78,7 +115,9 @@ function AbsentieFormulier() {
 
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tijdstip van</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Tijdstip van
+                </span>
                 <input
                   type="time"
                   value={form.tijdVan}
@@ -87,7 +126,9 @@ function AbsentieFormulier() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tijdstip tot</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Tijdstip tot
+                </span>
                 <input
                   type="time"
                   value={form.tijdTot}
@@ -98,19 +139,24 @@ function AbsentieFormulier() {
             </div>
 
             <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Reden</span>
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Reden
+              </span>
               <select
                 value={form.reden}
                 onChange={(e) => setForm((f) => ({ ...f, reden: e.target.value }))}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
               >
-                {redenen.map((r) => <option key={r}>{r}</option>)}
+                {redenen.map((r) => (
+                  <option key={r}>{r}</option>
+                ))}
               </select>
             </label>
 
             <label className="block">
               <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Toelichting <span className="font-normal normal-case text-muted-foreground">(optioneel)</span>
+                Toelichting{" "}
+                <span className="font-normal normal-case text-muted-foreground">(optioneel)</span>
               </span>
               <textarea
                 rows={3}
@@ -137,11 +183,15 @@ function AbsentieFormulier() {
                 <div key={i} className="rounded-xl border border-border bg-background p-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="text-sm font-semibold">{m.reden}</div>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${m.status === "Goedgekeurd" ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${m.status === "Goedgekeurd" ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}
+                    >
                       {m.status}
                     </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{m.datum} · {m.toelichting}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {m.datum} · {m.toelichting}
+                  </div>
                 </div>
               ))}
             </div>

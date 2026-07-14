@@ -80,7 +80,9 @@ function AanwezigheidPage() {
                       <td className="py-2 pr-3 font-medium">{e.datum}</td>
                       <td className="py-2 pr-3 text-muted-foreground">{e.vak}</td>
                       <td className="py-2 pr-3">
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.cls}`}>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.cls}`}
+                        >
                           {cfg.label}
                         </span>
                       </td>
@@ -101,7 +103,11 @@ function AanwezigheidPage() {
                 <div key={vak}>
                   <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="font-medium">{vak}</span>
-                    <span className={`font-semibold ${pct < 80 ? "text-destructive" : "text-success"}`}>{pct}%</span>
+                    <span
+                      className={`font-semibold ${pct < 80 ? "text-destructive" : "text-success"}`}
+                    >
+                      {pct}%
+                    </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div

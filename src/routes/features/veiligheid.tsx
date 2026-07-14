@@ -36,9 +36,7 @@ function FeatureDetail() {
               <ShieldCheck className="h-7 w-7" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                AVG & 2FA
-              </h1>
+              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">AVG & 2FA</h1>
               <p className="mt-2 text-lg text-muted-foreground">
                 Enterprise-grade veiligheid en privacybescherming voor onderwijs
               </p>
@@ -95,10 +93,7 @@ function FeatureDetail() {
                   "✓ SURF-ready voor samenwerking",
                   "✓ Regelmatige veiligheidsaudits",
                 ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-2 text-sm text-foreground"
-                  >
+                  <li key={item} className="flex items-start gap-2 text-sm text-foreground">
                     <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                     {item}
                   </li>

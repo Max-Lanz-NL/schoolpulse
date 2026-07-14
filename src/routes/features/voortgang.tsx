@@ -16,7 +16,10 @@ function FeatureVoortgang() {
             <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">Schoolpulse</span>
           </Link>
-          <Link to="/" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Terug
           </Link>
         </div>
@@ -30,7 +33,9 @@ function FeatureVoortgang() {
               <BarChart3 className="h-7 w-7" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Resultaten & voortgang</h1>
+              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+                Resultaten & voortgang
+              </h1>
               <p className="mt-2 text-lg text-muted-foreground">
                 Realtime inzicht in cijfers, gemiddelden en trends per leerling en klas
               </p>
@@ -85,8 +90,8 @@ function FeatureVoortgang() {
               <div>
                 <div className="text-sm font-semibold">AVG-conform en veilig</div>
                 <div className="mt-1 text-sm text-muted-foreground">
-                  Cijfergegevens worden versleuteld opgeslagen en zijn alleen toegankelijk voor bevoegde gebruikers.
-                  Ouders zien uitsluitend de resultaten van hun eigen kind.
+                  Cijfergegevens worden versleuteld opgeslagen en zijn alleen toegankelijk voor
+                  bevoegde gebruikers. Ouders zien uitsluitend de resultaten van hun eigen kind.
                 </div>
               </div>
             </div>

@@ -20,8 +20,10 @@ function Contact() {
     const next: Record<string, string> = {};
     if (!form.school.trim()) next.school = "Vul de schoolnaam in.";
     if (!form.naam.trim()) next.naam = "Vul uw naam in.";
-    if (!form.email.trim() || !form.email.includes("@")) next.email = "Vul een geldig e-mailadres in.";
-    if (!form.vraag.trim() || form.vraag.trim().length < 15) next.vraag = "Geef een korte toelichting (minimaal 15 tekens).";
+    if (!form.email.trim() || !form.email.includes("@"))
+      next.email = "Vul een geldig e-mailadres in.";
+    if (!form.vraag.trim() || form.vraag.trim().length < 15)
+      next.vraag = "Geef een korte toelichting (minimaal 15 tekens).";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -29,11 +31,14 @@ function Contact() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
-      toast.error("Controleer het formulier", { description: "Niet alle verplichte velden zijn correct ingevuld." });
+      toast.error("Controleer het formulier", {
+        description: "Niet alle verplichte velden zijn correct ingevuld.",
+      });
       return;
     }
     toast.success("Demo-aanvraag ontvangen", {
-      description: "Bedankt! In deze demo-omgeving wordt niets verzonden, maar in productie nemen we binnen 1 werkdag contact op.",
+      description:
+        "Bedankt! In deze demo-omgeving wordt niets verzonden, maar in productie nemen we binnen 1 werkdag contact op.",
     });
     setForm({ school: "", naam: "", email: "", telefoon: "", vraag: "" });
     setErrors({});
@@ -47,7 +52,10 @@ function Contact() {
             <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">Schoolpulse</span>
           </Link>
-          <Link to="/" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Terug
           </Link>
         </div>
@@ -60,26 +68,49 @@ function Contact() {
             <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground">
               <CalendarCheck2 className="h-3.5 w-3.5 text-primary" /> Demo aanvragen
             </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">Plan een kennismaking met Schoolpulse</h1>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
+              Plan een kennismaking met Schoolpulse
+            </h1>
             <p className="mt-3 text-muted-foreground">
-              Deel kort jullie situatie. We stemmen de demo af op directie, docenten, ouders en leerlingen.
+              Deel kort jullie situatie. We stemmen de demo af op directie, docenten, ouders en
+              leerlingen.
             </p>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-4">
               {[
-                { icon: Mail, label: "E-mail", value: "info@schoolpulse.nl", hint: "Reactie binnen 1 werkdag" },
-                { icon: Phone, label: "Telefoon", value: "+31 20 123 4567", hint: "Ma-vr van 09:00 tot 17:00" },
-                { icon: MapPin, label: "Adres", value: "Amsterdam, Nederland", hint: "Afspraken op locatie of online" },
+                {
+                  icon: Mail,
+                  label: "E-mail",
+                  value: "info@schoolpulse.nl",
+                  hint: "Reactie binnen 1 werkdag",
+                },
+                {
+                  icon: Phone,
+                  label: "Telefoon",
+                  value: "+31 20 123 4567",
+                  hint: "Ma-vr van 09:00 tot 17:00",
+                },
+                {
+                  icon: MapPin,
+                  label: "Adres",
+                  value: "Amsterdam, Nederland",
+                  hint: "Afspraken op locatie of online",
+                },
               ].map(({ icon: Icon, label, value, hint }) => (
-                <div key={label} className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)]">
+                <div
+                  key={label}
+                  className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)]"
+                >
                   <div className="flex items-start gap-3">
                     <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
                       <Icon className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {label}
+                      </div>
                       <div className="mt-1 text-sm font-semibold">{value}</div>
                       <div className="mt-1 text-xs text-muted-foreground">{hint}</div>
                     </div>
@@ -97,7 +128,10 @@ function Contact() {
               </div>
             </div>
 
-            <form onSubmit={submit} className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8">
+            <form
+              onSubmit={submit}
+              className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8"
+            >
               <h2 className="text-lg font-semibold">Vraag een demo aan</h2>
               <p className="mt-1 text-xs text-muted-foreground">Velden met * zijn verplicht.</p>
 
@@ -138,7 +172,10 @@ function Contact() {
               </div>
 
               <div className="mt-4">
-                <label htmlFor="vraag" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <label
+                  htmlFor="vraag"
+                  className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                >
                   Waar wilt u de demo op richten? *
                 </label>
                 <textarea
@@ -149,16 +186,24 @@ function Contact() {
                   placeholder="Bijv. communicatie met ouders, management-overzicht of overgang vanuit huidige systemen."
                   className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none ${errors.vraag ? "border-destructive" : "border-border focus:border-primary"}`}
                 />
-                <div className={`mt-1 text-xs ${errors.vraag ? "text-destructive" : "text-muted-foreground"}`}>
-                  {errors.vraag ?? "Tip: noem vooral welke rollen het belangrijkst zijn voor jullie school."}
+                <div
+                  className={`mt-1 text-xs ${errors.vraag ? "text-destructive" : "text-muted-foreground"}`}
+                >
+                  {errors.vraag ??
+                    "Tip: noem vooral welke rollen het belangrijkst zijn voor jullie school."}
                 </div>
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                <button
+                  type="submit"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                >
                   Verstuur aanvraag
                 </button>
-                <div className="text-xs text-muted-foreground">In deze demo wordt het formulier niet extern verzonden.</div>
+                <div className="text-xs text-muted-foreground">
+                  In deze demo wordt het formulier niet extern verzonden.
+                </div>
               </div>
             </form>
           </div>
@@ -187,7 +232,10 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <label
+        htmlFor={id}
+        className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+      >
         {label}
       </label>
       <input

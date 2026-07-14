@@ -31,4 +31,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+.netlify
+.firebase
 .env*
+!.env.example

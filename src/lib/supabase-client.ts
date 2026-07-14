@@ -6,11 +6,12 @@ export function getSupabaseBrowserClient(): SupabaseClient {
   if (browserClient) return browserClient;
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
-      "Supabase configuratie ontbreekt. Zet VITE_SUPABASE_URL en VITE_SUPABASE_ANON_KEY.",
+      "Supabase configuratie ontbreekt. Zet VITE_SUPABASE_URL en VITE_SUPABASE_PUBLISHABLE_KEY.",
     );
   }
 

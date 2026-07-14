@@ -22,24 +22,68 @@ type Rapport = {
 };
 
 const initRapporten: Rapport[] = [
-  { id: "r1", klas: "V4B", docent: "M. Jansen", vak: "Wiskunde B", datum: "3 jul 2026", aantalLeerlingen: 26, status: "afwachting" },
-  { id: "r2", klas: "V5A", docent: "K. Visser", vak: "Scheikunde", datum: "4 jul 2026", aantalLeerlingen: 24, status: "afwachting" },
-  { id: "r3", klas: "H4A", docent: "J. Peters", vak: "Geschiedenis", datum: "4 jul 2026", aantalLeerlingen: 30, status: "afwachting" },
+  {
+    id: "r1",
+    klas: "V4B",
+    docent: "M. Jansen",
+    vak: "Wiskunde B",
+    datum: "3 jul 2026",
+    aantalLeerlingen: 26,
+    status: "afwachting",
+  },
+  {
+    id: "r2",
+    klas: "V5A",
+    docent: "K. Visser",
+    vak: "Scheikunde",
+    datum: "4 jul 2026",
+    aantalLeerlingen: 24,
+    status: "afwachting",
+  },
+  {
+    id: "r3",
+    klas: "H4A",
+    docent: "J. Peters",
+    vak: "Geschiedenis",
+    datum: "4 jul 2026",
+    aantalLeerlingen: 30,
+    status: "afwachting",
+  },
 ];
 
 const eerderGoedgekeurd: Rapport[] = [
-  { id: "rg1", klas: "V4A", docent: "M. Jansen", vak: "Wiskunde B", datum: "28 jun 2026", aantalLeerlingen: 28, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
-  { id: "rg2", klas: "V4B", docent: "L. de Boer", vak: "Nederlands", datum: "29 jun 2026", aantalLeerlingen: 26, status: "goedgekeurd", goedgekeurdOp: "2 jul 2026" },
+  {
+    id: "rg1",
+    klas: "V4A",
+    docent: "M. Jansen",
+    vak: "Wiskunde B",
+    datum: "28 jun 2026",
+    aantalLeerlingen: 28,
+    status: "goedgekeurd",
+    goedgekeurdOp: "2 jul 2026",
+  },
+  {
+    id: "rg2",
+    klas: "V4B",
+    docent: "L. de Boer",
+    vak: "Nederlands",
+    datum: "29 jun 2026",
+    aantalLeerlingen: 26,
+    status: "goedgekeurd",
+    goedgekeurdOp: "2 jul 2026",
+  },
 ];
 
 // Modal leerlingen per rapport (hardcoded demo)
 const rapportLeerlingen: Record<string, { naam: string; gemiddelde: number }[]> = {
-  r1: docentKlassen.find((k) => k.klas === "V4B")!.leerlingen.map((l) => {
-    const all = Object.values(l.cijfers).flat();
-    const totW = all.reduce((a, t) => a + t.weging, 0);
-    const totS = all.reduce((a, t) => a + t.cijfer * t.weging, 0);
-    return { naam: l.naam, gemiddelde: totW ? totS / totW : 0 };
-  }),
+  r1: docentKlassen
+    .find((k) => k.klas === "V4B")!
+    .leerlingen.map((l) => {
+      const all = Object.values(l.cijfers).flat();
+      const totW = all.reduce((a, t) => a + t.weging, 0);
+      const totS = all.reduce((a, t) => a + t.cijfer * t.weging, 0);
+      return { naam: l.naam, gemiddelde: totW ? totS / totW : 0 };
+    }),
   r2: [
     { naam: "Lisa Peters", gemiddelde: 7.2 },
     { naam: "Daan de Wit", gemiddelde: 5.6 },
@@ -64,19 +108,30 @@ function RapportenPage() {
   const [exportOpen, setExportOpen] = useState(false);
 
   const inAfwachting = rapporten.filter((r) => r.status === "afwachting");
-  const goedgekeurd = [...rapporten.filter((r) => r.status === "goedgekeurd"), ...eerderGoedgekeurd];
+  const goedgekeurd = [
+    ...rapporten.filter((r) => r.status === "goedgekeurd"),
+    ...eerderGoedgekeurd,
+  ];
 
   const keurGoed = (id: string) => {
-    const nu = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
+    const nu = new Date().toLocaleDateString("nl-NL", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
     setRapporten((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: "goedgekeurd", goedgekeurdOp: nu } : r))
+      prev.map((r) => (r.id === id ? { ...r, status: "goedgekeurd", goedgekeurdOp: nu } : r)),
     );
     setModalRapport(null);
     toast.success("Rapport goedgekeurd", { description: `Klas ${id} rapport geaccordeerd` });
   };
 
   const keurAllesGoed = () => {
-    const nu = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
+    const nu = new Date().toLocaleDateString("nl-NL", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
     setRapporten((prev) => prev.map((r) => ({ ...r, status: "goedgekeurd", goedgekeurdOp: nu })));
     setModalRapport(null);
     toast.success("Alle rapporten goedgekeurd");
@@ -108,23 +163,42 @@ function RapportenPage() {
           </button>
         </div>
         <div className="relative">
-          <button onClick={() => setExportOpen((v) => !v)} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold hover:bg-muted">
+          <button
+            onClick={() => setExportOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold hover:bg-muted"
+          >
             <Download className="h-4 w-4" /> Exporteer
           </button>
           {exportOpen && (
             <div className="absolute right-0 top-full z-10 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
-              {[{ label: "PDF exporteren", ext: "pdf", mime: "application/pdf" }, { label: "Excel exporteren", ext: "xlsx", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, { label: "CSV exporteren", ext: "csv", mime: "text/csv" }].map((opt) => (
-                <button key={opt.ext} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted" onClick={() => {
-                  setExportOpen(false);
-                  const blob = new Blob(["Rapportoverzicht SchoolPulse demo"], { type: opt.mime });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `rapporten.${opt.ext}`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                  toast.success(`Rapporten geëxporteerd als ${opt.ext.toUpperCase()}`);
-                }}>{opt.label}</button>
+              {[
+                { label: "PDF exporteren", ext: "pdf", mime: "application/pdf" },
+                {
+                  label: "Excel exporteren",
+                  ext: "xlsx",
+                  mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                },
+                { label: "CSV exporteren", ext: "csv", mime: "text/csv" },
+              ].map((opt) => (
+                <button
+                  key={opt.ext}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted"
+                  onClick={() => {
+                    setExportOpen(false);
+                    const blob = new Blob(["Rapportoverzicht SchoolPulse demo"], {
+                      type: opt.mime,
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `rapporten.${opt.ext}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    toast.success(`Rapporten geëxporteerd als ${opt.ext.toUpperCase()}`);
+                  }}
+                >
+                  {opt.label}
+                </button>
               ))}
             </div>
           )}
@@ -136,13 +210,20 @@ function RapportenPage() {
           {inAfwachting.length === 0 && (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-12 text-center">
               <CheckCircle2 className="h-10 w-10 text-success/40" />
-              <div className="text-sm font-semibold text-muted-foreground">Alle rapporten zijn beoordeeld</div>
+              <div className="text-sm font-semibold text-muted-foreground">
+                Alle rapporten zijn beoordeeld
+              </div>
             </div>
           )}
           {inAfwachting.map((r) => (
-            <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+            <div
+              key={r.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+            >
               <div>
-                <div className="text-sm font-semibold">{r.vak} — {r.klas}</div>
+                <div className="text-sm font-semibold">
+                  {r.vak} — {r.klas}
+                </div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
                   Docent: {r.docent} · {r.aantalLeerlingen} leerlingen · Ingediend: {r.datum}
                 </div>
@@ -169,9 +250,14 @@ function RapportenPage() {
       {tab === "goedgekeurd" && (
         <div className="space-y-3">
           {goedgekeurd.map((r) => (
-            <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 opacity-80">
+            <div
+              key={r.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 opacity-80"
+            >
               <div>
-                <div className="text-sm font-semibold">{r.vak} — {r.klas}</div>
+                <div className="text-sm font-semibold">
+                  {r.vak} — {r.klas}
+                </div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
                   Docent: {r.docent} · {r.aantalLeerlingen} leerlingen · Ingediend: {r.datum}
                 </div>
@@ -201,10 +287,17 @@ function RapportenPage() {
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div>
-                <div className="text-sm font-semibold">{modalRapport.vak} — {modalRapport.klas}</div>
-                <div className="text-xs text-muted-foreground">Docent: {modalRapport.docent} · {modalRapport.aantalLeerlingen} leerlingen</div>
+                <div className="text-sm font-semibold">
+                  {modalRapport.vak} — {modalRapport.klas}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Docent: {modalRapport.docent} · {modalRapport.aantalLeerlingen} leerlingen
+                </div>
               </div>
-              <button onClick={() => setModalRapport(null)} className="rounded-lg p-1.5 hover:bg-muted">
+              <button
+                onClick={() => setModalRapport(null)}
+                className="rounded-lg p-1.5 hover:bg-muted"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -221,11 +314,15 @@ function RapportenPage() {
                   {modalLeerlingen.map((l, i) => (
                     <tr key={i} className="text-xs">
                       <td className="py-2 pr-4 font-medium">{l.naam}</td>
-                      <td className={`py-2 pr-4 font-bold ${l.gemiddelde < 5.5 ? "text-destructive" : "text-success"}`}>
+                      <td
+                        className={`py-2 pr-4 font-bold ${l.gemiddelde < 5.5 ? "text-destructive" : "text-success"}`}
+                      >
                         {l.gemiddelde.toFixed(1)}
                       </td>
                       <td className="py-2">
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${l.gemiddelde < 5.5 ? "bg-destructive/15 text-destructive" : "bg-success/15 text-success"}`}>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${l.gemiddelde < 5.5 ? "bg-destructive/15 text-destructive" : "bg-success/15 text-success"}`}
+                        >
                           {l.gemiddelde < 5.5 ? "Onvoldoende" : "Voldoende"}
                         </span>
                       </td>
@@ -237,13 +334,18 @@ function RapportenPage() {
                 <div className="mt-3 flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3">
                   <AlertTriangle className="h-4 w-4 shrink-0 text-warning" />
                   <div className="text-xs text-warning">
-                    {modalLeerlingen.filter((l) => l.gemiddelde < 5.5).length} leerling(en) met een onvoldoende gemiddelde.
+                    {modalLeerlingen.filter((l) => l.gemiddelde < 5.5).length} leerling(en) met een
+                    onvoldoende gemiddelde.
                   </div>
                 </div>
               )}
             </div>
             <div className="flex items-center justify-between border-t border-border p-4">
-              <Link to="/app/leerlingen" className="text-xs font-semibold text-primary" onClick={() => setModalRapport(null)}>
+              <Link
+                to="/app/leerlingen"
+                className="text-xs font-semibold text-primary"
+                onClick={() => setModalRapport(null)}
+              >
                 Bekijk dossiers →
               </Link>
               <div className="flex gap-2">

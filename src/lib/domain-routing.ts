@@ -1,10 +1,7 @@
-import { DOMAIN_ORIGINS } from "./domains";
+import { DOMAIN_HOSTS, DOMAIN_ORIGINS } from "./domains";
 
-const marketingHosts = new Set(["schoolpulse.nl", "www.schoolpulse.nl"]);
-const appHosts = new Set(["app.schoolpulse.nl", "demo.schoolpulse.nl", "test.schoolpulse.nl"]);
-const adminHost = "admin.schoolpulse.nl";
-const apiHost = "api.schoolpulse.nl";
-const docsHost = "docs.schoolpulse.nl";
+const marketingHosts = new Set([DOMAIN_HOSTS.marketing, DOMAIN_HOSTS.marketingWww]);
+const appHosts = new Set([DOMAIN_HOSTS.app, DOMAIN_HOSTS.demo, DOMAIN_HOSTS.test]);
 
 const marketingPages = new Set(["/", "/contact", "/privacy", "/voorwaarden"]);
 const marketingPrefixPages = ["/features/"];
@@ -54,10 +51,9 @@ function getHostname(request: Request): string {
   }
 }
 
-function isLocalOrPreviewHost(hostname: string): boolean {
+function isLocalHost(hostname: string): boolean {
   if (!hostname) return true;
   if (hostname === "localhost" || hostname === "127.0.0.1") return true;
-  if (hostname.endsWith(".vercel.app")) return true;
   return false;
 }
 
@@ -144,11 +140,15 @@ export function handleDomainRouting(request: Request): Response | null {
   const search = url.search;
   const hostname = getHostname(request);
 
-  if (isLocalOrPreviewHost(hostname) || isInternalAssetPath(pathname)) {
+  if (pathname === "/healthz") {
+    return jsonResponse({ status: "ok", service: "schoolpulse-web" });
+  }
+
+  if (isLocalHost(hostname) || isInternalAssetPath(pathname)) {
     return null;
   }
 
-  if (hostname === "www.schoolpulse.nl") {
+  if (hostname === DOMAIN_HOSTS.marketingWww) {
     return redirect(toOriginUrl(DOMAIN_ORIGINS.marketing, pathname, search), 308);
   }
 
@@ -170,9 +170,9 @@ export function handleDomainRouting(request: Request): Response | null {
 
   if (appHosts.has(hostname)) {
     const appOrigin =
-      hostname === "demo.schoolpulse.nl"
+      hostname === DOMAIN_HOSTS.demo
         ? DOMAIN_ORIGINS.demo
-        : hostname === "test.schoolpulse.nl"
+        : hostname === DOMAIN_HOSTS.test
           ? DOMAIN_ORIGINS.test
           : DOMAIN_ORIGINS.app;
 
@@ -197,7 +197,7 @@ export function handleDomainRouting(request: Request): Response | null {
     return redirect(toOriginUrl(appOrigin, appPrefix, ""));
   }
 
-  if (hostname === adminHost) {
+  if (hostname === DOMAIN_HOSTS.admin) {
     if (pathname === "/") {
       return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, adminPrefix, search));
     }
@@ -222,11 +222,11 @@ export function handleDomainRouting(request: Request): Response | null {
     return redirect(toOriginUrl(DOMAIN_ORIGINS.admin, `${adminPrefix}/login`, ""));
   }
 
-  if (hostname === apiHost) {
+  if (hostname === DOMAIN_HOSTS.api) {
     return apiDomainResponse(pathname);
   }
 
-  if (hostname === docsHost) {
+  if (hostname === DOMAIN_HOSTS.docs) {
     if (pathname === "/docs" || pathname.startsWith("/docs/")) {
       return redirect(
         toOriginUrl(DOMAIN_ORIGINS.docs, docsPathFromPathname(pathname), search),
