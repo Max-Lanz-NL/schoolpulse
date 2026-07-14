@@ -51,7 +51,6 @@ import {
   UserCog,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { DemoGate } from "./DemoGate";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
 
@@ -150,11 +149,9 @@ export function AppShell({
   subtitle?: string;
 }) {
   return (
-    <DemoGate>
-      <AppShellInner title={title} subtitle={subtitle}>
-        {children}
-      </AppShellInner>
-    </DemoGate>
+    <AppShellInner title={title} subtitle={subtitle}>
+      {children}
+    </AppShellInner>
   );
 }
 
