@@ -39,6 +39,7 @@ function Activiteiten() {
     { label: "Rome", stemmen: 41 },
   ];
   const totaal = pollOpties.reduce((a, o) => a + o.stemmen, 0);
+  const heeftGestemd = pollAns !== null;
 
   const toggleAanmelden = (titel: string) => {
     const wasIn = !!aangemeld[titel];
