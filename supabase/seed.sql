@@ -1,0 +1,2 @@
+-- Production starts without demo data. Create the first platform administrator
+-- through Supabase Auth, then promote its profile using the SQL editor.

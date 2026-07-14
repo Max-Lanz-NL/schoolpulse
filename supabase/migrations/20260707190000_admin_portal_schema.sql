@@ -32,51 +32,51 @@ drop policy if exists "Platform admins can read all profiles" on public.profiles
 create policy "Platform admins can read all profiles"
   on public.profiles
   for select
-  using (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can insert profiles" on public.profiles;
 create policy "Platform admins can insert profiles"
   on public.profiles
   for insert
-  with check (public.is_platform_admin());
+  with check (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can update all profiles" on public.profiles;
 create policy "Platform admins can update all profiles"
   on public.profiles
   for update
-  using (public.is_platform_admin())
-  with check (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()))
+  with check (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can delete profiles" on public.profiles;
 create policy "Platform admins can delete profiles"
   on public.profiles
   for delete
-  using (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can read schools" on public.schools;
 create policy "Platform admins can read schools"
   on public.schools
   for select
-  using (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can insert schools" on public.schools;
 create policy "Platform admins can insert schools"
   on public.schools
   for insert
-  with check (public.is_platform_admin());
+  with check (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can update schools" on public.schools;
 create policy "Platform admins can update schools"
   on public.schools
   for update
-  using (public.is_platform_admin())
-  with check (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()))
+  with check (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "Platform admins can delete schools" on public.schools;
 create policy "Platform admins can delete schools"
   on public.schools
   for delete
-  using (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()));
 
 create table if not exists public.admin_audit_logs (
   id bigint generated always as identity primary key,
@@ -94,7 +94,7 @@ drop policy if exists "Platform admins can read audit logs" on public.admin_audi
 create policy "Platform admins can read audit logs"
   on public.admin_audit_logs
   for select
-  using (public.is_platform_admin());
+  using (public.is_platform_admin(auth.uid()));
 
 create or replace function public.write_admin_audit_log()
 returns trigger

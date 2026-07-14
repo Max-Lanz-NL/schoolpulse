@@ -43,27 +43,27 @@ $$;
 drop policy if exists "Authorized users can read their school data" on public.app_records;
 create policy "Authorized users can read their school data"
   on public.app_records for select
-  using (school_id = public.current_school_id() or public.is_platform_admin());
+  using (school_id = public.current_school_id() or public.is_platform_admin(auth.uid()));
 
 drop policy if exists "School staff can insert school data" on public.app_records;
 create policy "School staff can insert school data"
   on public.app_records for insert
   with check (
     public.can_manage_school_data()
-    and (school_id = public.current_school_id() or public.is_platform_admin())
+    and (school_id = public.current_school_id() or public.is_platform_admin(auth.uid()))
     and created_by = auth.uid()
   );
 
 drop policy if exists "School staff can update school data" on public.app_records;
 create policy "School staff can update school data"
   on public.app_records for update
-  using (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin()))
-  with check (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin()));
+  using (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin(auth.uid())))
+  with check (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin(auth.uid())));
 
 drop policy if exists "School staff can delete school data" on public.app_records;
 create policy "School staff can delete school data"
   on public.app_records for delete
-  using (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin()));
+  using (public.can_manage_school_data() and (school_id = public.current_school_id() or public.is_platform_admin(auth.uid())));
 
 create or replace function public.set_app_record_updated_at()
 returns trigger

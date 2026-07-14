@@ -53,8 +53,26 @@ export type SchoolRole = {
   is_default: boolean;
   is_active: boolean;
   version: number;
+  organization_layer: number;
+  template_key: string | null;
+  template_version: number | null;
   created_at: string;
   updated_at: string;
+};
+
+export type RoleTemplate = {
+  key: string;
+  name: string;
+  description: string;
+  sectors: string[];
+  organization_layer: number;
+  layer_label: string;
+  recommended_rank: number;
+  color: string;
+  is_core: boolean;
+  is_active: boolean;
+  version: number;
+  sort_order: number;
 };
 
 export type RolePermission = {
@@ -304,11 +322,23 @@ export async function listPermissionDefinitions(): Promise<PermissionDefinition[
   return (data ?? []) as PermissionDefinition[];
 }
 
+export async function listRoleTemplates(): Promise<RoleTemplate[]> {
+  const { data, error } = await getAdminSupabaseClient()
+    .from("role_templates")
+    .select(
+      "key,name,description,sectors,organization_layer,layer_label,recommended_rank,color,is_core,is_active,version,sort_order",
+    )
+    .eq("is_active", true)
+    .order("sort_order");
+  if (error) throw error;
+  return (data ?? []) as RoleTemplate[];
+}
+
 export async function listSchoolRoles(schoolId: string): Promise<SchoolRole[]> {
   const { data, error } = await getAdminSupabaseClient()
     .from("school_roles")
     .select(
-      "id,school_id,name,description,rank,color,legacy_key,is_default,is_active,version,created_at,updated_at",
+      "id,school_id,name,description,rank,color,legacy_key,is_default,is_active,version,organization_layer,template_key,template_version,created_at,updated_at",
     )
     .eq("school_id", schoolId)
     .order("rank", { ascending: false });
@@ -326,28 +356,26 @@ export async function listRolePermissions(roleIds: string[]): Promise<RolePermis
   return (data ?? []) as RolePermission[];
 }
 
-export async function createSchoolRole(payload: {
-  school_id: string;
-  name: string;
-  description?: string;
-  rank: number;
-  color: string;
-}): Promise<SchoolRole> {
-  const { data, error } = await getAdminSupabaseClient()
-    .from("school_roles")
-    .insert({
-      school_id: payload.school_id,
-      name: payload.name.trim(),
-      description: payload.description?.trim() || null,
-      rank: payload.rank,
-      color: payload.color,
-    })
-    .select(
-      "id,school_id,name,description,rank,color,legacy_key,is_default,is_active,version,created_at,updated_at",
-    )
-    .single();
+export async function createSchoolRoleFromTemplate(
+  schoolId: string,
+  templateKey: string,
+  name?: string,
+): Promise<string> {
+  const { data, error } = await getAdminSupabaseClient().rpc("admin_create_role_from_template", {
+    _school_id: schoolId,
+    _template_key: templateKey,
+    _name: name?.trim() || null,
+  });
   if (error) throw error;
-  return data as SchoolRole;
+  return data as string;
+}
+
+export async function moveSchoolRole(roleId: string, direction: "up" | "down"): Promise<void> {
+  const { error } = await getAdminSupabaseClient().rpc("admin_move_school_role", {
+    _role_id: roleId,
+    _direction: direction,
+  });
+  if (error) throw error;
 }
 
 export async function updateSchoolRole(
@@ -374,7 +402,9 @@ export async function updateSchoolRole(
 }
 
 export async function deleteSchoolRole(roleId: string): Promise<void> {
-  const { error } = await getAdminSupabaseClient().from("school_roles").delete().eq("id", roleId);
+  const { error } = await getAdminSupabaseClient().rpc("admin_delete_school_role", {
+    _role_id: roleId,
+  });
   if (error) throw error;
 }
 

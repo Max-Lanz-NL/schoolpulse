@@ -61,12 +61,12 @@ drop policy if exists "platform_admin_all_schools" on public.schools;
 create policy "platform_admin_all_schools"
 on public.schools
 for all
-using (public.is_platform_admin())
-with check (public.is_platform_admin());
+using (public.is_platform_admin(auth.uid()))
+with check (public.is_platform_admin(auth.uid()));
 
 drop policy if exists "platform_admin_all_accounts" on public.platform_accounts;
 create policy "platform_admin_all_accounts"
 on public.platform_accounts
 for all
-using (public.is_platform_admin())
-with check (public.is_platform_admin());
+using (public.is_platform_admin(auth.uid()))
+with check (public.is_platform_admin(auth.uid()));
