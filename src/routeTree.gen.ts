@@ -45,6 +45,7 @@ import { Route as AppAgendaRouteImport } from './routes/app.agenda'
 import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
 import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
 import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
+import { Route as AdminStructureRouteImport } from './routes/admin.structure'
 import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -231,6 +232,11 @@ const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
   path: '/aanwezigheid',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminStructureRoute = AdminStructureRouteImport.update({
+  id: '/structure',
+  path: '/structure',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
   id: '/schools',
   path: '/schools',
@@ -269,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/structure': typeof AdminStructureRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/structure': typeof AdminStructureRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/schools': typeof AdminSchoolsRoute
+  '/admin/structure': typeof AdminStructureRoute
   '/app/aanwezigheid': typeof AppAanwezigheidRoute
   '/app/absentie': typeof AppAbsentieRoute
   '/app/activiteiten': typeof AppActiviteitenRoute
@@ -399,6 +408,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/roles'
     | '/admin/schools'
+    | '/admin/structure'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -440,6 +450,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/roles'
     | '/admin/schools'
+    | '/admin/structure'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/roles'
     | '/admin/schools'
+    | '/admin/structure'
     | '/app/aanwezigheid'
     | '/app/absentie'
     | '/app/activiteiten'
@@ -784,6 +796,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAanwezigheidRouteImport
       parentRoute: typeof AppRoute
     }
+    '/admin/structure': {
+      id: '/admin/structure'
+      path: '/structure'
+      fullPath: '/admin/structure'
+      preLoaderRoute: typeof AdminStructureRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/schools': {
       id: '/admin/schools'
       path: '/schools'
@@ -828,6 +847,7 @@ interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSchoolsRoute: typeof AdminSchoolsRoute
+  AdminStructureRoute: typeof AdminStructureRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -837,6 +857,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSchoolsRoute: AdminSchoolsRoute,
+  AdminStructureRoute: AdminStructureRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

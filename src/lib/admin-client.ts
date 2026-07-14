@@ -106,6 +106,95 @@ export type PermissionRequest = {
   updated_at: string;
 };
 
+export type SchoolYear = {
+  id: string;
+  school_id: string;
+  name: string;
+  starts_on: string;
+  ends_on: string;
+  is_current: boolean;
+  is_archived: boolean;
+};
+
+export type SchoolPeriod = {
+  id: string;
+  school_id: string;
+  school_year_id: string;
+  name: string;
+  sequence: number;
+  starts_on: string;
+  ends_on: string;
+};
+
+export type SchoolLocation = {
+  id: string;
+  school_id: string;
+  name: string;
+  code: string | null;
+  address: string | null;
+  postal_code: string | null;
+  city: string | null;
+  is_main: boolean;
+  is_active: boolean;
+};
+
+export type EducationProgramme = {
+  id: string;
+  school_id: string;
+  name: string;
+  code: string | null;
+  sector: "po" | "vo" | "vso" | "mbo" | "other";
+  level: string | null;
+  duration_years: number | null;
+  is_active: boolean;
+};
+
+export type Subject = {
+  id: string;
+  school_id: string;
+  name: string;
+  code: string;
+  color: string;
+  is_active: boolean;
+};
+
+export type SchoolClass = {
+  id: string;
+  school_id: string;
+  school_year_id: string;
+  programme_id: string | null;
+  location_id: string | null;
+  name: string;
+  code: string | null;
+  grade_level: number | null;
+  capacity: number | null;
+  is_active: boolean;
+};
+
+export type TeachingGroup = {
+  id: string;
+  school_id: string;
+  school_year_id: string;
+  subject_id: string | null;
+  base_class_id: string | null;
+  location_id: string | null;
+  name: string;
+  code: string | null;
+  group_type: "lesson" | "mentor" | "project" | "support" | "other";
+  capacity: number | null;
+  is_active: boolean;
+};
+
+export type SchoolStructure = {
+  years: SchoolYear[];
+  periods: SchoolPeriod[];
+  locations: SchoolLocation[];
+  programmes: EducationProgramme[];
+  subjects: Subject[];
+  classes: SchoolClass[];
+  groups: TeachingGroup[];
+};
+
 export function getAdminSupabaseClient() {
   return getSupabaseBrowserClient();
 }
@@ -233,6 +322,107 @@ export async function updateSchool(
 export async function deleteSchool(schoolId: string): Promise<void> {
   const supabase = getAdminSupabaseClient();
   const { error } = await supabase.from("schools").delete().eq("id", schoolId);
+  if (error) throw error;
+}
+
+export async function listSchoolStructure(schoolId: string): Promise<SchoolStructure> {
+  const supabase = getAdminSupabaseClient();
+  const [years, periods, locations, programmes, subjects, classes, groups] = await Promise.all([
+    supabase
+      .from("school_years")
+      .select("id,school_id,name,starts_on,ends_on,is_current,is_archived")
+      .eq("school_id", schoolId)
+      .order("starts_on", { ascending: false }),
+    supabase
+      .from("school_periods")
+      .select("id,school_id,school_year_id,name,sequence,starts_on,ends_on")
+      .eq("school_id", schoolId)
+      .order("sequence"),
+    supabase
+      .from("school_locations")
+      .select("id,school_id,name,code,address,postal_code,city,is_main,is_active")
+      .eq("school_id", schoolId)
+      .order("name"),
+    supabase
+      .from("education_programmes")
+      .select("id,school_id,name,code,sector,level,duration_years,is_active")
+      .eq("school_id", schoolId)
+      .order("name"),
+    supabase
+      .from("subjects")
+      .select("id,school_id,name,code,color,is_active")
+      .eq("school_id", schoolId)
+      .order("name"),
+    supabase
+      .from("school_classes")
+      .select(
+        "id,school_id,school_year_id,programme_id,location_id,name,code,grade_level,capacity,is_active",
+      )
+      .eq("school_id", schoolId)
+      .order("name"),
+    supabase
+      .from("teaching_groups")
+      .select(
+        "id,school_id,school_year_id,subject_id,base_class_id,location_id,name,code,group_type,capacity,is_active",
+      )
+      .eq("school_id", schoolId)
+      .order("name"),
+  ]);
+  const failed = [years, periods, locations, programmes, subjects, classes, groups].find(
+    (result) => result.error,
+  );
+  if (failed?.error) throw failed.error;
+  return {
+    years: (years.data ?? []) as SchoolYear[],
+    periods: (periods.data ?? []) as SchoolPeriod[],
+    locations: (locations.data ?? []) as SchoolLocation[],
+    programmes: (programmes.data ?? []) as EducationProgramme[],
+    subjects: (subjects.data ?? []) as Subject[],
+    classes: (classes.data ?? []) as SchoolClass[],
+    groups: (groups.data ?? []) as TeachingGroup[],
+  };
+}
+
+const structureTables = {
+  years: "school_years",
+  periods: "school_periods",
+  locations: "school_locations",
+  programmes: "education_programmes",
+  subjects: "subjects",
+  classes: "school_classes",
+  groups: "teaching_groups",
+} as const;
+
+export type SchoolStructureKind = keyof typeof structureTables;
+
+export async function createStructureRecord(
+  kind: SchoolStructureKind,
+  schoolId: string,
+  values: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await getAdminSupabaseClient()
+    .from(structureTables[kind])
+    .insert({ ...values, school_id: schoolId });
+  if (error) throw error;
+}
+
+export async function updateStructureRecord(
+  kind: SchoolStructureKind,
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await getAdminSupabaseClient()
+    .from(structureTables[kind])
+    .update(values)
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteStructureRecord(kind: SchoolStructureKind, id: string): Promise<void> {
+  const { error } = await getAdminSupabaseClient()
+    .from(structureTables[kind])
+    .delete()
+    .eq("id", id);
   if (error) throw error;
 }
 
