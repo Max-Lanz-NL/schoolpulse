@@ -459,8 +459,11 @@ export function ProductionApp({
 
   if (accessLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/30 text-sm text-muted-foreground">
-        Rollen en rechten laden…
+      <div
+        className="flex min-h-screen items-center justify-center bg-muted/30"
+        aria-label="Schoolpulse laden"
+      >
+        <div className="h-8 w-8 animate-pulse rounded-full bg-primary/20" />
       </div>
     );
   }
