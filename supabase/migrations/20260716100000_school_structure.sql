@@ -214,6 +214,16 @@ returns trigger language plpgsql as $$
 begin new.updated_at := now(); return new; end;
 $$;
 
+create or replace function public.prevent_school_id_change()
+returns trigger language plpgsql as $$
+begin
+  if new.school_id is distinct from old.school_id then
+    raise exception 'Een bestaand record kan niet naar een andere school worden verplaatst';
+  end if;
+  return new;
+end;
+$$;
+
 do $$
 declare table_name text;
 begin
@@ -222,6 +232,7 @@ begin
     'subjects','school_classes','teaching_groups'
   ] loop
     execute format('create trigger set_%I_updated_at before update on public.%I for each row execute function public.set_school_structure_updated_at()', table_name, table_name);
+    execute format('create trigger protect_%I_school before update on public.%I for each row execute function public.prevent_school_id_change()', table_name, table_name);
     execute format('create trigger audit_%I after insert or update or delete on public.%I for each row execute function public.write_admin_audit_log()', table_name, table_name);
   end loop;
 end $$;
