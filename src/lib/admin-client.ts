@@ -195,6 +195,93 @@ export type SchoolStructure = {
   groups: TeachingGroup[];
 };
 
+export type StudentRecord = {
+  id: string;
+  school_id: string;
+  profile_id: string;
+  student_number: string;
+  preferred_name: string | null;
+  date_of_birth: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: "planned" | "active" | "graduated" | "withdrawn";
+};
+
+export type StaffRecord = {
+  id: string;
+  school_id: string;
+  profile_id: string;
+  employee_number: string | null;
+  job_title: string | null;
+  department: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_active: boolean;
+};
+
+export type StudentEnrolment = {
+  id: string;
+  school_id: string;
+  student_profile_id: string;
+  school_year_id: string;
+  class_id: string | null;
+  programme_id: string | null;
+  starts_on: string | null;
+  ends_on: string | null;
+  status: "planned" | "active" | "completed" | "withdrawn";
+};
+
+export type GuardianStudentLink = {
+  id: string;
+  school_id: string;
+  guardian_profile_id: string;
+  student_profile_id: string;
+  relationship: "parent" | "guardian" | "foster_parent" | "stepparent" | "other";
+  has_legal_authority: boolean;
+  receives_communication: boolean;
+  financial_responsibility: boolean;
+  is_active: boolean;
+};
+
+export type TeacherSubjectAssignment = {
+  id: string;
+  school_id: string;
+  teacher_profile_id: string;
+  school_year_id: string;
+  subject_id: string;
+  is_primary: boolean;
+};
+
+export type TeacherGroupAssignment = {
+  id: string;
+  school_id: string;
+  teacher_profile_id: string;
+  teaching_group_id: string;
+  assignment_role: "lead_teacher" | "teacher" | "mentor" | "assistant" | "substitute";
+  starts_on: string | null;
+  ends_on: string | null;
+};
+
+export type StudentGroupMembership = {
+  id: string;
+  school_id: string;
+  student_profile_id: string;
+  teaching_group_id: string;
+  starts_on: string | null;
+  ends_on: string | null;
+  status: "planned" | "active" | "completed" | "withdrawn";
+};
+
+export type SchoolRelations = {
+  students: StudentRecord[];
+  staff: StaffRecord[];
+  enrolments: StudentEnrolment[];
+  guardians: GuardianStudentLink[];
+  teacherSubjects: TeacherSubjectAssignment[];
+  teacherGroups: TeacherGroupAssignment[];
+  studentGroups: StudentGroupMembership[];
+};
+
 export function getAdminSupabaseClient() {
   return getSupabaseBrowserClient();
 }
@@ -423,6 +510,112 @@ export async function deleteStructureRecord(kind: SchoolStructureKind, id: strin
     .from(structureTables[kind])
     .delete()
     .eq("id", id);
+  if (error) throw error;
+}
+
+export async function listSchoolRelations(schoolId: string): Promise<SchoolRelations> {
+  const supabase = getAdminSupabaseClient();
+  const [students, staff, enrolments, guardians, teacherSubjects, teacherGroups, studentGroups] =
+    await Promise.all([
+      supabase
+        .from("student_records")
+        .select(
+          "id,school_id,profile_id,student_number,preferred_name,date_of_birth,start_date,end_date,status",
+        )
+        .eq("school_id", schoolId)
+        .order("student_number"),
+      supabase
+        .from("staff_records")
+        .select(
+          "id,school_id,profile_id,employee_number,job_title,department,start_date,end_date,is_active",
+        )
+        .eq("school_id", schoolId)
+        .order("employee_number"),
+      supabase
+        .from("student_enrolments")
+        .select(
+          "id,school_id,student_profile_id,school_year_id,class_id,programme_id,starts_on,ends_on,status",
+        )
+        .eq("school_id", schoolId),
+      supabase
+        .from("guardian_student_links")
+        .select(
+          "id,school_id,guardian_profile_id,student_profile_id,relationship,has_legal_authority,receives_communication,financial_responsibility,is_active",
+        )
+        .eq("school_id", schoolId),
+      supabase
+        .from("teacher_subject_assignments")
+        .select("id,school_id,teacher_profile_id,school_year_id,subject_id,is_primary")
+        .eq("school_id", schoolId),
+      supabase
+        .from("teacher_group_assignments")
+        .select(
+          "id,school_id,teacher_profile_id,teaching_group_id,assignment_role,starts_on,ends_on",
+        )
+        .eq("school_id", schoolId),
+      supabase
+        .from("student_group_memberships")
+        .select("id,school_id,student_profile_id,teaching_group_id,starts_on,ends_on,status")
+        .eq("school_id", schoolId),
+    ]);
+  const failed = [
+    students,
+    staff,
+    enrolments,
+    guardians,
+    teacherSubjects,
+    teacherGroups,
+    studentGroups,
+  ].find((result) => result.error);
+  if (failed?.error) throw failed.error;
+  return {
+    students: (students.data ?? []) as StudentRecord[],
+    staff: (staff.data ?? []) as StaffRecord[],
+    enrolments: (enrolments.data ?? []) as StudentEnrolment[],
+    guardians: (guardians.data ?? []) as GuardianStudentLink[],
+    teacherSubjects: (teacherSubjects.data ?? []) as TeacherSubjectAssignment[],
+    teacherGroups: (teacherGroups.data ?? []) as TeacherGroupAssignment[],
+    studentGroups: (studentGroups.data ?? []) as StudentGroupMembership[],
+  };
+}
+
+const relationTables = {
+  students: "student_records",
+  staff: "staff_records",
+  enrolments: "student_enrolments",
+  guardians: "guardian_student_links",
+  teacherSubjects: "teacher_subject_assignments",
+  teacherGroups: "teacher_group_assignments",
+  studentGroups: "student_group_memberships",
+} as const;
+
+export type SchoolRelationKind = keyof typeof relationTables;
+
+export async function createRelationRecord(
+  kind: SchoolRelationKind,
+  schoolId: string,
+  values: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await getAdminSupabaseClient()
+    .from(relationTables[kind])
+    .insert({ ...values, school_id: schoolId });
+  if (error) throw error;
+}
+
+export async function updateRelationRecord(
+  kind: SchoolRelationKind,
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await getAdminSupabaseClient()
+    .from(relationTables[kind])
+    .update(values)
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteRelationRecord(kind: SchoolRelationKind, id: string): Promise<void> {
+  const { error } = await getAdminSupabaseClient().from(relationTables[kind]).delete().eq("id", id);
   if (error) throw error;
 }
 

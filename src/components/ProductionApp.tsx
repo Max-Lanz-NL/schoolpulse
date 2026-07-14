@@ -41,11 +41,32 @@ type AppRecord = {
   description: string | null;
   event_at: string | null;
   status: string;
-  payload: Record<string, unknown>;
-  created_by: string;
-  created_at: string;
   updated_at: string;
 };
+
+const legacyEditableEntities = new Set([
+  "activity",
+  "homework",
+  "study_planner",
+  "agenda",
+  "consent",
+]);
+
+const realtimeTables = [
+  "app_records",
+  "timetable_entries",
+  "attendance_records",
+  "absence_requests",
+  "messages",
+  "assignments",
+  "file_assets",
+  "assessments",
+  "grades",
+  "student_reports",
+  "notifications",
+  "student_support_notes",
+  "payment_requests",
+] as const;
 
 type EffectivePermission = {
   permission_key: string;
@@ -188,6 +209,34 @@ const modules = [
     icon: BarChart3,
   },
   {
+    path: "/app/notificaties",
+    entity: "notification",
+    permission: "notifications.view",
+    label: "Notificaties",
+    icon: Bell,
+  },
+  {
+    path: "/app/begeleiding",
+    entity: "care",
+    permission: "care.view",
+    label: "Begeleiding",
+    icon: ShieldQuestion,
+  },
+  {
+    path: "/app/integraties",
+    entity: "integration",
+    permission: "integrations.view",
+    label: "Integraties",
+    icon: RefreshCw,
+  },
+  {
+    path: "/app/betalingen",
+    entity: "payment",
+    permission: "payments.view",
+    label: "Betalingen",
+    icon: FileText,
+  },
+  {
     path: "/app/gebruikersbeheer",
     entity: "user_management",
     permission: "user_management.view",
@@ -290,12 +339,10 @@ export function ProductionApp({
     setLoading(true);
     setError(null);
     const { data, error: queryError } = await supabase
-      .from("app_records")
-      .select(
-        "id,school_id,entity_type,title,description,event_at,status,payload,created_by,created_at,updated_at",
-      )
+      .from("production_module_items")
+      .select("id,school_id,entity_type,title,description,event_at,status,updated_at")
       .order("event_at", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
 
     if (queryError) {
       setError(
@@ -312,18 +359,20 @@ export function ProductionApp({
     void loadAccess();
     void loadRecords();
 
-    const channel = supabase
-      .channel(`school-app-${profile.school_id ?? "platform"}`)
-      .on(
+    let channel = supabase.channel(`school-app-${profile.school_id ?? "platform"}`);
+    realtimeTables.forEach((table) => {
+      channel = channel.on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "app_records",
+          table,
           ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
         },
         () => void loadRecords(),
-      )
+      );
+    });
+    channel
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "profile_role_assignments" },
@@ -400,8 +449,11 @@ export function ProductionApp({
     })[entity] ?? entity;
 
   const visibleModules = modules.filter((module) => can(module.permission));
-  const canCreate = can(`${recordPermissionCategory(activeModule.entity)}.create`);
-  const canDelete = can(`${recordPermissionCategory(activeModule.entity)}.delete`);
+  const editableLegacyModule = legacyEditableEntities.has(activeModule.entity);
+  const canCreate =
+    editableLegacyModule && can(`${recordPermissionCategory(activeModule.entity)}.create`);
+  const canDelete =
+    editableLegacyModule && can(`${recordPermissionCategory(activeModule.entity)}.delete`);
 
   if (accessLoading) {
     return (

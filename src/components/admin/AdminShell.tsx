@@ -4,6 +4,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  Network,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -14,7 +15,12 @@ import { getAdminSupabaseClient, type Profile } from "@/lib/admin-client";
 
 type NavItem = {
   to:
-    "/admin/dashboard" | "/admin/accounts" | "/admin/schools" | "/admin/structure" | "/admin/roles";
+    | "/admin/dashboard"
+    | "/admin/accounts"
+    | "/admin/schools"
+    | "/admin/structure"
+    | "/admin/relations"
+    | "/admin/roles";
   label: string;
   icon: typeof LayoutDashboard;
 };
@@ -24,6 +30,7 @@ const navItems: NavItem[] = [
   { to: "/admin/accounts", label: "Accounts", icon: Users },
   { to: "/admin/schools", label: "Scholen", icon: Building2 },
   { to: "/admin/structure", label: "Schoolstructuur", icon: GraduationCap },
+  { to: "/admin/relations", label: "Inschrijvingen & koppelingen", icon: Network },
   { to: "/admin/roles", label: "Rollen & rangen", icon: ShieldCheck },
 ];
 
