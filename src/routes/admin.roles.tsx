@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
   Check,
-  Copy,
+  Layers3,
   Plus,
   Save,
   Search,
@@ -16,7 +18,7 @@ import { toast } from "sonner";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
 import {
-  createSchoolRole,
+  createSchoolRoleFromTemplate,
   deleteSchoolRole,
   getReadableAdminError,
   listPermissionDefinitions,
@@ -24,8 +26,10 @@ import {
   listProfiles,
   listRoleAssignments,
   listRolePermissions,
+  listRoleTemplates,
   listSchoolRoles,
   listSchools,
+  moveSchoolRole,
   replaceRolePermissions,
   reviewPermissionRequest,
   setProfileRoles,
@@ -35,6 +39,7 @@ import {
   type Profile,
   type RoleAssignment,
   type RolePermission,
+  type RoleTemplate,
   type School,
   type SchoolRole,
 } from "@/lib/admin-client";
@@ -69,6 +74,7 @@ function AdminRolesPage() {
   const [schools, setSchools] = useState<School[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [definitions, setDefinitions] = useState<PermissionDefinition[]>([]);
+  const [templates, setTemplates] = useState<RoleTemplate[]>([]);
   const [roles, setRoles] = useState<SchoolRole[]>([]);
   const [permissions, setPermissions] = useState<RolePermission[]>([]);
   const [assignments, setAssignments] = useState<RoleAssignment[]>([]);
@@ -83,16 +89,19 @@ function AdminRolesPage() {
     setLoading(true);
     setError(null);
     try {
-      const [loadedSchools, loadedDefinitions, loadedProfiles, loadedRequests] = await Promise.all([
-        listSchools(),
-        listPermissionDefinitions(),
-        listProfiles(),
-        listPermissionRequests(),
-      ]);
+      const [loadedSchools, loadedDefinitions, loadedProfiles, loadedRequests, loadedTemplates] =
+        await Promise.all([
+          listSchools(),
+          listPermissionDefinitions(),
+          listProfiles(),
+          listPermissionRequests(),
+          listRoleTemplates(),
+        ]);
       setSchools(loadedSchools);
       setDefinitions(loadedDefinitions);
       setProfiles(loadedProfiles);
       setRequests(loadedRequests);
+      setTemplates(loadedTemplates);
       setSchoolId((current) => current || loadedSchools[0]?.id || "");
     } catch (loadError) {
       setError(
@@ -227,6 +236,7 @@ function AdminRolesPage() {
                 schoolId={schoolId}
                 roles={roles}
                 definitions={definitions}
+                templates={templates}
                 permissions={permissions}
                 selectedRoleId={selectedRoleId}
                 onSelectRole={setSelectedRoleId}
@@ -268,6 +278,7 @@ function RolesEditor({
   schoolId,
   roles,
   definitions,
+  templates,
   permissions,
   selectedRoleId,
   onSelectRole,
@@ -279,6 +290,7 @@ function RolesEditor({
   schoolId: string;
   roles: SchoolRole[];
   definitions: PermissionDefinition[];
+  templates: RoleTemplate[];
   permissions: RolePermission[];
   selectedRoleId: string | null;
   onSelectRole: (id: string | null) => void;
@@ -290,7 +302,6 @@ function RolesEditor({
   const selectedRole = roles.find((role) => role.id === selectedRoleId) ?? null;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [rank, setRank] = useState(300);
   const [color, setColor] = useState("#2563eb");
   const [active, setActive] = useState(true);
   const [permissionDraft, setPermissionDraft] = useState<Map<string, Scope>>(new Map());
@@ -298,12 +309,13 @@ function RolesEditor({
   const [onlyEnabled, setOnlyEnabled] = useState(false);
   const [newRoleOpen, setNewRoleOpen] = useState(false);
   const [newName, setNewName] = useState("");
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState("");
+  const [sector, setSector] = useState<"all" | "po" | "vo" | "mbo">("all");
 
   useEffect(() => {
     if (!selectedRole) return;
     setName(selectedRole.name);
     setDescription(selectedRole.description ?? "");
-    setRank(selectedRole.rank);
     setColor(selectedRole.color);
     setActive(selectedRole.is_active);
     setPermissionDraft(
@@ -341,7 +353,7 @@ function RolesEditor({
       await updateSchoolRole(selectedRole.id, {
         name,
         description,
-        rank,
+        rank: selectedRole.rank,
         color,
         is_active: active,
       });
@@ -358,31 +370,40 @@ function RolesEditor({
     }
   };
 
-  const create = async (clone = false) => {
-    if (!newName.trim()) return;
+  const availableTemplates = templates.filter(
+    (template) =>
+      (!template.is_core || !roles.some((role) => role.template_key === template.key)) &&
+      (sector === "all" || template.sectors.includes("all") || template.sectors.includes(sector)),
+  );
+  const selectedTemplate = templates.find((template) => template.key === selectedTemplateKey);
+
+  const create = async () => {
+    if (!selectedTemplateKey || (selectedTemplateKey === "custom_role" && !newName.trim())) return;
     setSaving(true);
     onError(null);
     try {
-      const created = await createSchoolRole({
-        school_id: schoolId,
-        name: newName,
-        description: clone ? `Kopie van ${selectedRole?.name ?? "rol"}` : "Nieuwe schoolrol",
-        rank: clone ? rank : 300,
-        color: clone ? color : "#2563eb",
-      });
-      if (clone && selectedRole) {
-        await replaceRolePermissions(
-          created.id,
-          [...permissionDraft].map(([permission_key, scope]) => ({ permission_key, scope })),
-        );
-      }
+      const createdId = await createSchoolRoleFromTemplate(schoolId, selectedTemplateKey, newName);
       setNewName("");
+      setSelectedTemplateKey("");
       setNewRoleOpen(false);
       await onReload();
-      onSelectRole(created.id);
-      toast.success(clone ? "Rol gekopieerd" : "Rol aangemaakt");
+      onSelectRole(createdId);
+      toast.success("Rol met standaardpermissies toegevoegd");
     } catch (createError) {
       onError(getReadableAdminError(createError, "Rol aanmaken is mislukt."));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const move = async (roleId: string, direction: "up" | "down") => {
+    setSaving(true);
+    onError(null);
+    try {
+      await moveSchoolRole(roleId, direction);
+      await onReload();
+    } catch (moveError) {
+      onError(getReadableAdminError(moveError, "Rangorde wijzigen is mislukt."));
     } finally {
       setSaving(false);
     }
@@ -422,49 +443,119 @@ function RolesEditor({
           </button>
         </div>
         {newRoleOpen ? (
-          <div className="mt-3 space-y-2 rounded-xl border border-border bg-muted/30 p-3">
-            <input
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-              placeholder="Naam van de rol"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-            />
-            <div className="flex gap-2">
-              <button
-                disabled={!newName.trim() || saving}
-                onClick={() => void create(false)}
-                className="flex-1 rounded-lg bg-primary px-2 py-2 text-xs font-semibold text-primary-foreground"
-              >
-                Leeg maken
-              </button>
-              <button
-                disabled={!newName.trim() || !selectedRole || saving}
-                onClick={() => void create(true)}
-                className="flex items-center gap-1 rounded-lg border border-border px-2 py-2 text-xs"
-              >
-                <Copy className="h-3.5 w-3.5" /> Kopiëren
-              </button>
-            </div>
+          <div className="mt-3 space-y-3 rounded-xl border border-border bg-muted/30 p-3">
+            <select
+              value={sector}
+              onChange={(event) => {
+                setSector(event.target.value as typeof sector);
+                setSelectedTemplateKey("");
+              }}
+              className="w-full rounded-lg border border-border bg-background px-2 py-2 text-xs"
+            >
+              <option value="all">Alle onderwijssectoren</option>
+              <option value="po">Primair onderwijs</option>
+              <option value="vo">Voortgezet onderwijs</option>
+              <option value="mbo">Mbo</option>
+            </select>
+            <select
+              value={selectedTemplateKey}
+              onChange={(event) => {
+                const key = event.target.value;
+                setSelectedTemplateKey(key);
+                const template = templates.find((item) => item.key === key);
+                setNewName(template?.key === "custom_role" ? "" : (template?.name ?? ""));
+              }}
+              className="w-full rounded-lg border border-border bg-background px-2 py-2 text-xs"
+            >
+              <option value="">Kies een roltemplate…</option>
+              {availableTemplates.map((template) => (
+                <option key={template.key} value={template.key}>
+                  {template.name} — {template.layer_label}
+                </option>
+              ))}
+            </select>
+            {selectedTemplate ? (
+              <div className="rounded-lg border border-border bg-background p-2 text-[11px]">
+                <div className="flex items-center gap-1 font-semibold">
+                  <Layers3 className="h-3.5 w-3.5" /> {selectedTemplate.layer_label}
+                </div>
+                <p className="mt-1 text-muted-foreground">{selectedTemplate.description}</p>
+              </div>
+            ) : null}
+            {selectedTemplateKey ? (
+              <input
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                placeholder="Naam van de rol"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            ) : null}
+            <button
+              disabled={
+                !selectedTemplateKey ||
+                (selectedTemplateKey === "custom_role" && !newName.trim()) ||
+                saving
+              }
+              onClick={() => void create()}
+              className="w-full rounded-lg bg-primary px-2 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              Template toevoegen
+            </button>
           </div>
         ) : null}
         <div className="mt-3 space-y-2">
-          {roles.map((role) => (
-            <button
-              key={role.id}
-              onClick={() => onSelectRole(role.id)}
-              className={`w-full rounded-xl border p-3 text-left ${selectedRoleId === role.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: role.color }} />
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold">{role.name}</span>
-                <span className="text-xs font-bold text-muted-foreground">{role.rank}</span>
+          {roles.map((role) => {
+            const sameLayer = roles.filter(
+              (candidate) => candidate.organization_layer === role.organization_layer,
+            );
+            const layerIndex = sameLayer.findIndex((candidate) => candidate.id === role.id);
+            const template = templates.find((item) => item.key === role.template_key);
+            return (
+              <div
+                key={role.id}
+                className={`rounded-xl border p-3 ${selectedRoleId === role.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}
+              >
+                <button onClick={() => onSelectRole(role.id)} className="w-full text-left">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: role.color }}
+                    />
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                      {role.name}
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">{role.rank}</span>
+                  </div>
+                  <div className="mt-1 text-[10px] text-muted-foreground">
+                    {template?.layer_label ?? `Organisatielaag ${role.organization_layer}`}
+                  </div>
+                </button>
+                <div className="mt-2 flex items-center gap-1 border-t border-border pt-2">
+                  <span className="min-w-0 flex-1 text-[10px] text-muted-foreground">
+                    {permissions.filter((permission) => permission.role_id === role.id).length}{" "}
+                    rechten
+                    {role.template_version ? ` · template v${role.template_version}` : ""}
+                  </span>
+                  <button
+                    title="Omhoog binnen deze organisatielaag"
+                    disabled={saving || layerIndex <= 0}
+                    onClick={() => void move(role.id, "up")}
+                    className="rounded border border-border p-1 disabled:opacity-25"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    title="Omlaag binnen deze organisatielaag"
+                    disabled={saving || layerIndex === sameLayer.length - 1}
+                    onClick={() => void move(role.id, "down")}
+                    className="rounded border border-border p-1 disabled:opacity-25"
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
-              <div className="mt-1 text-[11px] text-muted-foreground">
-                {permissions.filter((permission) => permission.role_id === role.id).length} rechten
-                · v{role.version}
-              </div>
-            </button>
-          ))}
+            );
+          })}
         </div>
       </aside>
 
@@ -480,17 +571,12 @@ function RolesEditor({
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
                 />
               </label>
-              <label className="w-32">
-                <span className="mb-1 block text-xs font-semibold">Rang</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={999}
-                  value={rank}
-                  onChange={(event) => setRank(Number(event.target.value))}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                />
-              </label>
+              <div className="w-40">
+                <span className="mb-1 block text-xs font-semibold">Automatische rang</span>
+                <div className="rounded-lg border border-border bg-muted px-3 py-2 text-sm font-semibold">
+                  {selectedRole.rank}
+                </div>
+              </div>
               <label className="w-28">
                 <span className="mb-1 block text-xs font-semibold">Kleur</span>
                 <input
@@ -501,6 +587,10 @@ function RolesEditor({
                 />
               </label>
             </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              De organisatielaag komt uit het template. Gebruik de pijlen links om rollen binnen
+              dezelfde laag te verplaatsen; alle rangnummers worden daarna automatisch herberekend.
+            </p>
             <label className="mt-3 block">
               <span className="mb-1 block text-xs font-semibold">Omschrijving</span>
               <textarea

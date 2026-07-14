@@ -13,6 +13,26 @@ export const Route = createFileRoute("/admin/login")({
   component: AdminLoginPage,
 });
 
+function getSignInErrorMessage(error: { code?: string; message?: string } | null): string {
+  switch (error?.code) {
+    case "email_not_confirmed":
+      return "Je e-mailadres is nog niet bevestigd in Supabase Auth.";
+    case "invalid_credentials":
+      return "Supabase accepteert deze combinatie van e-mailadres en wachtwoord niet.";
+    case "user_banned":
+      return "Dit account is tijdelijk geblokkeerd in Supabase Auth.";
+    case "over_request_rate_limit":
+    case "over_email_send_rate_limit":
+      return "Er zijn te veel inlogpogingen gedaan. Wacht even en probeer opnieuw.";
+    case "weak_password":
+      return "Dit wachtwoord voldoet niet aan de ingestelde beveiligingseisen.";
+    default:
+      return error?.code
+        ? `Supabase-login mislukt (code: ${error.code}).`
+        : "Supabase kon dit account niet inloggen.";
+  }
+}
+
 function AdminLoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -82,7 +102,7 @@ function AdminLoginPage() {
 
     if (signInError || !data.user) {
       setSubmitting(false);
-      setError("Inloggen mislukt. Controleer je accountgegevens.");
+      setError(getSignInErrorMessage(signInError));
       return;
     }
 
