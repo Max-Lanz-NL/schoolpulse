@@ -294,7 +294,9 @@ export function ProductionApp({
   supabase: SupabaseClient;
   onSignOut: () => Promise<void>;
 }) {
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const pathname = useRouterState({
+    select: (state: { location: { pathname: string } }) => state.location.pathname,
+  });
   const activeModule = moduleForPath(pathname);
   const [records, setRecords] = useState<AppRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -637,7 +639,7 @@ export function ProductionApp({
                       disabled={saving}
                       className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
                     >
-                      {saving ? "Opslaanâ€¦" : "Opslaan"}
+                      {saving ? "Opslaan…" : "Opslaan"}
                     </button>
                     <button
                       type="button"
@@ -652,7 +654,7 @@ export function ProductionApp({
 
               {loading ? (
                 <div className="p-8 text-center text-sm text-muted-foreground">
-                  Productiedata ladenâ€¦
+                  Productiedata laden…
                 </div>
               ) : null}
               {error ? (

@@ -35,7 +35,11 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
     const u = window.localStorage.getItem("schoolpulse.demoUser");
     if (u) {
-      try { setDemoUserState(JSON.parse(u)); } catch { /* noop */ }
+      try {
+        setDemoUserState(JSON.parse(u));
+      } catch {
+        /* noop */
+      }
     }
   }, []);
 
@@ -51,7 +55,11 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  return <RoleContext.Provider value={{ role, setRole, demoUser, setDemoUser }}>{children}</RoleContext.Provider>;
+  return (
+    <RoleContext.Provider value={{ role, setRole, demoUser, setDemoUser }}>
+      {children}
+    </RoleContext.Provider>
+  );
 }
 
 export function useRole() {

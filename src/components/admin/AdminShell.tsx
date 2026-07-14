@@ -45,7 +45,9 @@ export function AdminShell({
   subtitle?: string;
   children: ReactNode;
 }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({
+    select: (state: { location: { pathname: string } }) => state.location.pathname,
+  });
 
   const logout = async () => {
     const supabase = getAdminSupabaseClient();

@@ -87,10 +87,18 @@ function ToetsenPage() {
   const [nakijkStatus, setNakijkStatus] = useState<"idle" | "loading" | "done">("idle");
 
   const slaOpToets = () => {
-    if (!toetsnaam.trim()) { toast.error("Vul een toetsnaam in"); return; }
+    if (!toetsnaam.trim()) {
+      toast.error("Vul een toetsnaam in");
+      return;
+    }
     const incomplete = vragen.some((v) => !v.tekst.trim());
-    if (incomplete) { toast.error("Vul alle vraagteksten in"); return; }
-    toast.success(`Toets "${toetsnaam}" opgeslagen`, { description: `${vragen.length} vragen · ${selectedKlas}` });
+    if (incomplete) {
+      toast.error("Vul alle vraagteksten in");
+      return;
+    }
+    toast.success(`Toets "${toetsnaam}" opgeslagen`, {
+      description: `${vragen.length} vragen · ${selectedKlas}`,
+    });
     setToetsnaam("");
     setVragen([legeVraag()]);
   };
@@ -100,21 +108,26 @@ function ToetsenPage() {
     toast.loading("Nakijken in uitvoering...", { id: "nakijk" });
     setTimeout(() => {
       setNakijkStatus("done");
-      toast.success("Nakijken voltooid!", { id: "nakijk", description: "24 toetsen automatisch nagekeken" });
+      toast.success("Nakijken voltooid!", {
+        id: "nakijk",
+        description: "24 toetsen automatisch nagekeken",
+      });
     }, 2200);
   };
 
   const updateVraag = (i: number, field: keyof Vraag, val: unknown) => {
-    setVragen((prev) => prev.map((v, j) => j === i ? { ...v, [field]: val } : v));
+    setVragen((prev) => prev.map((v, j) => (j === i ? { ...v, [field]: val } : v)));
   };
 
   const updateOptie = (qi: number, oi: number, val: string) => {
-    setVragen((prev) => prev.map((v, j) => {
-      if (j !== qi) return v;
-      const opties = [...v.opties] as [string, string, string, string];
-      opties[oi] = val;
-      return { ...v, opties };
-    }));
+    setVragen((prev) =>
+      prev.map((v, j) => {
+        if (j !== qi) return v;
+        const opties = [...v.opties] as [string, string, string, string];
+        opties[oi] = val;
+        return { ...v, opties };
+      }),
+    );
   };
 
   const tabs = [
@@ -140,7 +153,10 @@ function ToetsenPage() {
       {tab === "mijn" && (
         <div className="space-y-3">
           {bestaandeToetsen.map((t) => (
-            <div key={t.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
+            <div
+              key={t.id}
+              className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+            >
               <div>
                 <div className="text-sm font-semibold">{t.naam}</div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
@@ -149,13 +165,17 @@ function ToetsenPage() {
               </div>
               <div className="flex items-center gap-3">
                 {t.gemiddelde !== null && (
-                  <div className={`text-base font-bold ${t.gemiddelde < 6 ? "text-destructive" : "text-success"}`}>
+                  <div
+                    className={`text-base font-bold ${t.gemiddelde < 6 ? "text-destructive" : "text-success"}`}
+                  >
                     ∅ {t.gemiddelde.toFixed(1)}
                   </div>
                 )}
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    t.status === "nagekeken" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"
+                    t.status === "nagekeken"
+                      ? "bg-success/15 text-success"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {t.status === "nagekeken" ? "Nagekeken" : "Gepland"}
@@ -171,7 +191,9 @@ function ToetsenPage() {
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Toetsnaam</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Toetsnaam
+                </span>
                 <input
                   value={toetsnaam}
                   onChange={(e) => setToetsnaam(e.target.value)}
@@ -180,34 +202,46 @@ function ToetsenPage() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Klas</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Klas
+                </span>
                 <select
                   value={selectedKlas}
                   onChange={(e) => setSelectedKlas(e.target.value)}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                 >
-                  {docentKlassen.map((k) => <option key={k.klas}>{k.klas}</option>)}
+                  {docentKlassen.map((k) => (
+                    <option key={k.klas}>{k.klas}</option>
+                  ))}
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Vak</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Vak
+                </span>
                 <select
                   value={selectedVak}
                   onChange={(e) => setSelectedVak(e.target.value)}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                 >
-                  {docentKlassen.map((k) => <option key={k.vak}>{k.vak}</option>)}
+                  {docentKlassen.map((k) => (
+                    <option key={k.vak}>{k.vak}</option>
+                  ))}
                 </select>
               </label>
             </div>
 
             <div>
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Vragen</div>
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Vragen
+              </div>
               <div className="space-y-4">
                 {vragen.map((v, qi) => (
                   <div key={qi} className="rounded-xl border border-border bg-background p-4">
                     <div className="mb-3 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-muted-foreground">Vraag {qi + 1}</span>
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        Vraag {qi + 1}
+                      </span>
                       {vragen.length > 1 && (
                         <button
                           onClick={() => setVragen((prev) => prev.filter((_, j) => j !== qi))}
@@ -318,11 +352,15 @@ function ToetsenPage() {
                     {nakijkLeerlingen.map((l, i) => (
                       <tr key={i} className="text-xs">
                         <td className="py-2 pr-4 font-medium">{l.naam}</td>
-                        <td className={`py-2 pr-4 font-bold ${l.score < 5.5 ? "text-destructive" : "text-success"}`}>
+                        <td
+                          className={`py-2 pr-4 font-bold ${l.score < 5.5 ? "text-destructive" : "text-success"}`}
+                        >
                           {l.score.toFixed(1)}
                         </td>
                         <td className="py-2">
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${l.score < 5.5 ? "bg-destructive/15 text-destructive" : "bg-success/15 text-success"}`}>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${l.score < 5.5 ? "bg-destructive/15 text-destructive" : "bg-success/15 text-success"}`}
+                          >
                             {l.score < 5.5 ? "Onvoldoende" : "Voldoende"}
                           </span>
                         </td>
@@ -332,8 +370,11 @@ function ToetsenPage() {
                 </table>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
-                Gemiddelde: {(nakijkLeerlingen.reduce((s, l) => s + l.score, 0) / nakijkLeerlingen.length).toFixed(1)} ·{" "}
-                {nakijkLeerlingen.filter((l) => l.score < 5.5).length} onvoldoende
+                Gemiddelde:{" "}
+                {(
+                  nakijkLeerlingen.reduce((s, l) => s + l.score, 0) / nakijkLeerlingen.length
+                ).toFixed(1)}{" "}
+                · {nakijkLeerlingen.filter((l) => l.score < 5.5).length} onvoldoende
               </div>
             </Card>
           )}

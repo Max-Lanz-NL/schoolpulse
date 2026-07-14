@@ -1,12 +1,54 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
-import { roleLabels, roleUsers, meldingen, docentMeldingen, teamleiderMeldingen, directieMeldingen, berichten as leerlingBerichten, docentBerichten, ouderBerichten, teamleiderBerichten, directieBerichten, type Role } from "@/lib/demo-data";
 import {
-  LayoutDashboard, Calendar, BarChart3, MessageSquare, FileCheck,
-  FolderOpen, CalendarCheck, Bell, Search, Settings, LogOut,
-  ChevronDown, User, Shield, HelpCircle, Moon, Sun, X, GraduationCap, Users, Building2,
-  BookOpen, UserCheck, AlertCircle, CalendarDays, Briefcase, RefreshCw, Upload,
-  CalendarRange, ClipboardCheck, PenLine, ClipboardList, Type, UserCog,
+  roleLabels,
+  roleUsers,
+  meldingen,
+  docentMeldingen,
+  teamleiderMeldingen,
+  directieMeldingen,
+  berichten as leerlingBerichten,
+  docentBerichten,
+  ouderBerichten,
+  teamleiderBerichten,
+  directieBerichten,
+  type Role,
+} from "@/lib/demo-data";
+import {
+  LayoutDashboard,
+  Calendar,
+  BarChart3,
+  MessageSquare,
+  FileCheck,
+  FolderOpen,
+  CalendarCheck,
+  Bell,
+  Search,
+  Settings,
+  LogOut,
+  ChevronDown,
+  User,
+  Shield,
+  HelpCircle,
+  Moon,
+  Sun,
+  X,
+  GraduationCap,
+  Users,
+  Building2,
+  BookOpen,
+  UserCheck,
+  AlertCircle,
+  CalendarDays,
+  Briefcase,
+  RefreshCw,
+  Upload,
+  CalendarRange,
+  ClipboardCheck,
+  PenLine,
+  ClipboardList,
+  Type,
+  UserCog,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { DemoGate } from "./DemoGate";
@@ -14,7 +56,13 @@ import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
 
 const berichtenBadge = (role: Role): number => {
-  const map = { leerling: leerlingBerichten, docent: docentBerichten, ouder: ouderBerichten, teamleider: teamleiderBerichten, directie: directieBerichten };
+  const map = {
+    leerling: leerlingBerichten,
+    docent: docentBerichten,
+    ouder: ouderBerichten,
+    teamleider: teamleiderBerichten,
+    directie: directieBerichten,
+  };
   return map[role].filter((b) => b.ongelezen).length;
 };
 
@@ -29,37 +77,47 @@ const getModules = (role: Role) => {
     { to: "/app/documenten", label: "Bestanden", icon: FolderOpen },
     { to: "/app/activiteiten", label: "Activiteiten", icon: CalendarCheck },
   ];
-  if (role === "leerling") return [...base,
-    { to: "/app/huiswerk", label: "Huiswerk", icon: BookOpen },
-    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
-    { to: "/app/studieplanner", label: "Studieplanner", icon: CalendarRange },
-  ];
-  if (role === "ouder") return [...base,
-    { to: "/app/agenda", label: "Agenda", icon: CalendarDays },
-    { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
-    { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
-    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
-    { to: "/app/toestemming", label: "Toestemming", icon: ClipboardCheck },
-  ];
-  if (role === "docent") return [...base,
-    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
-    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
-    { to: "/app/toetsen", label: "Toetsen", icon: PenLine },
-  ];
-  if (role === "teamleider") return [...base,
-    { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
-    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
-    { to: "/app/vervanging", label: "Vervanging", icon: RefreshCw },
-    { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
-    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
-  ];
-  if (role === "directie") return [...base,
-    { to: "/app/personeel", label: "Personeel", icon: Briefcase },
-    { to: "/app/gebruikersbeheer", label: "Gebruikersbeheer", icon: UserCog },
-    { to: "/app/import", label: "Data import", icon: Upload },
-    { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
-    { to: "/app/avg", label: "AVG & Privacy", icon: Shield },
-  ];
+  if (role === "leerling")
+    return [
+      ...base,
+      { to: "/app/huiswerk", label: "Huiswerk", icon: BookOpen },
+      { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+      { to: "/app/studieplanner", label: "Studieplanner", icon: CalendarRange },
+    ];
+  if (role === "ouder")
+    return [
+      ...base,
+      { to: "/app/agenda", label: "Agenda", icon: CalendarDays },
+      { to: "/app/aanwezigheid", label: "Aanwezigheid", icon: UserCheck },
+      { to: "/app/absentie", label: "Absentie melden", icon: AlertCircle },
+      { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+      { to: "/app/toestemming", label: "Toestemming", icon: ClipboardCheck },
+    ];
+  if (role === "docent")
+    return [
+      ...base,
+      { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+      { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+      { to: "/app/toetsen", label: "Toetsen", icon: PenLine },
+    ];
+  if (role === "teamleider")
+    return [
+      ...base,
+      { to: "/app/leerlingen", label: "Leerlingen", icon: GraduationCap },
+      { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+      { to: "/app/vervanging", label: "Vervanging", icon: RefreshCw },
+      { to: "/app/gesprekken", label: "Gesprekken", icon: CalendarDays },
+      { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
+    ];
+  if (role === "directie")
+    return [
+      ...base,
+      { to: "/app/personeel", label: "Personeel", icon: Briefcase },
+      { to: "/app/gebruikersbeheer", label: "Gebruikersbeheer", icon: UserCog },
+      { to: "/app/import", label: "Data import", icon: Upload },
+      { to: "/app/rapporten", label: "Rapporten", icon: ClipboardList },
+      { to: "/app/avg", label: "AVG & Privacy", icon: Shield },
+    ];
   return base;
 };
 
@@ -69,20 +127,46 @@ const searchIndex = [
   { label: "Rooster", to: "/app/rooster", keys: ["rooster", "les", "uur", "week"] },
   { label: "Cijfers", to: "/app/cijfers", keys: ["cijfer", "gemiddelde", "toets", "resultaten"] },
   { label: "Berichten", to: "/app/berichten", keys: ["bericht", "chat", "mail"] },
-  { label: "Opdrachten", to: "/app/opdrachten", keys: ["opdracht", "huiswerk", "inleveren", "taak"] },
+  {
+    label: "Opdrachten",
+    to: "/app/opdrachten",
+    keys: ["opdracht", "huiswerk", "inleveren", "taak"],
+  },
   { label: "Bestanden", to: "/app/documenten", keys: ["bestand", "document", "map", "pdf"] },
-  { label: "Activiteiten", to: "/app/activiteiten", keys: ["activiteit", "schoolreis", "poll", "aankondiging"] },
+  {
+    label: "Activiteiten",
+    to: "/app/activiteiten",
+    keys: ["activiteit", "schoolreis", "poll", "aankondiging"],
+  },
 ];
 
-export function AppShell({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
+export function AppShell({
+  children,
+  title,
+  subtitle,
+}: {
+  children: ReactNode;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <DemoGate>
-      <AppShellInner title={title} subtitle={subtitle}>{children}</AppShellInner>
+      <AppShellInner title={title} subtitle={subtitle}>
+        {children}
+      </AppShellInner>
     </DemoGate>
   );
 }
 
-function AppShellInner({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
+function AppShellInner({
+  children,
+  title,
+  subtitle,
+}: {
+  children: ReactNode;
+  title: string;
+  subtitle?: string;
+}) {
   const { role, setRole, setDemoUser } = useRole();
   const modules = getModules(role);
   const [open, setOpen] = useState(false);
@@ -112,7 +196,9 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
     document.documentElement.style.fontSize = sizes[fontSize];
     localStorage.setItem("sp-fontsize", fontSize);
   }, [fontSize]);
-  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const pathname = useRouterState({
+    select: (state: { location: { pathname: string } }) => state.location.pathname,
+  });
   const navigate = useNavigate();
   const user = roleUsers[role];
 
@@ -131,10 +217,15 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const isActive = (to: string, exact?: boolean) => (exact ? pathname === to : pathname === to || pathname.startsWith(to + "/"));
+  const isActive = (to: string, exact?: boolean) =>
+    exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
   const results = searchQ.trim().length
-    ? searchIndex.filter((s) => s.label.toLowerCase().includes(searchQ.toLowerCase()) || s.keys.some((k) => k.includes(searchQ.toLowerCase())))
+    ? searchIndex.filter(
+        (s) =>
+          s.label.toLowerCase().includes(searchQ.toLowerCase()) ||
+          s.keys.some((k) => k.includes(searchQ.toLowerCase())),
+      )
     : [];
 
   return (
@@ -157,23 +248,32 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               ))}
             </div>
           </div>
-          <button onClick={() => setBannerOpen(false)} className="shrink-0 rounded p-0.5 hover:bg-primary-foreground/20">
+          <button
+            onClick={() => setBannerOpen(false)}
+            className="shrink-0 rounded p-0.5 hover:bg-primary-foreground/20"
+          >
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
       {/* Sidebar — altijd fixed, met eigen scroll */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5">
           <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
           <div className="min-w-0">
             <div className="truncate text-sm font-bold tracking-tight text-white">Schoolpulse</div>
-            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">Demo omgeving</div>
+            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">
+              Demo omgeving
+            </div>
           </div>
         </div>
 
         <div className="px-3 pt-4">
-          <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">Modules</div>
+          <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            Modules
+          </div>
           <nav className="space-y-0.5">
             {modules.map((m) => {
               const active = isActive(m.to, m.exact);
@@ -183,13 +283,17 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   to={m.to}
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
+                    active
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
                   }`}
                 >
                   <m.icon className="h-4 w-4" />
                   <span className="flex-1">{m.label}</span>
                   {m.badge ? (
-                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">{m.badge}</span>
+                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {m.badge}
+                    </span>
                   ) : null}
                 </Link>
               );
@@ -203,29 +307,47 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               onClick={() => setRolePickerOpen((v) => !v)}
               className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-sidebar-accent"
             >
-              <img src={user.avatar} alt={user.name} className="h-9 w-9 shrink-0 rounded-full bg-sidebar-primary/40 object-cover" />
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="h-9 w-9 shrink-0 rounded-full bg-sidebar-primary/40 object-cover"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-white">{user.name}</div>
-                <div className="truncate text-[11px] text-sidebar-foreground/60">{roleLabels[role]}</div>
+                <div className="truncate text-[11px] text-sidebar-foreground/60">
+                  {roleLabels[role]}
+                </div>
               </div>
               <ChevronDown className="h-4 w-4 text-sidebar-foreground/60" />
             </button>
             {rolePickerOpen && (
               <div className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-xl border border-sidebar-border bg-card text-card-foreground shadow-lg">
-                <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Wissel rol</div>
+                <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Wissel rol
+                </div>
                 {(Object.keys(roleLabels) as Role[]).map((r) => (
                   <button
                     key={r}
-                    onClick={() => { setRole(r); setRolePickerOpen(false); }}
+                    onClick={() => {
+                      setRole(r);
+                      setRolePickerOpen(false);
+                    }}
                     className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${r === role ? "font-semibold text-primary" : ""}`}
                   >
-                    <img src={roleUsers[r].avatar} alt="" className="h-6 w-6 rounded-full object-cover" />
+                    <img
+                      src={roleUsers[r].avatar}
+                      alt=""
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
                     {roleLabels[r]}
                   </button>
                 ))}
                 <div className="border-t border-border">
                   <button
-                    onClick={() => { setDemoUser(null); navigate({ to: "/" }); }}
+                    onClick={() => {
+                      setDemoUser(null);
+                      navigate({ to: "/" });
+                    }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
                   >
                     <LogOut className="h-3.5 w-3.5" /> Uitloggen & terug
@@ -237,7 +359,9 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
         </div>
       </aside>
 
-      {open && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setOpen(false)} />}
+      {open && (
+        <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setOpen(false)} />
+      )}
 
       {/* Main — met marge voor sidebar */}
       <div className="flex min-h-screen min-w-0 flex-col md:pl-64">
@@ -258,7 +382,10 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               <Search className="h-4 w-4 text-muted-foreground" />
               <input
                 value={searchQ}
-                onChange={(e) => { setSearchQ(e.target.value); setSearchOpen(true); }}
+                onChange={(e) => {
+                  setSearchQ(e.target.value);
+                  setSearchOpen(true);
+                }}
                 onFocus={() => setSearchOpen(true)}
                 placeholder="Zoek in Schoolpulse..."
                 className="w-56 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
@@ -266,16 +393,24 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
             </div>
             {searchOpen && searchQ && (
               <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
-                {results.length ? results.map((r) => (
-                  <button
-                    key={r.to}
-                    onClick={() => { navigate({ to: r.to }); setSearchOpen(false); setSearchQ(""); }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
-                  >
-                    <Search className="h-3.5 w-3.5 text-muted-foreground" /> {r.label}
-                  </button>
-                )) : (
-                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">Geen resultaten voor "{searchQ}"</div>
+                {results.length ? (
+                  results.map((r) => (
+                    <button
+                      key={r.to}
+                      onClick={() => {
+                        navigate({ to: r.to });
+                        setSearchOpen(false);
+                        setSearchQ("");
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                    >
+                      <Search className="h-3.5 w-3.5 text-muted-foreground" /> {r.label}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">
+                    Geen resultaten voor "{searchQ}"
+                  </div>
                 )}
               </div>
             )}
@@ -289,7 +424,9 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               aria-label="Notificaties"
             >
               <Bell className="h-4 w-4" />
-              {unread && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />}
+              {unread && (
+                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+              )}
             </button>
             {notifOpen && (
               <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
@@ -297,19 +434,35 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                   <div className="text-xs font-semibold">Meldingen</div>
                   <button
                     className="text-[10px] font-medium text-muted-foreground hover:text-foreground"
-                    onClick={() => { setUnread(false); setNotifOpen(false); toast.success("Alle meldingen als gelezen gemarkeerd"); }}
+                    onClick={() => {
+                      setUnread(false);
+                      setNotifOpen(false);
+                      toast.success("Alle meldingen als gelezen gemarkeerd");
+                    }}
                   >
                     Alles gelezen
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {(role === "directie" ? directieMeldingen : role === "teamleider" ? teamleiderMeldingen : role === "docent" ? docentMeldingen : meldingen).map((m) => (
+                  {(role === "directie"
+                    ? directieMeldingen
+                    : role === "teamleider"
+                      ? teamleiderMeldingen
+                      : role === "docent"
+                        ? docentMeldingen
+                        : meldingen
+                  ).map((m) => (
                     <button
                       key={m.titel}
-                      onClick={() => { navigate({ to: m.link }); setNotifOpen(false); }}
+                      onClick={() => {
+                        navigate({ to: m.link });
+                        setNotifOpen(false);
+                      }}
                       className={`flex w-full items-start gap-3 border-b border-border px-3 py-2.5 text-left hover:bg-muted ${!unread ? "opacity-60" : ""}`}
                     >
-                      <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-muted-foreground"}`} />
+                      <div
+                        className={`mt-1 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-muted-foreground"}`}
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="text-sm">{m.titel}</div>
                         <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
@@ -328,7 +481,11 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
               className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
               aria-label="Profiel"
             >
-              <img src={user.avatar} alt={user.name} className="h-7 w-7 rounded-full object-cover" />
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="h-7 w-7 rounded-full object-cover"
+              />
               <Settings className="hidden h-4 w-4 text-muted-foreground md:block" />
             </button>
             {settingsOpen && (
@@ -342,23 +499,45 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                 </div>
                 <div className="py-1">
                   {[
-                    { icon: User, label: "Mijn profiel", msg: "Profielbeheer komt binnenkort beschikbaar" },
-                    { icon: Shield, label: "Privacy & 2FA", msg: "Privacy- en 2FA-instellingen komen binnenkort" },
-                    { icon: HelpCircle, label: "Help & support", msg: "Meer info op docs.schoolpulse.nl" },
+                    {
+                      icon: User,
+                      label: "Mijn profiel",
+                      msg: "Profielbeheer komt binnenkort beschikbaar",
+                    },
+                    {
+                      icon: Shield,
+                      label: "Privacy & 2FA",
+                      msg: "Privacy- en 2FA-instellingen komen binnenkort",
+                    },
+                    {
+                      icon: HelpCircle,
+                      label: "Help & support",
+                      msg: "Meer info op docs.schoolpulse.nl",
+                    },
                   ].map((it) => (
                     <button
                       key={it.label}
-                      onClick={() => { toast(it.label, { description: it.msg }); setSettingsOpen(false); }}
+                      onClick={() => {
+                        toast(it.label, { description: it.msg });
+                        setSettingsOpen(false);
+                      }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
                     >
                       <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
                     </button>
                   ))}
                   <button
-                    onClick={() => { setDark((d) => !d); setSettingsOpen(false); }}
+                    onClick={() => {
+                      setDark((d) => !d);
+                      setSettingsOpen(false);
+                    }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
                   >
-                    {dark ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
+                    {dark ? (
+                      <Sun className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Moon className="h-4 w-4 text-muted-foreground" />
+                    )}
                     {dark ? "Lichte modus" : "Donkere modus"}
                   </button>
                   <div className="flex items-center gap-2 px-3 py-2 text-sm">
@@ -379,7 +558,10 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
                 </div>
                 <div className="border-t border-border">
                   <button
-                    onClick={() => { setDemoUser(null); navigate({ to: "/" }); }}
+                    onClick={() => {
+                      setDemoUser(null);
+                      navigate({ to: "/" });
+                    }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
                   >
                     <LogOut className="h-4 w-4" /> Uitloggen
@@ -390,24 +572,28 @@ function AppShellInner({ children, title, subtitle }: { children: ReactNode; tit
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-8 md:pb-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-8 md:pb-8">
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex border-t border-border bg-background md:hidden">
-        {getModules(role).slice(0, 5).map((m) => {
-          const active = isActive(m.to, m.exact);
-          return (
-            <Link
-              key={m.to}
-              to={m.to}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <m.icon className="h-5 w-5" />
-              {m.label}
-            </Link>
-          );
-        })}
+        {getModules(role)
+          .slice(0, 5)
+          .map((m) => {
+            const active = isActive(m.to, m.exact);
+            return (
+              <Link
+                key={m.to}
+                to={m.to}
+                className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <m.icon className="h-5 w-5" />
+                {m.label}
+              </Link>
+            );
+          })}
       </nav>
     </div>
   );

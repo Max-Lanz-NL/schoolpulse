@@ -56,14 +56,17 @@ function ToestemmingPage() {
   const [verzoeken, setVerzoeken] = useState<Verzoek[]>(initVerzoeken);
 
   const beantwoord = (id: string, status: "akkoord" | "niet_akkoord") => {
-    const nu = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+    const nu = new Date().toLocaleDateString("nl-NL", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
     setVerzoeken((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, status, ondertekendOp: nu } : v))
+      prev.map((v) => (v.id === id ? { ...v, status, ondertekendOp: nu } : v)),
     );
-    toast.success(
-      status === "akkoord" ? "Toestemming gegeven" : "Geweigerd",
-      { description: `Digitaal ondertekend door Petra de Vries` }
-    );
+    toast.success(status === "akkoord" ? "Toestemming gegeven" : "Geweigerd", {
+      description: `Digitaal ondertekend door Petra de Vries`,
+    });
   };
 
   const open = verzoeken.filter((v) => v.status === "open");
@@ -73,9 +76,7 @@ function ToestemmingPage() {
     <AppShell title="Toestemming" subtitle="Digitale toestemming voor schoolactiviteiten">
       {open.length > 0 && (
         <div className="mb-6 space-y-4">
-          <div className="text-sm font-semibold">
-            Openstaand ({open.length})
-          </div>
+          <div className="text-sm font-semibold">Openstaand ({open.length})</div>
           {open.map((v) => (
             <div key={v.id} className="rounded-2xl border border-border bg-card p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -113,7 +114,9 @@ function ToestemmingPage() {
         <div className="mb-4 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <ClipboardCheck className="h-8 w-8 text-success" />
           <div className="text-sm font-semibold">Alle verzoeken behandeld</div>
-          <div className="text-xs text-muted-foreground">Er zijn geen openstaande toestemmingsverzoeken.</div>
+          <div className="text-xs text-muted-foreground">
+            Er zijn geen openstaande toestemmingsverzoeken.
+          </div>
         </div>
       )}
 
@@ -121,7 +124,10 @@ function ToestemmingPage() {
         <Card title="Reeds ondertekend">
           <div className="space-y-2">
             {beantwoordList.map((v) => (
-              <div key={v.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3 opacity-70">
+              <div
+                key={v.id}
+                className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3 opacity-70"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold">{v.titel}</div>
                   <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -131,7 +137,9 @@ function ToestemmingPage() {
                 </div>
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    v.status === "akkoord" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                    v.status === "akkoord"
+                      ? "bg-success/15 text-success"
+                      : "bg-destructive/15 text-destructive"
                   }`}
                 >
                   {v.status === "akkoord" ? "Akkoord" : "Geweigerd"}
@@ -139,7 +147,10 @@ function ToestemmingPage() {
               </div>
             ))}
             {eerderGegeven.map((e, i) => (
-              <div key={i} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3 opacity-50">
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3 opacity-50"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold">{e.titel}</div>
                   <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -160,7 +171,10 @@ function ToestemmingPage() {
         <Card title="Eerder gegeven toestemmingen">
           <div className="space-y-2 opacity-60">
             {eerderGegeven.map((e, i) => (
-              <div key={i} className="flex items-center justify-between rounded-xl border border-border bg-background p-3">
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-xl border border-border bg-background p-3"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold">{e.titel}</div>
                   <div className="flex items-center gap-1 text-[11px] text-muted-foreground">

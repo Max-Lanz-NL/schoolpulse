@@ -8,13 +8,28 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/huiswerk")({ component: HuiswerkPage });
 
-const vakken = ["Wiskunde B", "Nederlands", "Engels", "Scheikunde", "Biologie", "Geschiedenis", "Aardrijkskunde"];
+const vakken = [
+  "Wiskunde B",
+  "Nederlands",
+  "Engels",
+  "Scheikunde",
+  "Biologie",
+  "Geschiedenis",
+  "Aardrijkskunde",
+];
 
 function HuiswerkPage() {
-  const [items, setItems] = useState<HuiswerkItem[]>(() => JSON.parse(JSON.stringify(huiswerkData)));
+  const [items, setItems] = useState<HuiswerkItem[]>(() =>
+    JSON.parse(JSON.stringify(huiswerkData)),
+  );
   const [tab, setTab] = useState<"alles" | "open" | "afgerond">("alles");
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState({ vak: vakken[0], omschrijving: "", deadline: "", prioriteit: "normaal" as "hoog" | "normaal" });
+  const [form, setForm] = useState({
+    vak: vakken[0],
+    omschrijving: "",
+    deadline: "",
+    prioriteit: "normaal" as "hoog" | "normaal",
+  });
 
   const toggle = (id: string) => {
     setItems((prev) =>
@@ -123,30 +138,42 @@ function HuiswerkPage() {
       )}
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setModalOpen(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setModalOpen(false)}
+        >
           <div
             className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="text-sm font-semibold">Huiswerk toevoegen</div>
-              <button onClick={() => setModalOpen(false)} className="rounded-lg p-1.5 hover:bg-muted">
+              <button
+                onClick={() => setModalOpen(false)}
+                className="rounded-lg p-1.5 hover:bg-muted"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-3 p-4">
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Vak</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Vak
+                </span>
                 <select
                   value={form.vak}
                   onChange={(e) => setForm((f) => ({ ...f, vak: e.target.value }))}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                 >
-                  {vakken.map((v) => <option key={v}>{v}</option>)}
+                  {vakken.map((v) => (
+                    <option key={v}>{v}</option>
+                  ))}
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Omschrijving</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Omschrijving
+                </span>
                 <textarea
                   value={form.omschrijving}
                   onChange={(e) => setForm((f) => ({ ...f, omschrijving: e.target.value }))}
@@ -157,7 +184,9 @@ function HuiswerkPage() {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Deadline</span>
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Deadline
+                  </span>
                   <input
                     type="date"
                     value={form.deadline}
@@ -166,10 +195,14 @@ function HuiswerkPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Prioriteit</span>
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Prioriteit
+                  </span>
                   <select
                     value={form.prioriteit}
-                    onChange={(e) => setForm((f) => ({ ...f, prioriteit: e.target.value as "hoog" | "normaal" }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, prioriteit: e.target.value as "hoog" | "normaal" }))
+                    }
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                   >
                     <option value="normaal">Normaal</option>
@@ -179,7 +212,10 @@ function HuiswerkPage() {
               </div>
             </div>
             <div className="flex justify-end gap-2 border-t border-border p-3">
-              <button onClick={() => setModalOpen(false)} className="rounded-lg border border-border px-3 py-2 text-sm">
+              <button
+                onClick={() => setModalOpen(false)}
+                className="rounded-lg border border-border px-3 py-2 text-sm"
+              >
                 Annuleren
               </button>
               <button

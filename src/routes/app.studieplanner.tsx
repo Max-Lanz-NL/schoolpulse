@@ -11,11 +11,11 @@ const VAKKEN = ["Wiskunde B", "Nederlands", "Engels", "Scheikunde", "Biologie", 
 
 const TOETS_KLEUREN: Record<string, string> = {
   "Wiskunde B": "bg-blue-500",
-  "Engels": "bg-amber-500",
-  "Scheikunde": "bg-emerald-500",
-  "Biologie": "bg-teal-500",
-  "Nederlands": "bg-indigo-500",
-  "Geschiedenis": "bg-rose-500",
+  Engels: "bg-amber-500",
+  Scheikunde: "bg-emerald-500",
+  Biologie: "bg-teal-500",
+  Nederlands: "bg-indigo-500",
+  Geschiedenis: "bg-rose-500",
 };
 
 type ToetsItem = { id: string; vak: string; datum: string; naam: string };
@@ -76,8 +76,14 @@ function StudieplannerPage() {
   });
 
   const addBlok = () => {
-    if (!form.datum) { toast.error("Kies een datum"); return; }
-    setExtraBlokken((prev) => [...prev, { id: `sb${Date.now()}`, vak: form.vak, datum: form.datum }]);
+    if (!form.datum) {
+      toast.error("Kies een datum");
+      return;
+    }
+    setExtraBlokken((prev) => [
+      ...prev,
+      { id: `sb${Date.now()}`, vak: form.vak, datum: form.datum },
+    ]);
     setModalOpen(false);
     setForm({ vak: VAKKEN[0], datum: "" });
     toast.success(`Studieblok ${form.vak} toegevoegd`);
@@ -105,7 +111,10 @@ function StudieplannerPage() {
           {/* Day headers */}
           <div className="mb-1 grid grid-cols-7 gap-1">
             {dagHeaders.map((d) => (
-              <div key={d} className="text-center text-[10px] font-semibold uppercase text-muted-foreground">
+              <div
+                key={d}
+                className="text-center text-[10px] font-semibold uppercase text-muted-foreground"
+              >
                 {d}
               </div>
             ))}
@@ -133,7 +142,9 @@ function StudieplannerPage() {
                   key={cell.iso}
                   className={`min-h-[56px] rounded-lg p-1 ${bg} ${!cell.inMonth ? "opacity-30" : ""} border border-border`}
                 >
-                  <div className={`text-[11px] font-semibold ${isToday ? "text-primary" : cell.inMonth ? "text-foreground" : "text-muted-foreground"}`}>
+                  <div
+                    className={`text-[11px] font-semibold ${isToday ? "text-primary" : cell.inMonth ? "text-foreground" : "text-muted-foreground"}`}
+                  >
                     {cell.day}
                   </div>
                   {(toetsenByDate[cell.iso] ?? []).map((t) => (
@@ -146,12 +157,19 @@ function StudieplannerPage() {
                     </div>
                   ))}
                   {(deadlinesByDate[cell.iso] ?? []).map((dl, i) => (
-                    <div key={i} className="mt-0.5 rounded bg-warning/20 px-1 py-0.5 text-[9px] font-semibold text-warning leading-tight" title={dl.titel}>
+                    <div
+                      key={i}
+                      className="mt-0.5 rounded bg-warning/20 px-1 py-0.5 text-[9px] font-semibold text-warning leading-tight"
+                      title={dl.titel}
+                    >
                       {dl.vak.slice(0, 3)}
                     </div>
                   ))}
                   {userBlokken.map((b) => (
-                    <div key={b.id} className="mt-0.5 rounded bg-primary/30 px-1 py-0.5 text-[9px] font-semibold text-primary leading-tight">
+                    <div
+                      key={b.id}
+                      className="mt-0.5 rounded bg-primary/30 px-1 py-0.5 text-[9px] font-semibold text-primary leading-tight"
+                    >
                       {b.vak.slice(0, 4)}
                     </div>
                   ))}
@@ -165,10 +183,19 @@ function StudieplannerPage() {
 
           {/* Legend */}
           <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-destructive/20" /> Toets</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-warning/20" /> Deadline</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-blue-100 dark:bg-blue-950/40" /> Aangeraden studiedag</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-primary/20" /> Mijn studieblok</span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded bg-destructive/20" /> Toets
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded bg-warning/20" /> Deadline
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded bg-blue-100 dark:bg-blue-950/40" /> Aangeraden
+              studiedag
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded bg-primary/20" /> Mijn studieblok
+            </span>
           </div>
         </Card>
 
@@ -178,14 +205,22 @@ function StudieplannerPage() {
             <div className="space-y-2">
               {aankomend.map((t) => {
                 const d = new Date(t.datum);
-                const dag = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+                const dag = d.toLocaleDateString("nl-NL", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                });
                 return (
                   <div key={t.id} className="rounded-lg border border-border bg-background p-2.5">
                     <div className="flex items-center gap-2">
-                      <div className={`h-3 w-3 rounded-full ${TOETS_KLEUREN[t.vak] ?? "bg-primary"}`} />
+                      <div
+                        className={`h-3 w-3 rounded-full ${TOETS_KLEUREN[t.vak] ?? "bg-primary"}`}
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-semibold">{t.naam}</div>
-                        <div className="text-[10px] text-muted-foreground">{t.vak} · {dag}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {t.vak} · {dag}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -198,14 +233,20 @@ function StudieplannerPage() {
             <div className="space-y-2">
               {deadlines.map((dl, i) => {
                 const d = new Date(dl.datum);
-                const dag = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+                const dag = d.toLocaleDateString("nl-NL", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                });
                 return (
                   <div key={i} className="rounded-lg border border-border bg-background p-2.5">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-3.5 w-3.5 shrink-0 text-warning" />
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-semibold">{dl.titel}</div>
-                        <div className="text-[10px] text-muted-foreground">{dl.vak} · {dag}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {dl.vak} · {dag}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -219,9 +260,16 @@ function StudieplannerPage() {
               <div className="space-y-1">
                 {extraBlokken.map((b) => {
                   const d = new Date(b.datum);
-                  const dag = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+                  const dag = d.toLocaleDateString("nl-NL", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                  });
                   return (
-                    <div key={b.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-2.5 py-2">
+                    <div
+                      key={b.id}
+                      className="flex items-center justify-between rounded-lg border border-border bg-background px-2.5 py-2"
+                    >
                       <div>
                         <div className="text-xs font-semibold">{b.vak}</div>
                         <div className="text-[10px] text-muted-foreground">{dag}</div>
@@ -260,23 +308,32 @@ function StudieplannerPage() {
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="text-sm font-semibold">Studieblok toevoegen</div>
-              <button onClick={() => setModalOpen(false)} className="rounded-lg p-1.5 hover:bg-muted">
+              <button
+                onClick={() => setModalOpen(false)}
+                className="rounded-lg p-1.5 hover:bg-muted"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-3 p-4">
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Vak</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Vak
+                </span>
                 <select
                   value={form.vak}
                   onChange={(e) => setForm((f) => ({ ...f, vak: e.target.value }))}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                 >
-                  {VAKKEN.map((v) => <option key={v}>{v}</option>)}
+                  {VAKKEN.map((v) => (
+                    <option key={v}>{v}</option>
+                  ))}
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Datum</span>
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Datum
+                </span>
                 <input
                   type="date"
                   value={form.datum}
@@ -288,7 +345,10 @@ function StudieplannerPage() {
               </label>
             </div>
             <div className="flex justify-end gap-2 border-t border-border p-3">
-              <button onClick={() => setModalOpen(false)} className="rounded-lg border border-border px-3 py-2 text-sm">
+              <button
+                onClick={() => setModalOpen(false)}
+                className="rounded-lg border border-border px-3 py-2 text-sm"
+              >
                 Annuleren
               </button>
               <button
