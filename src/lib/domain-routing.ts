@@ -1,4 +1,5 @@
 import { DOMAIN_HOSTS, DOMAIN_ORIGINS } from "./domains";
+import { getDocsSiteHtml } from "./docs-site";
 
 const marketingHosts = new Set([DOMAIN_HOSTS.marketing, DOMAIN_HOSTS.marketingWww]);
 const appHosts = new Set([DOMAIN_HOSTS.app, DOMAIN_HOSTS.demo, DOMAIN_HOSTS.test]);
@@ -122,16 +123,14 @@ function apiDomainResponse(pathname: string): Response {
 }
 
 function docsDomainResponse(pathname: string): Response {
-  if (pathname !== "/" && pathname !== "/index.html") {
+  if (pathname !== "/" && pathname !== "/index.html" && pathname !== "/handleiding") {
     return htmlResponse(
       `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Schoolpulse Docs</title></head><body style="font-family: Inter, system-ui, sans-serif; margin: 40px; line-height: 1.5;"><h1>Documentatiepad niet gevonden</h1><p>De documentatie-home staat op <a href="${DOMAIN_ORIGINS.docs}/">${DOMAIN_ORIGINS.docs}</a>.</p></body></html>`,
       404,
     );
   }
 
-  return htmlResponse(
-    `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Schoolpulse Docs</title></head><body style="font-family: Inter, system-ui, sans-serif; margin: 40px; line-height: 1.5;"><h1>Schoolpulse documentatie</h1><p>Dit domein is gereserveerd voor productdocumentatie.</p><p>App: <a href="${DOMAIN_ORIGINS.app}/app">${DOMAIN_ORIGINS.app}/app</a><br/>API: <a href="${DOMAIN_ORIGINS.api}/api">${DOMAIN_ORIGINS.api}/api</a></p></body></html>`,
-  );
+  return htmlResponse(getDocsSiteHtml());
 }
 
 export function handleDomainRouting(request: Request): Response | null {
@@ -142,6 +141,10 @@ export function handleDomainRouting(request: Request): Response | null {
 
   if (pathname === "/healthz") {
     return jsonResponse({ status: "ok", service: "schoolpulse-web" });
+  }
+
+  if (isLocalHost(hostname) && pathname === "/__docs") {
+    return docsDomainResponse("/");
   }
 
   if (isLocalHost(hostname) || isInternalAssetPath(pathname)) {
