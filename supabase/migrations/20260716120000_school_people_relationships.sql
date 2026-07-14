@@ -118,6 +118,28 @@ create table public.student_group_memberships (
 
 create index student_group_memberships_group on public.student_group_memberships(teaching_group_id, status);
 
+-- school_id is an immutable tenant boundary for both phase-1 and phase-2 records.
+create or replace function public.prevent_school_id_change()
+returns trigger language plpgsql as $$
+begin
+  if new.school_id is distinct from old.school_id then
+    raise exception 'Een bestaand record kan niet naar een andere school worden verplaatst';
+  end if;
+  return new;
+end;
+$$;
+
+do $$
+declare table_name text;
+begin
+  foreach table_name in array array[
+    'school_years','school_periods','school_locations','education_programmes',
+    'subjects','school_classes','teaching_groups'
+  ] loop
+    execute format('create trigger protect_%I_school before update on public.%I for each row execute function public.prevent_school_id_change()', table_name, table_name);
+  end loop;
+end $$;
+
 create or replace function public.prevent_linked_profile_school_change()
 returns trigger
 language plpgsql
