@@ -32,6 +32,8 @@ function VervangingPage() {
 
 function VervangingView() {
   const [vervangingen, setVervangingen] = useState<Record<string, string>>({});
+  const [afgerond, setAfgerond] = useState<string[]>([]);
+  const [tab, setTab] = useState<"open" | "gepland" | "afgerond">("open");
   const [selectModal, setSelectModal] = useState<{ lesKey: string; docent: string } | null>(null);
 
   const wijsVervanger = (lesKey: string, vervanger: string) => {
@@ -41,7 +43,7 @@ function VervangingView() {
   };
 
   const stuurNotificatie = (naam: string) => {
-    toast.success(`Notificatie verstuurd naar ${naam}`);
+    toast.success(`Melding verstuurd naar ${naam}, betrokken docenten en leerlingen`);
   };
 
   const uitgevallenLessen = afwezigPersoneel.flatMap((p) => {
@@ -85,6 +87,17 @@ function VervangingView() {
           <div className="mt-1 text-2xl font-bold">{toegewezen.length}</div>
         </div>
       </div>
+      <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
+        {(["open", "gepland", "afgerond"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`rounded px-3 py-1.5 text-xs capitalize ${tab === t ? "bg-primary text-primary-foreground" : ""}`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
 
       <div className="mb-6">
         <h2 className="mb-3 text-sm font-semibold">Uitgevallen vandaag</h2>
@@ -113,37 +126,39 @@ function VervangingView() {
         </div>
       </div>
 
-      <Card title="Lessen zonder vervanger">
-        {openstaand.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            Alle lessen zijn gedekt ✓
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {openstaand.map((les) => (
-              <div
-                key={les.lesKey}
-                className="flex items-center justify-between rounded-xl border border-border bg-background p-3"
-              >
-                <div>
-                  <div className="text-sm font-semibold">{les.vak}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {les.tijd} · Lokaal {les.lokaal} · i.p.v. {les.docent}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectModal({ lesKey: les.lesKey, docent: les.docent })}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+      {tab === "open" && (
+        <Card title="Lessen zonder vervanger">
+          {openstaand.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              Alle lessen zijn gedekt ✓
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {openstaand.map((les) => (
+                <div
+                  key={les.lesKey}
+                  className="flex items-center justify-between rounded-xl border border-border bg-background p-3"
                 >
-                  Wijs vervanger toe
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+                  <div>
+                    <div className="text-sm font-semibold">{les.vak}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {les.tijd} · Lokaal {les.lokaal} · i.p.v. {les.docent}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectModal({ lesKey: les.lesKey, docent: les.docent })}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  >
+                    Wijs vervanger toe
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
-      {toegewezen.length > 0 && (
+      {tab === "gepland" && toegewezen.length > 0 && (
         <div className="mt-6">
           <Card title="Toegewezen vervangingen">
             <div className="space-y-2">
@@ -158,14 +173,55 @@ function VervangingView() {
                       {les.tijd} · Vervanger: {vervangingen[les.lesKey]}
                     </div>
                   </div>
-                  <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
-                    Gedekt
-                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setSelectModal({ lesKey: les.lesKey, docent: les.docent })}
+                      className="rounded border px-2 py-1 text-[10px]"
+                    >
+                      Wijzigen
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVervangingen((v) => {
+                          const n = { ...v };
+                          delete n[les.lesKey];
+                          return n;
+                        });
+                        toast.success("Vervanging geannuleerd");
+                      }}
+                      className="rounded border px-2 py-1 text-[10px] text-destructive"
+                    >
+                      Annuleren
+                    </button>
+                    <button
+                      onClick={() => setAfgerond((a) => [...a, les.lesKey])}
+                      className="rounded bg-success px-2 py-1 text-[10px] text-white"
+                    >
+                      Afronden
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </Card>
         </div>
+      )}
+      {tab === "afgerond" && (
+        <Card title="Afgeronde vervangingen">
+          <div className="space-y-2">
+            {toegewezen
+              .filter((l) => afgerond.includes(l.lesKey))
+              .map((l) => (
+                <div key={l.lesKey} className="rounded-xl border p-3 text-xs">
+                  <strong>{l.vak}</strong> · {l.tijd} · {vervangingen[l.lesKey]}{" "}
+                  <span className="float-right text-success">Afgerond ✓</span>
+                </div>
+              ))}
+            {afgerond.length === 0 && (
+              <div className="text-xs text-muted-foreground">Nog geen afgeronde vervangingen.</div>
+            )}
+          </div>
+        </Card>
       )}
 
       {selectModal && (

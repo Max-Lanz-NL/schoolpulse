@@ -16,6 +16,7 @@ import {
   BarChart3,
   History,
   Undo2,
+  Download,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -767,8 +768,81 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ManagementCijfers() {
+  const [klasFilter, setKlasFilter] = useState("alle");
+  const [vakFilter, setVakFilter] = useState("alle");
+  const [docentFilter, setDocentFilter] = useState("alle");
+  const rapport = [
+    {
+      leerling: "Sanne de Vries",
+      klas: "V4A",
+      vak: "Wiskunde A",
+      docent: "Mark Jansen",
+      gemiddelde: 7.6,
+      trend: 0.4,
+    },
+    {
+      leerling: "Yara Bakker",
+      klas: "V4A",
+      vak: "Nederlands",
+      docent: "Linda de Boer",
+      gemiddelde: 5.4,
+      trend: -0.8,
+    },
+    {
+      leerling: "Daan Smit",
+      klas: "V4B",
+      vak: "Wiskunde B",
+      docent: "Mark Jansen",
+      gemiddelde: 6.8,
+      trend: 0.2,
+    },
+    {
+      leerling: "Noah Visser",
+      klas: "V4B",
+      vak: "Engels",
+      docent: "Steve Green",
+      gemiddelde: 5.2,
+      trend: -0.5,
+    },
+    {
+      leerling: "Lina Peters",
+      klas: "V5A",
+      vak: "Scheikunde",
+      docent: "Karin Visser",
+      gemiddelde: 7.9,
+      trend: 0.6,
+    },
+    {
+      leerling: "Milan Jansen",
+      klas: "H4A",
+      vak: "Geschiedenis",
+      docent: "Jan Peters",
+      gemiddelde: 6.1,
+      trend: -0.1,
+    },
+  ];
+  const zichtbaar = rapport.filter(
+    (r) =>
+      (klasFilter === "alle" || r.klas === klasFilter) &&
+      (vakFilter === "alle" || r.vak === vakFilter) &&
+      (docentFilter === "alle" || r.docent === docentFilter),
+  );
+  const exporteer = () => {
+    const csv = [
+      "Leerling,Klas,Vak,Docent,Gemiddelde,Trend",
+      ...zichtbaar.map(
+        (r) => `${r.leerling},${r.klas},${r.vak},${r.docent},${r.gemiddelde},${r.trend}`,
+      ),
+    ].join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    link.download = "cijferrapport-teamleider.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success("Cijferrapport geëxporteerd");
+  };
   return (
-    <AppShell title="Cijfers" subtitle="Klassenoverzicht">
+    <AppShell title="Cijfers" subtitle="Schoolbreed inzicht · alleen lezen">
       <div className="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -799,6 +873,62 @@ function ManagementCijfers() {
           <div className="mt-1 text-2xl font-bold">{klassen.length}</div>
         </div>
       </div>
+      <div className="mb-4 flex flex-wrap gap-2">
+        {[
+          {
+            value: klasFilter,
+            set: setKlasFilter,
+            opties: ["alle", "V4A", "V4B", "V5A", "H4A"],
+            label: "Alle klassen",
+          },
+          {
+            value: vakFilter,
+            set: setVakFilter,
+            opties: [
+              "alle",
+              "Wiskunde A",
+              "Wiskunde B",
+              "Nederlands",
+              "Engels",
+              "Scheikunde",
+              "Geschiedenis",
+            ],
+            label: "Alle vakken",
+          },
+          {
+            value: docentFilter,
+            set: setDocentFilter,
+            opties: [
+              "alle",
+              "Mark Jansen",
+              "Linda de Boer",
+              "Steve Green",
+              "Karin Visser",
+              "Jan Peters",
+            ],
+            label: "Alle docenten",
+          },
+        ].map((f) => (
+          <select
+            key={f.label}
+            value={f.value}
+            onChange={(e) => f.set(e.target.value)}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-xs"
+          >
+            {f.opties.map((o) => (
+              <option key={o} value={o}>
+                {o === "alle" ? f.label : o}
+              </option>
+            ))}
+          </select>
+        ))}
+        <button
+          onClick={exporteer}
+          className="ml-auto inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+        >
+          <Download className="h-4 w-4" /> Exporteer rapport
+        </button>
+      </div>
       <Card title="Gemiddelden per klas">
         <div className="space-y-3">
           {klassen.map((k) => (
@@ -826,6 +956,83 @@ function ManagementCijfers() {
           ))}
         </div>
       </Card>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card title="Resultaten en signalen">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="pb-2">Leerling</th>
+                  <th>Klas</th>
+                  <th>Vak / docent</th>
+                  <th>Gem.</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {zichtbaar.map((r) => (
+                  <tr key={`${r.leerling}-${r.vak}`} className="border-b border-border/60">
+                    <td className="py-2 font-semibold">{r.leerling}</td>
+                    <td>{r.klas}</td>
+                    <td>
+                      {r.vak}
+                      <div className="text-[10px] text-muted-foreground">{r.docent}</div>
+                    </td>
+                    <td className={r.gemiddelde < 5.5 ? "font-bold text-destructive" : "font-bold"}>
+                      {r.gemiddelde.toFixed(1)}
+                    </td>
+                    <td className={r.trend < 0 ? "text-destructive" : "text-success"}>
+                      {r.trend > 0 ? "+" : ""}
+                      {r.trend.toFixed(1)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+        <Card title="Analyse">
+          <div className="space-y-4 text-sm">
+            <div>
+              <div className="flex justify-between">
+                <span>Slagingsprognose</span>
+                <strong>91%</strong>
+              </div>
+              <div className="mt-1 h-2 rounded bg-muted">
+                <div className="h-2 w-[91%] rounded bg-success" />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <span>Voldoende (≥ 5,5)</span>
+                <strong>89%</strong>
+              </div>
+              <div className="mt-1 h-2 rounded bg-muted">
+                <div className="h-2 w-[89%] rounded bg-primary" />
+              </div>
+            </div>
+            <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 text-xs">
+              <strong>3 opvallende resultaten</strong>
+              <div className="mt-1 text-muted-foreground">
+                V4A Nederlands daalt · V4B Engels onder norm · V5A Scheikunde stijgt sterk.
+              </div>
+            </div>
+            <div className="grid grid-cols-5 gap-1 text-center text-[10px]">
+              {["<5", "5-6", "6-7", "7-8", ">8"].map((x, i) => (
+                <div key={x}>
+                  <div className="mb-1 flex h-20 items-end rounded bg-muted">
+                    <div
+                      className="w-full rounded bg-primary"
+                      style={{ height: `${[24, 42, 70, 58, 34][i]}%` }}
+                    />
+                  </div>
+                  {x}
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
     </AppShell>
   );
 }

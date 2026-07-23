@@ -30,6 +30,7 @@ import {
   Grid3x3,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useSwipe } from "@/hooks/use-swipe";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -45,6 +46,106 @@ const dagLabels: Record<string, string> = {
 };
 
 type Detail = Les & { dag?: string };
+
+const managementLes = (
+  tijd: string,
+  start: string,
+  vak: string,
+  lokaal: string,
+  kleur: string,
+): Les => ({ tijd, start, vak, lokaal, docent: "Management", kleur });
+
+const teamleiderRooster: Record<string, Les[]> = {
+  Ma: [
+    managementLes("08:30 – 09:20", "08:30", "Weekstart onderbouwteam", "Teamkamer", "bg-blue-500"),
+    managementLes("10:30 – 11:20", "10:30", "Lesbezoek V4B", "204", "bg-emerald-500"),
+    managementLes("13:00 – 13:50", "13:00", "Leerlingbespreking", "Spreekkamer 2", "bg-violet-500"),
+  ],
+  Di: [
+    managementLes("09:20 – 10:10", "09:20", "Rooster & vervanging", "Teamkamer", "bg-amber-500"),
+    managementLes(
+      "11:20 – 12:10",
+      "11:20",
+      "Gesprek docent Jansen",
+      "Spreekkamer 1",
+      "bg-blue-500",
+    ),
+    managementLes("14:10 – 15:00", "14:10", "Oudergesprek V4A", "Spreekkamer 3", "bg-violet-500"),
+  ],
+  Wo: [
+    managementLes(
+      "08:30 – 09:20",
+      "08:30",
+      "Resultatenanalyse bovenbouw",
+      "Teamkamer",
+      "bg-emerald-500",
+    ),
+    managementLes("10:30 – 11:20", "10:30", "Zorgoverleg", "Spreekkamer 2", "bg-rose-500"),
+    managementLes("12:10 – 13:00", "12:10", "Pauzetoezicht", "Aula", "bg-amber-500"),
+  ],
+  Do: [
+    managementLes("08:30 – 09:20", "08:30", "MT-overleg", "Directiekamer", "bg-blue-500"),
+    managementLes("11:20 – 12:10", "11:20", "Lesbezoek V5A", "118", "bg-emerald-500"),
+    managementLes("15:00 – 15:50", "15:00", "Teamvergadering", "Teamkamer", "bg-violet-500"),
+  ],
+  Vr: [
+    managementLes("09:20 – 10:10", "09:20", "Verlof & bezetting", "Teamkamer", "bg-amber-500"),
+    managementLes("11:20 – 12:10", "11:20", "Kwaliteitsgesprek", "Directiekamer", "bg-blue-500"),
+    managementLes(
+      "13:00 – 13:50",
+      "13:00",
+      "Weekafsluiting afdeling",
+      "Teamkamer",
+      "bg-emerald-500",
+    ),
+  ],
+};
+
+const directieRooster: Record<string, Les[]> = {
+  Ma: [
+    managementLes("08:30 – 09:20", "08:30", "Directie-weekstart", "Directiekamer", "bg-blue-500"),
+    managementLes("10:30 – 11:20", "10:30", "Bestuurlijk overleg", "Raadzaal", "bg-violet-500"),
+    managementLes(
+      "14:10 – 15:00",
+      "14:10",
+      "Financiën & begroting",
+      "Directiekamer",
+      "bg-emerald-500",
+    ),
+  ],
+  Di: [
+    managementLes("09:20 – 10:10", "09:20", "HR & formatie", "Directiekamer", "bg-amber-500"),
+    managementLes("11:20 – 12:10", "11:20", "Gesprek teamleider", "Spreekkamer 1", "bg-blue-500"),
+    managementLes("15:00 – 15:50", "15:00", "Extern partneroverleg", "Online", "bg-violet-500"),
+  ],
+  Wo: [
+    managementLes("08:30 – 09:20", "08:30", "Kwaliteitszorg", "Directiekamer", "bg-emerald-500"),
+    managementLes("10:30 – 11:20", "10:30", "Inspectiedossier", "Raadzaal", "bg-rose-500"),
+    managementLes("13:00 – 13:50", "13:00", "Strategisch beleid", "Directiekamer", "bg-blue-500"),
+  ],
+  Do: [
+    managementLes("08:30 – 09:20", "08:30", "MT-overleg", "Directiekamer", "bg-blue-500"),
+    managementLes("11:20 – 12:10", "11:20", "Veiligheid & AVG", "Raadzaal", "bg-rose-500"),
+    managementLes("14:10 – 15:00", "14:10", "Medezeggenschapsraad", "Aula", "bg-violet-500"),
+  ],
+  Vr: [
+    managementLes(
+      "09:20 – 10:10",
+      "09:20",
+      "Schoolbrede rapportage",
+      "Directiekamer",
+      "bg-emerald-500",
+    ),
+    managementLes("11:20 – 12:10", "11:20", "Bestuursupdate", "Online", "bg-blue-500"),
+    managementLes(
+      "13:00 – 13:50",
+      "13:00",
+      "Weekevaluatie directie",
+      "Directiekamer",
+      "bg-amber-500",
+    ),
+  ],
+};
 
 function Rooster() {
   const { role } = useRole();
@@ -75,23 +176,28 @@ function Rooster() {
     Do: "V4A",
     Vr: "V4B",
   };
-  const rooster: Record<string, Les[]> = isDocent
-    ? Object.fromEntries(
-        dagen.map((dag) => [
-          dag,
-          (weekRooster[dag] ?? [])
-            .filter((les) => les.docentId === "jansen")
-            .map((les) => ({
-              ...les,
-              vak: dag === "Ma" || dag === "Do" ? "Wiskunde A" : "Wiskunde B",
-              docent: "M. Jansen",
-              docentId: "jansen",
-              wijziging: undefined,
-              huiswerk: `${docentKlasPerDag[dag]} · Opgaven voor de volgende les`,
-            })),
-        ]),
-      )
-    : weekRooster;
+  const rooster: Record<string, Les[]> =
+    role === "teamleider"
+      ? teamleiderRooster
+      : role === "directie"
+        ? directieRooster
+        : isDocent
+          ? Object.fromEntries(
+              dagen.map((dag) => [
+                dag,
+                (weekRooster[dag] ?? [])
+                  .filter((les) => les.docentId === "jansen")
+                  .map((les) => ({
+                    ...les,
+                    vak: dag === "Ma" || dag === "Do" ? "Wiskunde A" : "Wiskunde B",
+                    docent: "M. Jansen",
+                    docentId: "jansen",
+                    wijziging: undefined,
+                    huiswerk: `${docentKlasPerDag[dag]} · Opgaven voor de volgende les`,
+                  })),
+              ]),
+            )
+          : weekRooster;
   const dagLessen = rooster[currentDag] ?? roosterVandaag;
   const weekNummer = 28 + weekOffset;
   const weekStart = new Date(2026, 6, 6 + weekOffset * 7);
@@ -527,6 +633,13 @@ function LesDetailModal({
 }
 
 function AIVoorstelModal({ onClose }: { onClose: () => void }) {
+  const [gekozen, setGekozen] = useState<string[]>([]);
+  const [later, setLater] = useState(false);
+  const [minuten, setMinuten] = useState("15");
+  const toggle = (id: string) =>
+    setGekozen((items) =>
+      items.includes(id) ? items.filter((item) => item !== id) : [...items, id],
+    );
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -546,7 +659,10 @@ function AIVoorstelModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <div className="space-y-3 p-5 text-sm">
-          <div className="rounded-xl border border-border bg-background p-3">
+          <button
+            onClick={() => toggle("1")}
+            className={`w-full rounded-xl border p-3 text-left ${gekozen.includes("1") ? "border-primary bg-primary/5" : "border-border bg-background"}`}
+          >
             <div className="text-xs font-semibold text-muted-foreground">
               Voorstel #1 — donderdag
             </div>
@@ -557,23 +673,55 @@ function AIVoorstelModal({ onClose }: { onClose: () => void }) {
             <div className="mt-2 text-xs text-success">
               Verwacht effect: −1 tussenuur voor 26 leerlingen
             </div>
-          </div>
-          <div className="rounded-xl border border-border bg-background p-3">
+          </button>
+          <button
+            onClick={() => toggle("2")}
+            className={`w-full rounded-xl border p-3 text-left ${gekozen.includes("2") ? "border-primary bg-primary/5" : "border-border bg-background"}`}
+          >
             <div className="text-xs font-semibold text-muted-foreground">Voorstel #2 — vrijdag</div>
             <div className="mt-1">
               Wissel lokaal <strong>204 → 118</strong> voor uur 3 (Scheikunde). Lokaal 204 is dubbel
               geboekt.
             </div>
             <div className="mt-2 text-xs text-primary">Automatisch conflict-vrij</div>
-          </div>
+          </button>
+          {later && (
+            <label className="block rounded-xl border border-border p-3 text-xs">
+              Herinner mij over
+              <select
+                value={minuten}
+                onChange={(e) => setMinuten(e.target.value)}
+                className="ml-2 rounded-lg border border-border bg-background px-2 py-1"
+              >
+                {["5", "10", "15", "30", "60"].map((m) => (
+                  <option key={m} value={m}>
+                    {m} minuten
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
         <div className="flex justify-end gap-2 border-t border-border p-3">
-          <button onClick={onClose} className="rounded-lg border border-border px-3 py-2 text-sm">
+          <button
+            onClick={() => {
+              if (!later) return setLater(true);
+              toast.success(`Herinnering ingesteld over ${minuten} minuten`);
+              onClose();
+            }}
+            className="rounded-lg border border-border px-3 py-2 text-sm"
+          >
             Later beslissen
           </button>
           <button
-            onClick={onClose}
-            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+            disabled={gekozen.length === 0}
+            onClick={() => {
+              toast.success(
+                `${gekozen.length} roosterwijziging${gekozen.length === 1 ? "" : "en"} doorgevoerd`,
+              );
+              onClose();
+            }}
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
             Voorstel doorvoeren
           </button>
