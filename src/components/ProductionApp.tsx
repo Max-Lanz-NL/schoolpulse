@@ -49,6 +49,10 @@ type AppRecord = {
   updated_at: string;
   metadata?: Record<string, string | boolean>;
   history?: Array<{ at: string; action: string }>;
+  created_by?: string;
+  owner_profile_id?: string | null;
+  audience_profile_ids?: string[];
+  visibility?: "private" | "assigned" | "team" | "school";
 };
 
 type EffectivePermission = {
@@ -275,6 +279,14 @@ function moduleForPath(pathname: string) {
     }
   );
 }
+
+function defaultRecordVisibility(entity: string): AppRecord["visibility"] {
+  if (["activity", "homework", "agenda", "study_planner"].includes(entity)) return "school";
+  if (["staff", "substitution"].includes(entity)) return "team";
+  if (["test", "assignment", "attendance"].includes(entity)) return "assigned";
+  return "private";
+}
+
 export function ProductionApp({
   profile,
   supabase,
@@ -342,11 +354,6 @@ export function ProductionApp({
   const [effectivePermissions, setEffectivePermissions] = useState<EffectivePermission[]>([]);
   const [effectiveRank, setEffectiveRank] = useState(0);
   const [accessLoading, setAccessLoading] = useState(true);
-  const storageKey = useMemo(
-    () => `schoolpulse.workspace.${profile.school_id ?? "platform"}.${profile.id}`,
-    [profile.id, profile.school_id],
-  );
-
   const permissionMap = useMemo(
     () =>
       new Map(effectivePermissions.map((permission) => [permission.permission_key, permission])),
@@ -377,36 +384,117 @@ export function ProductionApp({
   const loadRecords = useCallback(async () => {
     setLoading(true);
     setError(null);
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      const parsed = stored ? (JSON.parse(stored) as unknown) : [];
-      setRecords(Array.isArray(parsed) ? (parsed as AppRecord[]) : []);
-    } catch {
+    const { data, error: recordsError } = await supabase
+      .from("app_records")
+      .select(
+        "id,school_id,entity_type,title,description,event_at,status,payload,created_by,owner_profile_id,audience_profile_ids,visibility,updated_at",
+      )
+      .order("updated_at", { ascending: false });
+    if (recordsError) {
       setRecords([]);
-      setError("De tijdelijke werkgegevens konden niet worden gelezen.");
+      setError(
+        "De gedeelde schoolgegevens konden niet worden geladen. Controleer de database en je rechten.",
+      );
+    } else {
+      setRecords(
+        (data ?? []).map((record) => {
+          const payload =
+            record.payload && typeof record.payload === "object"
+              ? (record.payload as {
+                  metadata?: Record<string, string | boolean>;
+                  history?: Array<{ at: string; action: string }>;
+                })
+              : {};
+          return {
+            id: record.id,
+            school_id: record.school_id,
+            entity_type: record.entity_type,
+            title: record.title,
+            description: record.description,
+            event_at: record.event_at,
+            status: record.status,
+            updated_at: record.updated_at,
+            created_by: record.created_by,
+            owner_profile_id: record.owner_profile_id,
+            audience_profile_ids: record.audience_profile_ids,
+            visibility: record.visibility,
+            metadata: payload.metadata,
+            history: payload.history,
+          };
+        }),
+      );
     }
     setLoading(false);
-  }, [storageKey]);
+  }, [supabase]);
 
   const persistRecords = useCallback(
-    (nextRecords: AppRecord[]) => {
-      window.localStorage.setItem(storageKey, JSON.stringify(nextRecords));
+    async (previousRecords: AppRecord[], nextRecords: AppRecord[]) => {
+      const previousById = new Map(previousRecords.map((record) => [record.id, record]));
+      const changedRecords = nextRecords.filter(
+        (record) => JSON.stringify(previousById.get(record.id)) !== JSON.stringify(record),
+      );
+      const nextIds = new Set(nextRecords.map((record) => record.id));
+      const removedIds = previousRecords
+        .filter((record) => !nextIds.has(record.id))
+        .map((record) => record.id);
+
+      if (changedRecords.length) {
+        const { error: saveError } = await supabase.from("app_records").upsert(
+          changedRecords.map((record) => ({
+            id: record.id,
+            school_id: record.school_id,
+            entity_type: record.entity_type,
+            title: record.title,
+            description: record.description,
+            event_at: record.event_at,
+            status: record.status,
+            payload: {
+              metadata: record.metadata ?? {},
+              history: record.history ?? [],
+            },
+            created_by: record.created_by ?? profile.id,
+            owner_profile_id: record.owner_profile_id ?? profile.id,
+            audience_profile_ids: record.audience_profile_ids ?? [],
+            visibility: record.visibility ?? defaultRecordVisibility(record.entity_type),
+          })),
+        );
+        if (saveError) throw saveError;
+      }
+      if (removedIds.length) {
+        const { error: deleteError } = await supabase
+          .from("app_records")
+          .delete()
+          .in("id", removedIds);
+        if (deleteError) throw deleteError;
+      }
       setRecords(nextRecords);
     },
-    [storageKey],
+    [profile.id, supabase],
   );
 
-  const applyRecords = (nextRecords: AppRecord[]) => {
-    setUndoSnapshot(records);
-    persistRecords(nextRecords);
+  const applyRecords = async (nextRecords: AppRecord[]) => {
+    const previousRecords = records;
+    try {
+      await persistRecords(previousRecords, nextRecords);
+      setUndoSnapshot(previousRecords);
+      return true;
+    } catch {
+      setError("Opslaan in de gedeelde schooldatabase is mislukt.");
+      toast.error("Wijziging niet opgeslagen");
+      return false;
+    }
   };
 
-  const undoLastChange = () => {
+  const undoLastChange = async () => {
     if (!undoSnapshot) return;
     const currentRecords = records;
-    persistRecords(undoSnapshot);
-    setUndoSnapshot(currentRecords);
-    toast.success("Laatste wijziging ongedaan gemaakt");
+    try {
+      await persistRecords(currentRecords, undoSnapshot);
+      setUndoSnapshot(currentRecords);
+      toast.success("Laatste wijziging ongedaan gemaakt");
+    } catch {
+      toast.error("Ongedaan maken is mislukt");
+    }
   };
 
   useEffect(() => {
@@ -434,6 +522,16 @@ export function ProductionApp({
           ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
         },
         () => void loadAccess(),
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "app_records",
+          ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
+        },
+        () => void loadRecords(),
       )
       .subscribe();
 
@@ -559,6 +657,18 @@ export function ProductionApp({
       event_at: eventAt ? new Date(eventAt).toISOString() : null,
       status,
       updated_at: new Date().toISOString(),
+      created_by: editingId
+        ? records.find((record) => record.id === editingId)?.created_by
+        : profile.id,
+      owner_profile_id: editingId
+        ? records.find((record) => record.id === editingId)?.owner_profile_id
+        : profile.id,
+      audience_profile_ids: editingId
+        ? records.find((record) => record.id === editingId)?.audience_profile_ids
+        : [],
+      visibility: editingId
+        ? records.find((record) => record.id === editingId)?.visibility
+        : defaultRecordVisibility(activeModule.entity),
       metadata: isParentLink
         ? {
             guardianEmail: guardianEmail.trim().toLocaleLowerCase("nl-NL"),
@@ -617,7 +727,7 @@ export function ProductionApp({
         },
       ],
     };
-    applyRecords(
+    const saved = await applyRecords(
       editingId
         ? records.map((record) =>
             record.id === editingId ? { ...nextRecord, id: editingId } : record,
@@ -625,9 +735,10 @@ export function ProductionApp({
         : [nextRecord, ...records],
     );
     setSaving(false);
+    if (!saved) return;
     resetEditor();
-    toast.success(editingId ? "Wijzigingen opgeslagen" : "Tijdelijk toegevoegd", {
-      description: "Opgeslagen in deze tijdelijke werkruimte; databasekoppeling volgt later.",
+    toast.success(editingId ? "Wijzigingen opgeslagen" : "Toegevoegd", {
+      description: "De wijziging is gedeeld met bevoegde gebruikers van deze school.",
     });
   };
 
@@ -677,11 +788,12 @@ export function ProductionApp({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const duplicateRecord = (record: AppRecord) => {
-    applyRecords([
+  const duplicateRecord = async (record: AppRecord) => {
+    const saved = await applyRecords([
       {
         ...record,
         id: crypto.randomUUID(),
+        created_by: profile.id,
         title: `${record.title} (kopie)`,
         status: "concept",
         updated_at: new Date().toISOString(),
@@ -692,11 +804,11 @@ export function ProductionApp({
       },
       ...records,
     ]);
-    toast.success("Kopie als concept toegevoegd");
+    if (saved) toast.success("Kopie als concept toegevoegd");
   };
 
-  const updateRecordStatus = (record: AppRecord, nextStatus: string) => {
-    applyRecords(
+  const updateRecordStatus = async (record: AppRecord, nextStatus: string) => {
+    const saved = await applyRecords(
       records.map((item) =>
         item.id === record.id
           ? {
@@ -714,6 +826,7 @@ export function ProductionApp({
           : item,
       ),
     );
+    if (!saved) return;
     toast.success(
       nextStatus === "gepubliceerd"
         ? "Gepubliceerd"
@@ -727,8 +840,8 @@ export function ProductionApp({
 
   const deleteRecord = async (id: string) => {
     if (!window.confirm("Weet je zeker dat je dit item wilt verwijderen?")) return;
-    applyRecords(records.filter((item) => item.id !== id));
-    toast.success("Tijdelijk item verwijderd");
+    const saved = await applyRecords(records.filter((item) => item.id !== id));
+    if (saved) toast.success("Item verwijderd");
   };
 
   const exportRecords = () => {
@@ -918,7 +1031,7 @@ export function ProductionApp({
                       : activeModule.label}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    Functionele werkruimte met lokale opslag; databasekoppeling volgt later.
+                    Gedeelde schoolwerkruimte met beveiligde databaseopslag en realtime verversing.
                   </p>
                 </div>
                 <div className="flex gap-2">
