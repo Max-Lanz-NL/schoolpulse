@@ -56,7 +56,7 @@ function Landing() {
               to="/contact"
               className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90"
             >
-              Demo aanvragen <ArrowRight className="h-4 w-4" />
+              Offerte aanvragen <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -68,29 +68,30 @@ function Landing() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-20 pt-16 md:grid-cols-[1.15fr_0.85fr] md:px-6 md:pb-24 md:pt-24">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-[var(--shadow-soft)]">
-              <Sparkles className="h-3.5 w-3.5 text-primary" /> Demo-ready voor Nederlandse scholen
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Nieuw en gebouwd voor de
+              schoolpraktijk
             </div>
             <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
               Eén platform voor{" "}
               <span className="text-primary">rooster, communicatie en voortgang</span>.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Schoolpulse helpt schoolteams sneller schakelen, ouders beter informeren en leerlingen
-              meer overzicht geven — zonder extra complexiteit.
+              Stuur berichten naar een klas of jaarlaag, verwerk roosterwijzigingen en volg
+              absenties en resultaten vanuit één centrale omgeving.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-all hover:-translate-y-0.5 hover:bg-primary/90"
               >
-                Plan een demo
+                Offerte aanvragen
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href={`${DOMAIN_ORIGINS.demo}/app`}
                 className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted"
               >
-                Bekijk live demo
+                Bekijk de ingerichte demo
               </a>
             </div>
             <div className="mt-6 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
@@ -118,15 +119,15 @@ function Landing() {
                 },
                 {
                   t: "Meer rust voor teams",
-                  d: "Taken en communicatie op de juiste plek per rol.",
+                  d: "Docenten, mentoren en management werken vanuit één omgeving zonder losse systemen.",
                 },
                 {
                   t: "Betere ouderbetrokkenheid",
-                  d: "Heldere, veilige en tijdige communicatie met ouders.",
+                  d: "Ouders ontvangen relevante berichten, roosterwijzigingen en voortgang op één plek.",
                 },
                 {
                   t: "Management-overzicht",
-                  d: "Teamleider/directie sturen op agenda, verzuim en kwaliteit.",
+                  d: "Bekijk verzuim, roosterwijzigingen en belangrijke meldingen vanuit één dashboard.",
                 },
               ].map((item) => (
                 <div
@@ -135,6 +136,52 @@ function Landing() {
                 >
                   <div className="text-sm font-semibold">{item.t}</div>
                   <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="in-actie" className="border-b border-border/60 py-20">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Schoolpulse in actie
+              </div>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                Bekijk een volledig ingerichte schoolomgeving
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Verken Schoolpulse met realistische voorbeeldgegevens en bekijk het platform vanuit
+                directie, docent, ouder en leerling. Zo ervaart u zelf hoe dagelijkse processen
+                samenkomen voordat u een beslissing neemt.
+              </p>
+              <a
+                href={`${DOMAIN_ORIGINS.demo}/app`}
+                className="mt-6 inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold shadow-[var(--shadow-soft)] hover:bg-muted"
+              >
+                Open de interactieve demo <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["Rooster", "Bekijk lessen, lokalen en wijzigingen per rol."],
+                ["Absenties", "Registreer en volg aanwezigheid zonder losse lijsten."],
+                ["Berichten", "Bereik een klas, jaarlaag of oudergroep vanuit één plek."],
+                ["Cijfers", "Geef leerlingen en ouders helder inzicht in resultaten."],
+                ["Ouderportaal", "Bundel gesprekken, berichten en voortgang van het kind."],
+                ["Management", "Volg meldingen, verzuim en schoolbrede ontwikkelingen."],
+              ].map(([title, description]) => (
+                <div
+                  key={title}
+                  className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)]"
+                >
+                  <div className="text-sm font-semibold">{title}</div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -264,18 +311,18 @@ function Landing() {
                   Volgende stap
                 </div>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-                  Vraag een demo aan voor jouw schoolteam
+                  Vraag een vrijblijvende offerte aan
                 </h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  In een korte sessie laten we de flow zien voor directie, docenten, ouders en
-                  leerlingen. Zo zie je direct of Schoolpulse past bij jullie school.
+                  Ontvang een voorstel dat past bij jullie school én toegang tot onze interactieve
+                  demo-omgeving. Verken Schoolpulse met realistische voorbeeldgegevens.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link
                     to="/contact"
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
-                    Demo aanvragen <ArrowRight className="h-4 w-4" />
+                    Offerte aanvragen <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to="/contact"
@@ -287,9 +334,9 @@ function Landing() {
               </div>
               <div className="space-y-3">
                 {[
-                  "30 minuten online demo",
-                  "Gericht op jullie rollen en processen",
-                  "Geen technische voorbereiding nodig",
+                  "Vrijblijvend voorstel voor jullie school",
+                  "Toegang tot de interactieve demo-omgeving",
+                  "Reactie binnen één werkdag",
                 ].map((item) => (
                   <div
                     key={item}

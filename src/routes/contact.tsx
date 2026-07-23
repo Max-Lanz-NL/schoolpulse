@@ -36,7 +36,7 @@ function Contact() {
       });
       return;
     }
-    toast.success("Demo-aanvraag ontvangen", {
+    toast.success("Offerteaanvraag ontvangen", {
       description:
         "Bedankt! In deze demo-omgeving wordt niets verzonden, maar in productie nemen we binnen 1 werkdag contact op.",
     });
@@ -66,14 +66,14 @@ function Contact() {
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground">
-              <CalendarCheck2 className="h-3.5 w-3.5 text-primary" /> Demo aanvragen
+              <CalendarCheck2 className="h-3.5 w-3.5 text-primary" /> Vrijblijvende offerte
             </div>
             <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-              Plan een kennismaking met Schoolpulse
+              Vraag een offerte aan voor uw school
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Deel kort jullie situatie. We stemmen de demo af op directie, docenten, ouders en
-              leerlingen.
+              Vertel kort wat uw school nodig heeft. U ontvangt een passend voorstel en toegang tot
+              de interactieve demo-omgeving.
             </p>
           </div>
 
@@ -119,11 +119,11 @@ function Contact() {
               ))}
 
               <div className="rounded-2xl border border-border/80 bg-card p-5 text-sm shadow-[var(--shadow-soft)]">
-                <div className="font-semibold">Hoe werkt de demo-aanvraag?</div>
+                <div className="font-semibold">Hoe werkt de offerteaanvraag?</div>
                 <ol className="mt-2 space-y-1 text-muted-foreground">
                   <li>1. Laat uw gegevens en context achter.</li>
-                  <li>2. Wij nemen contact op en plannen een tijdslot.</li>
-                  <li>3. U krijgt een gerichte demo op jullie schoolproces.</li>
+                  <li>2. Wij nemen binnen één werkdag contact met u op.</li>
+                  <li>3. U ontvangt een voorstel en toegang tot de ingerichte demo.</li>
                 </ol>
               </div>
             </div>
@@ -132,7 +132,7 @@ function Contact() {
               onSubmit={submit}
               className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-elegant)] md:p-8"
             >
-              <h2 className="text-lg font-semibold">Vraag een demo aan</h2>
+              <h2 className="text-lg font-semibold">Vraag een vrijblijvende offerte aan</h2>
               <p className="mt-1 text-xs text-muted-foreground">Velden met * zijn verplicht.</p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -176,7 +176,7 @@ function Contact() {
                   htmlFor="vraag"
                   className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  Waar wilt u de demo op richten? *
+                  Waar zoekt uw school een oplossing voor? *
                 </label>
                 <textarea
                   id="vraag"
