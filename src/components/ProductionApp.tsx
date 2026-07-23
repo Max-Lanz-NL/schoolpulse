@@ -393,6 +393,7 @@ export function ProductionApp({
       assessmentsResult,
       assignmentsResult,
       gradesResult,
+      profilesResult,
     ] = await Promise.all([
       supabase
         .from("app_records")
@@ -432,6 +433,10 @@ export function ProductionApp({
           "id,school_id,score,grade,note,status,graded_by,graded_at,updated_at,assessment:assessments!grades_assessment_id_fkey(title,weight,maximum_score,assessment_type),student:profiles!grades_student_profile_id_fkey(full_name,email)",
         )
         .order("updated_at", { ascending: false }),
+      supabase
+        .from("profiles")
+        .select("id,school_id,email,full_name,role,created_at")
+        .order("full_name", { ascending: true }),
     ]);
     if (workspaceResult.error) {
       setRecords([]);
@@ -599,12 +604,33 @@ export function ProductionApp({
               history: [],
             };
           });
+      const profileRecords: AppRecord[] = profilesResult.error
+        ? []
+        : (profilesResult.data ?? [])
+            .filter((account) => account.school_id)
+            .map((account) => ({
+              id: account.id,
+              school_id: account.school_id!,
+              entity_type: "user_management",
+              title: account.full_name || account.email,
+              description: account.email,
+              event_at: account.created_at,
+              status: "actief",
+              updated_at: account.created_at,
+              metadata: {
+                domainRecord: true,
+                accountEmail: account.email,
+                accountRole: account.role,
+              },
+              history: [],
+            }));
       setRecords([
         ...guardianRecords,
         ...messageRecords,
         ...assessmentRecords,
         ...assignmentRecords,
         ...gradeRecords,
+        ...profileRecords,
         ...workspaceRecords,
       ]);
     }
@@ -913,19 +939,72 @@ export function ProductionApp({
       toast.success("Bericht verzonden");
       return;
     }
+    if (activeModule.entity === "user_management") {
+      if (!accountEmail.trim()) {
+        setSaving(false);
+        toast.error("Vul een geldig e-mailadres in.");
+        return;
+      }
+      const editingAccount = editingId
+        ? records.find((record) => record.id === editingId && record.metadata?.domainRecord)
+        : undefined;
+      const { error: accountError } = await supabase.functions.invoke("admin-manage-user", {
+        body: editingAccount
+          ? {
+              action: "update_user",
+              user_id: editingAccount.id,
+              email: accountEmail.trim().toLocaleLowerCase("nl-NL"),
+              full_name: title.trim(),
+              role: accountRole,
+              school_id: profile.school_id,
+              school_name: profile.school_name,
+            }
+          : {
+              action: "invite_user",
+              email: accountEmail.trim().toLocaleLowerCase("nl-NL"),
+              full_name: title.trim(),
+              role: accountRole,
+            },
+      });
+      setSaving(false);
+      if (accountError) {
+        toast.error("Account kon niet worden opgeslagen", { description: accountError.message });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success(editingAccount ? "Account bijgewerkt" : "Uitnodiging verzonden");
+      return;
+    }
     if (activeModule.entity === "test") {
       const databaseStatus =
         status === "gepubliceerd" ? "published" : status === "geannuleerd" ? "cancelled" : "draft";
-      const { error: assessmentError } = await supabase.rpc("create_school_assessment", {
-        _title: title.trim(),
-        _group_reference: group.trim(),
-        _subject_reference: subject.trim(),
-        _assessment_type: assessmentType,
-        _occurs_at: eventAt ? new Date(eventAt).toISOString() : null,
-        _maximum_score: maximumScore ? Number(maximumScore) : null,
-        _weight: Number(weight || "1"),
-        _status: databaseStatus,
-      });
+      const editingDomainRecord = editingId
+        ? records.find((record) => record.id === editingId && record.metadata?.domainRecord)
+        : undefined;
+      const { error: assessmentError } = editingDomainRecord
+        ? await supabase
+            .from("assessments")
+            .update({
+              title: title.trim(),
+              assessment_type: assessmentType,
+              occurs_at: eventAt ? new Date(eventAt).toISOString() : null,
+              maximum_score: maximumScore ? Number(maximumScore) : null,
+              weight: Number(weight || "1"),
+              status: databaseStatus,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", editingDomainRecord.id)
+        : await supabase.rpc("create_school_assessment", {
+            _title: title.trim(),
+            _group_reference: group.trim(),
+            _subject_reference: subject.trim(),
+            _assessment_type: assessmentType,
+            _occurs_at: eventAt ? new Date(eventAt).toISOString() : null,
+            _maximum_score: maximumScore ? Number(maximumScore) : null,
+            _weight: Number(weight || "1"),
+            _status: databaseStatus,
+          });
       setSaving(false);
       if (assessmentError) {
         toast.error("Toets kon niet worden opgeslagen", {
@@ -940,14 +1019,28 @@ export function ProductionApp({
     }
     if (activeModule.entity === "assignment") {
       const databaseStatus = status === "gepubliceerd" ? "published" : "draft";
-      const { error: assignmentError } = await supabase.rpc("create_school_assignment", {
-        _title: title.trim(),
-        _instructions: description.trim(),
-        _group_reference: group.trim(),
-        _subject_reference: subject.trim(),
-        _due_at: eventAt ? new Date(eventAt).toISOString() : null,
-        _status: databaseStatus,
-      });
+      const editingDomainRecord = editingId
+        ? records.find((record) => record.id === editingId && record.metadata?.domainRecord)
+        : undefined;
+      const { error: assignmentError } = editingDomainRecord
+        ? await supabase
+            .from("assignments")
+            .update({
+              title: title.trim(),
+              instructions: description.trim() || null,
+              due_at: eventAt ? new Date(eventAt).toISOString() : null,
+              status: databaseStatus,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", editingDomainRecord.id)
+        : await supabase.rpc("create_school_assignment", {
+            _title: title.trim(),
+            _instructions: description.trim(),
+            _group_reference: group.trim(),
+            _subject_reference: subject.trim(),
+            _due_at: eventAt ? new Date(eventAt).toISOString() : null,
+            _status: databaseStatus,
+          });
       setSaving(false);
       if (assignmentError) {
         toast.error("Opdracht kon niet worden opgeslagen", {
@@ -963,14 +1056,30 @@ export function ProductionApp({
     if (activeModule.entity === "grade") {
       const numericResult = score.trim() ? Number(score) : null;
       const databaseStatus = status === "gepubliceerd" ? "published" : "draft";
-      const { error: gradeError } = await supabase.rpc("record_school_grade", {
-        _assessment_title: title.trim(),
-        _student_reference: group.trim(),
-        _score: numericResult,
-        _grade: assessmentType === "cijfer" ? numericResult : null,
-        _note: feedback.trim() || description.trim(),
-        _status: databaseStatus,
-      });
+      const editingDomainRecord = editingId
+        ? records.find((record) => record.id === editingId && record.metadata?.domainRecord)
+        : undefined;
+      const { error: gradeError } = editingDomainRecord
+        ? await supabase
+            .from("grades")
+            .update({
+              score: numericResult,
+              grade: assessmentType === "cijfer" ? numericResult : null,
+              note: feedback.trim() || description.trim() || null,
+              status: databaseStatus,
+              graded_by: profile.id,
+              graded_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", editingDomainRecord.id)
+        : await supabase.rpc("record_school_grade", {
+            _assessment_title: title.trim(),
+            _student_reference: group.trim(),
+            _score: numericResult,
+            _grade: assessmentType === "cijfer" ? numericResult : null,
+            _note: feedback.trim() || description.trim(),
+            _status: databaseStatus,
+          });
       setSaving(false);
       if (gradeError) {
         toast.error("Cijfer kon niet worden opgeslagen", {
@@ -1227,6 +1336,56 @@ export function ProductionApp({
   };
 
   const updateRecordStatus = async (record: AppRecord, nextStatus: string) => {
+    if (record.entity_type === "user_management" && record.metadata?.domainRecord) {
+      const action =
+        nextStatus === "wachtwoordherstel_verstuurd" ? "reset_password" : "set_user_blocked";
+      const { error: accountError } = await supabase.functions.invoke("admin-manage-user", {
+        body:
+          action === "reset_password"
+            ? { action, user_id: record.id }
+            : { action, user_id: record.id, blocked: nextStatus === "geblokkeerd" },
+      });
+      if (accountError) {
+        toast.error("Accountactie is mislukt", { description: accountError.message });
+        return;
+      }
+      toast.success(
+        action === "reset_password" ? "Wachtwoordherstel verzonden" : "Accountstatus bijgewerkt",
+      );
+      return;
+    }
+    if (record.metadata?.domainRecord) {
+      const table =
+        record.entity_type === "test"
+          ? "assessments"
+          : record.entity_type === "assignment"
+            ? "assignments"
+            : record.entity_type === "grade"
+              ? "grades"
+              : null;
+      if (!table) return;
+      const databaseStatus =
+        nextStatus === "gepubliceerd"
+          ? "published"
+          : nextStatus === "geannuleerd"
+            ? record.entity_type === "assignment"
+              ? "closed"
+              : record.entity_type === "grade"
+                ? "corrected"
+                : "cancelled"
+            : nextStatus;
+      const { error: statusError } = await supabase
+        .from(table)
+        .update({ status: databaseStatus, updated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      if (statusError) {
+        toast.error("Status kon niet worden bijgewerkt", { description: statusError.message });
+        return;
+      }
+      await loadRecords();
+      toast.success(nextStatus === "gepubliceerd" ? "Gepubliceerd" : "Status bijgewerkt");
+      return;
+    }
     const saved = await applyRecords(
       records.map((item) =>
         item.id === record.id
@@ -1260,6 +1419,42 @@ export function ProductionApp({
   const deleteRecord = async (id: string) => {
     if (!window.confirm("Weet je zeker dat je dit item wilt verwijderen?")) return;
     const selectedRecord = records.find((record) => record.id === id);
+    if (
+      selectedRecord?.entity_type === "user_management" &&
+      selectedRecord.metadata?.domainRecord
+    ) {
+      const { error: accountError } = await supabase.functions.invoke("admin-manage-user", {
+        body: { action: "delete_user", user_id: id },
+      });
+      if (accountError) {
+        toast.error("Account kon niet worden verwijderd", { description: accountError.message });
+        return;
+      }
+      await loadRecords();
+      toast.success("Account verwijderd");
+      return;
+    }
+    if (selectedRecord?.metadata?.domainRecord) {
+      const table =
+        selectedRecord.entity_type === "test"
+          ? "assessments"
+          : selectedRecord.entity_type === "assignment"
+            ? "assignments"
+            : selectedRecord.entity_type === "grade"
+              ? "grades"
+              : null;
+      if (!table) return;
+      const { error: domainDeleteError } = await supabase.from(table).delete().eq("id", id);
+      if (domainDeleteError) {
+        toast.error("Item kon niet worden verwijderd", {
+          description: domainDeleteError.message,
+        });
+        return;
+      }
+      await loadRecords();
+      toast.success("Item verwijderd");
+      return;
+    }
     if (selectedRecord?.entity_type === "parent_link") {
       const { error: linkError } = await supabase.rpc("deactivate_guardian_student_link", {
         _link_id: id,
@@ -1919,11 +2114,7 @@ export function ProductionApp({
                                 <option value="student">Leerling</option>
                                 <option value="parent">Ouder/verzorger</option>
                                 <option value="teacher">Docent</option>
-                                <option value="mentor">Mentor</option>
-                                <option value="team_leader">Teamleider</option>
-                                <option value="director">Directie</option>
-                                <option value="administration">Administratie</option>
-                                <option value="custom">Aangepaste rol</option>
+                                <option value="school_admin">Schoolbeheerder/directie</option>
                               </select>
                             </>
                           ) : null}
@@ -2367,27 +2558,27 @@ export function ProductionApp({
                           Downloaden
                         </button>
                       ) : null}
+                      {canUpdate && record.entity_type !== "message" ? (
+                        <button
+                          onClick={() => editRecord(record)}
+                          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Bewerken"
+                          title="Bewerken"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      ) : null}
                       {canUpdate &&
                       record.entity_type !== "message" &&
                       !record.metadata?.domainRecord ? (
-                        <>
-                          <button
-                            onClick={() => editRecord(record)}
-                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                            aria-label="Bewerken"
-                            title="Bewerken"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => duplicateRecord(record)}
-                            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                            aria-label="Kopiëren"
-                            title="Kopiëren"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </button>
-                        </>
+                        <button
+                          onClick={() => duplicateRecord(record)}
+                          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Kopiëren"
+                          title="Kopiëren"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
                       ) : null}
                       {canUpdate && record.entity_type === "user_management" ? (
                         <>
@@ -2457,9 +2648,7 @@ export function ProductionApp({
                           Afwijzen
                         </button>
                       ) : null}
-                      {canPublish &&
-                      record.status !== "gepubliceerd" &&
-                      !record.metadata?.domainRecord ? (
+                      {canPublish && !["gepubliceerd", "published"].includes(record.status) ? (
                         <button
                           onClick={() => updateRecordStatus(record, "gepubliceerd")}
                           className="rounded-lg bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground"
@@ -2468,8 +2657,9 @@ export function ProductionApp({
                         </button>
                       ) : null}
                       {canCancel &&
-                      record.status !== "geannuleerd" &&
-                      !record.metadata?.domainRecord ? (
+                      !["geannuleerd", "cancelled", "closed", "corrected"].includes(
+                        record.status,
+                      ) ? (
                         <button
                           onClick={() => updateRecordStatus(record, "geannuleerd")}
                           className="rounded-lg border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
@@ -2477,9 +2667,7 @@ export function ProductionApp({
                           Annuleren
                         </button>
                       ) : null}
-                      {canDelete &&
-                      record.entity_type !== "message" &&
-                      !record.metadata?.domainRecord ? (
+                      {canDelete && record.entity_type !== "message" ? (
                         <button
                           onClick={() => void deleteRecord(record.id)}
                           className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
