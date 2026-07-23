@@ -31,6 +31,49 @@ function Activiteiten() {
   const [pollAns, setPollAns] = useState<number | null>(null);
   const [nieuweOpen, setNieuweOpen] = useState(false);
   const [extraAank, setExtraAank] = useState<Aank[]>([]);
+  const [beheerActiviteiten, setBeheerActiviteiten] = useState([
+    {
+      id: "a1",
+      titel: "Excursie Rijksmuseum",
+      soort: "Excursie",
+      datum: "16 sep · 09:00",
+      locatie: "Amsterdam",
+      deelnemers: 84,
+      begeleiders: 6,
+      budget: 4200,
+      status: "Ter goedkeuring",
+      aanwezigheid: false,
+      document: "Draaiboek.pdf",
+    },
+    {
+      id: "a2",
+      titel: "Projectweek duurzaamheid",
+      soort: "Project",
+      datum: "5–9 okt",
+      locatie: "Schoolbreed",
+      deelnemers: 312,
+      begeleiders: 18,
+      budget: 6800,
+      status: "Goedgekeurd",
+      aanwezigheid: false,
+      document: "Projectplan.docx",
+    },
+    {
+      id: "a3",
+      titel: "Ouderavond bovenbouw",
+      soort: "Evenement",
+      datum: "8 okt · 19:00",
+      locatie: "Aula",
+      deelnemers: 146,
+      begeleiders: 12,
+      budget: 750,
+      status: "Gepland",
+      aanwezigheid: true,
+      document: "Plattegrond.pdf",
+    },
+  ]);
+  const [beheerFormOpen, setBeheerFormOpen] = useState(false);
+  const [beheerForm, setBeheerForm] = useState({ titel: "", datum: "", locatie: "", budget: "0" });
 
   const pollOpties = [
     { label: "Berlijn", stemmen: 84 },
@@ -76,6 +119,173 @@ function Activiteiten() {
 
   return (
     <AppShell title="Activiteiten" subtitle="Aanmeldingen, polls en aankondigingen">
+      {(role === "teamleider" || role === "directie") && (
+        <div className="mb-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold">Activiteitenbeheer</h2>
+              <p className="text-xs text-muted-foreground">
+                Planning, deelnemers, begeleiders en documenten
+              </p>
+            </div>
+            <button
+              onClick={() => setBeheerFormOpen((v) => !v)}
+              className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+            >
+              <Plus className="mr-1 inline h-3 w-3" /> Activiteit aanmaken
+            </button>
+          </div>
+          {beheerFormOpen && (
+            <div className="grid gap-2 rounded-xl border border-border bg-card p-4 sm:grid-cols-5">
+              <input
+                placeholder="Titel"
+                value={beheerForm.titel}
+                onChange={(e) => setBeheerForm((f) => ({ ...f, titel: e.target.value }))}
+                className="rounded-lg border bg-background px-3 py-2 text-xs"
+              />
+              <input
+                type="date"
+                value={beheerForm.datum}
+                onChange={(e) => setBeheerForm((f) => ({ ...f, datum: e.target.value }))}
+                className="rounded-lg border bg-background px-3 py-2 text-xs"
+              />
+              <input
+                placeholder="Locatie"
+                value={beheerForm.locatie}
+                onChange={(e) => setBeheerForm((f) => ({ ...f, locatie: e.target.value }))}
+                className="rounded-lg border bg-background px-3 py-2 text-xs"
+              />
+              <input
+                type="number"
+                placeholder="Budget"
+                value={beheerForm.budget}
+                onChange={(e) => setBeheerForm((f) => ({ ...f, budget: e.target.value }))}
+                className="rounded-lg border bg-background px-3 py-2 text-xs"
+              />
+              <button
+                disabled={!beheerForm.titel}
+                onClick={() => {
+                  setBeheerActiviteiten((items) => [
+                    {
+                      id: `a${Date.now()}`,
+                      titel: beheerForm.titel,
+                      soort: "Activiteit",
+                      datum: beheerForm.datum,
+                      locatie: beheerForm.locatie,
+                      deelnemers: 0,
+                      begeleiders: 0,
+                      budget: Number(beheerForm.budget),
+                      status: role === "directie" ? "Goedgekeurd" : "Ter goedkeuring",
+                      aanwezigheid: false,
+                      document: "Nog geen document",
+                    },
+                    ...items,
+                  ]);
+                  setBeheerFormOpen(false);
+                  setBeheerForm({ titel: "", datum: "", locatie: "", budget: "0" });
+                  toast.success("Activiteit aangemaakt");
+                }}
+                className="rounded-lg bg-success px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                Opslaan
+              </button>
+            </div>
+          )}
+          <div className="grid gap-3 lg:grid-cols-3">
+            {beheerActiviteiten.map((a) => (
+              <div key={a.id} className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-semibold uppercase text-primary">
+                      {a.soort}
+                    </span>
+                    <div className="font-semibold">{a.titel}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {a.datum} · {a.locatie}
+                    </div>
+                  </div>
+                  <span className="h-fit rounded-full bg-muted px-2 py-1 text-[10px]">
+                    {a.status}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="rounded bg-muted/50 p-2">
+                    <strong>{a.deelnemers}</strong>
+                    <br />
+                    deelnemers
+                  </div>
+                  <div className="rounded bg-muted/50 p-2">
+                    <strong>{a.begeleiders}</strong>
+                    <br />
+                    begeleiders
+                  </div>
+                  <div className="rounded bg-muted/50 p-2">
+                    <strong>€{a.budget}</strong>
+                    <br />
+                    budget
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-muted-foreground">
+                  <Paperclip className="mr-1 inline h-3 w-3" />
+                  {a.document}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {role === "directie" && a.status === "Ter goedkeuring" && (
+                    <button
+                      onClick={() =>
+                        setBeheerActiviteiten((xs) =>
+                          xs.map((x) => (x.id === a.id ? { ...x, status: "Goedgekeurd" } : x)),
+                        )
+                      }
+                      className="rounded bg-success px-2 py-1 text-[10px] text-white"
+                    >
+                      Goedkeuren
+                    </button>
+                  )}
+                  <button
+                    onClick={() =>
+                      setBeheerActiviteiten((xs) =>
+                        xs.map((x) =>
+                          x.id === a.id
+                            ? {
+                                ...x,
+                                locatie: x.locatie.includes("gewijzigd")
+                                  ? x.locatie
+                                  : `${x.locatie} · gewijzigd`,
+                                begeleiders: x.begeleiders + 1,
+                              }
+                            : x,
+                        ),
+                      )
+                    }
+                    className="rounded border px-2 py-1 text-[10px]"
+                  >
+                    Bewerken / begeleider +
+                  </button>
+                  <button
+                    onClick={() =>
+                      setBeheerActiviteiten((xs) =>
+                        xs.map((x) =>
+                          x.id === a.id ? { ...x, aanwezigheid: !x.aanwezigheid } : x,
+                        ),
+                      )
+                    }
+                    className="rounded border px-2 py-1 text-[10px]"
+                  >
+                    {a.aanwezigheid ? "Aanwezigheid geregistreerd" : "Aanwezigheid registreren"}
+                  </button>
+                  <button
+                    onClick={() => setBeheerActiviteiten((xs) => xs.filter((x) => x.id !== a.id))}
+                    className="rounded border border-destructive/30 px-2 py-1 text-[10px] text-destructive"
+                  >
+                    Verwijderen
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {zichtbaar.map((a) => {

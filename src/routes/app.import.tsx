@@ -49,6 +49,13 @@ function ImportWizard() {
   const [mapping, setMapping] = useState<Record<string, Kolom>>({});
   const [progress, setProgress] = useState(0);
   const [klaar, setKlaar] = useState(false);
+  const [gegevenstype, setGegevenstype] = useState("Leerlingen");
+  const [strategie, setStrategie] = useState("Aanvullen");
+  const [bestandsnaam, setBestandsnaam] = useState("");
+  const [geschiedenis, setGeschiedenis] = useState([
+    "1 juli · Leerlingen · 248 records · voltooid",
+    "24 juni · Roosters · 1.104 records · 7 waarschuwingen",
+  ]);
 
   const laadVoorbeeldData = (b: Bron) => {
     setBron(b);
@@ -120,6 +127,32 @@ function ImportWizard() {
 
       {stap === 1 && (
         <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-semibold">
+              Gegevenstype
+              <select
+                value={gegevenstype}
+                onChange={(e) => setGegevenstype(e.target.value)}
+                className="mt-1 w-full rounded-lg border bg-card px-3 py-2 font-normal"
+              >
+                {["Leerlingen", "Medewerkers", "Klassen", "Vakken", "Roosters"].map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold">
+              Bestaande gegevens
+              <select
+                value={strategie}
+                onChange={(e) => setStrategie(e.target.value)}
+                className="mt-1 w-full rounded-lg border bg-card px-3 py-2 font-normal"
+              >
+                {["Aanvullen", "Bestaande records bijwerken", "Overschrijven"].map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+          </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               {
@@ -155,15 +188,33 @@ function ImportWizard() {
             ))}
           </div>
 
-          <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <label className="block cursor-pointer rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <Upload className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
             <div className="text-sm font-semibold text-muted-foreground">
-              Sleep een bestand hierheen of klik om te uploaden
+              {bestandsnaam || "Sleep een bestand hierheen of klik om te uploaden"}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               Ondersteunde formaten: .csv, .xlsx, .xml
             </div>
-          </div>
+            <input
+              type="file"
+              accept=".csv,.xlsx,.xml"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                setBestandsnaam(f.name);
+                setBron("csv");
+                setPreviewData([
+                  { nummer: "1001", naam: "Fictieve gebruiker", groep: "V4A" },
+                  { nummer: "1002", naam: "Demo leerling", groep: "V4B" },
+                ]);
+                setMapping({ nummer: "Leerlingnummer", naam: "Naam", groep: "Klas" });
+                setStap(2);
+                toast.success(`${f.name} gecontroleerd`);
+              }}
+            />
+          </label>
 
           <div className="flex justify-center">
             <button
@@ -242,6 +293,10 @@ function ImportWizard() {
           {!klaar ? (
             <>
               <Card title="Samenvatting">
+                <div className="mb-3 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs">
+                  <strong>Bestandscontrole:</strong> 1 mogelijk dubbel record en 1 ontbrekend veld.
+                  Deze records worden gemarkeerd voor controle.
+                </div>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold">{previewData.length || 3}</div>
@@ -350,6 +405,10 @@ function ImportWizard() {
               </div>
               <button
                 onClick={() => {
+                  setGeschiedenis((g) => [
+                    `Vandaag · ${gegevenstype} · ${previewData.length || 3} records · ${strategie}`,
+                    ...g,
+                  ]);
                   setStap(1);
                   setBron(null);
                   setPreviewData([]);
@@ -364,6 +423,26 @@ function ImportWizard() {
           )}
         </div>
       )}
+      <div className="mt-6">
+        <Card title="Importgeschiedenis">
+          <div className="space-y-2">
+            {geschiedenis.map((item) => (
+              <div
+                key={item}
+                className="flex items-center justify-between rounded-lg border border-border p-3 text-xs"
+              >
+                <span>{item}</span>
+                <button
+                  onClick={() => toast.success("Importdetails en foutenrapport geopend")}
+                  className="font-semibold text-primary"
+                >
+                  Details
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
     </AppShell>
   );
 }

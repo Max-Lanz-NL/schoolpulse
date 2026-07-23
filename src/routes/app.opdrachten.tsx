@@ -878,8 +878,78 @@ function BeoordeelModal({
 }
 
 function ManagementOpdrachten() {
+  const [klas, setKlas] = useState("alle");
+  const [vak, setVak] = useState("alle");
+  const [docent, setDocent] = useState("alle");
+  const detailData = [
+    {
+      titel: "Functies en grafieken",
+      klas: "V4A",
+      vak: "Wiskunde A",
+      docent: "Mark Jansen",
+      deadline: "10 jul",
+      ingeleverd: 19,
+      totaal: 22,
+      beoordeeld: 14,
+      gemiddelde: 7.2,
+    },
+    {
+      titel: "Literatuurdossier",
+      klas: "V4A",
+      vak: "Nederlands",
+      docent: "Linda de Boer",
+      deadline: "12 jul",
+      ingeleverd: 17,
+      totaal: 22,
+      beoordeeld: 9,
+      gemiddelde: 6.5,
+    },
+    {
+      titel: "Statistiek project",
+      klas: "V4B",
+      vak: "Wiskunde B",
+      docent: "Mark Jansen",
+      deadline: "8 jul",
+      ingeleverd: 23,
+      totaal: 24,
+      beoordeeld: 21,
+      gemiddelde: 7.4,
+    },
+    {
+      titel: "Labverslag zuren",
+      klas: "V5A",
+      vak: "Scheikunde",
+      docent: "Karin Visser",
+      deadline: "14 jul",
+      ingeleverd: 13,
+      totaal: 21,
+      beoordeeld: 4,
+      gemiddelde: 6.8,
+    },
+  ];
+  const zichtbaar = detailData.filter(
+    (o) =>
+      (klas === "alle" || o.klas === klas) &&
+      (vak === "alle" || o.vak === vak) &&
+      (docent === "alle" || o.docent === docent),
+  );
+  const exporteer = () => {
+    const csv = [
+      "Opdracht,Klas,Vak,Docent,Deadline,Ingeleverd,Beoordeeld,Gemiddelde",
+      ...zichtbaar.map(
+        (o) =>
+          `${o.titel},${o.klas},${o.vak},${o.docent},${o.deadline},${o.ingeleverd}/${o.totaal},${o.beoordeeld},${o.gemiddelde}`,
+      ),
+    ].join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = "opdrachtenrapport.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success("Opdrachtenrapport geëxporteerd");
+  };
   return (
-    <AppShell title="Opdrachten" subtitle="Overzicht per klas">
+    <AppShell title="Opdrachten" subtitle="Voortgang per klas, vak en docent · alleen lezen">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-6">
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -916,6 +986,41 @@ function ManagementOpdrachten() {
           <div className="mt-1 text-2xl font-bold">{klassen.length}</div>
         </div>
       </div>
+      <div className="mb-4 flex flex-wrap gap-2">
+        {[
+          { v: klas, s: setKlas, l: "Alle klassen", o: ["V4A", "V4B", "V5A"] },
+          {
+            v: vak,
+            s: setVak,
+            l: "Alle vakken",
+            o: ["Wiskunde A", "Wiskunde B", "Nederlands", "Scheikunde"],
+          },
+          {
+            v: docent,
+            s: setDocent,
+            l: "Alle docenten",
+            o: ["Mark Jansen", "Linda de Boer", "Karin Visser"],
+          },
+        ].map((f) => (
+          <select
+            key={f.l}
+            value={f.v}
+            onChange={(e) => f.s(e.target.value)}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-xs"
+          >
+            <option value="alle">{f.l}</option>
+            {f.o.map((x) => (
+              <option key={x}>{x}</option>
+            ))}
+          </select>
+        ))}
+        <button
+          onClick={exporteer}
+          className="ml-auto rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+        >
+          Rapport exporteren
+        </button>
+      </div>
       <Card title="Overzicht per klas">
         <div className="overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">
@@ -951,6 +1056,43 @@ function ManagementOpdrachten() {
           </table>
         </div>
       </Card>
+      <div className="mt-6">
+        <Card title="Opdrachten en voortgang">
+          <div className="space-y-3">
+            {zichtbaar.map((o) => {
+              const pct = Math.round((o.ingeleverd / o.totaal) * 100);
+              return (
+                <div key={o.titel} className="rounded-xl border border-border p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <div className="font-semibold">{o.titel}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {o.klas} · {o.vak} · {o.docent} · deadline {o.deadline}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold">{pct}% ingeleverd</div>
+                      <div className="text-xs text-muted-foreground">
+                        {o.beoordeeld} beoordeeld · gem. {o.gemiddelde}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2 rounded bg-muted">
+                    <div className="h-2 rounded bg-primary" style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
+                    <span>
+                      {o.ingeleverd}/{o.totaal} ingeleverd
+                    </span>
+                    <span>{o.totaal - o.ingeleverd} ontbreken</span>
+                    <span>{o.ingeleverd - o.beoordeeld} wachten op beoordeling</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
     </AppShell>
   );
 }

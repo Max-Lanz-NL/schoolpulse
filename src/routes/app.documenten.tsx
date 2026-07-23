@@ -75,9 +75,59 @@ const leerlingMappen = ["Mijn samenvattingen", "Projecten", "Ingeleverde opdrach
   mapItem(naam, "Persoonlijk"),
 );
 
-const managementMappen = ["Schoolbeleid", "Rapportages", "Personeel", "Vergaderingen"].map((naam) =>
-  mapItem(naam, "Management", ["Directie"]),
-);
+const teamleiderMappen = [
+  "Afdelingsbeleid",
+  "Teamvergaderingen",
+  "Klassenoverzichten",
+  "Resultaatanalyses",
+  "Personeelsgesprekken",
+  "Verlof en vervanging",
+  "Jaarplanning",
+  "Oudercommunicatie",
+  "Zorg en begeleiding",
+].map((naam) => mapItem(naam, "Teamleider", ["Onderwijsteam"]));
+
+const teamleiderBestanden: ExtraBestand[] = [
+  ["Resultatenanalyse bovenbouw.xlsx", "Resultaatanalyses"],
+  ["Verslag teamvergadering 7 juli.docx", "Teamvergaderingen"],
+  ["Bezettingsplan week 28.pdf", "Verlof en vervanging"],
+  ["Overzicht zorgsignalen V4.pdf", "Zorg en begeleiding"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: "720 KB",
+  datum: "Vandaag",
+  versie: "v2",
+  gedeeldMet: ["Onderwijsteam"],
+}));
+
+const directieMappen = [
+  "Strategisch beleid",
+  "Bestuur en toezicht",
+  "Financiën en begroting",
+  "Personeel en formatie",
+  "Inspectie en kwaliteitszorg",
+  "AVG en veiligheid",
+  "Managementrapportages",
+  "Contracten en leveranciers",
+  "Vergaderstukken",
+  "Jaarverslagen",
+].map((naam) => mapItem(naam, "Directie", ["Directie"]));
+
+const directieBestanden: ExtraBestand[] = [
+  ["Meerjarenplan 2026-2030.pdf", "Strategisch beleid"],
+  ["Begroting schooljaar 2026-2027.xlsx", "Financiën en begroting"],
+  ["Formatieplan definitief.docx", "Personeel en formatie"],
+  ["Kwaliteitsrapport inspectie.pdf", "Inspectie en kwaliteitszorg"],
+  ["AVG-audit kwartaal 2.pdf", "AVG en veiligheid"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: "1.2 MB",
+  datum: "Vandaag",
+  versie: "v3",
+  gedeeldMet: ["Directie"],
+}));
 
 function Bestanden() {
   const { role } = useRole();
@@ -91,9 +141,11 @@ function Bestanden() {
       ? [...docentMappen, ...docentBestanden]
       : role === "leerling"
         ? [...leerlingMappen, ...documenten]
-        : role === "teamleider" || role === "directie"
-          ? [...managementMappen, ...documenten]
-          : documenten;
+        : role === "teamleider"
+          ? [...teamleiderMappen, ...teamleiderBestanden]
+          : role === "directie"
+            ? [...directieMappen, ...directieBestanden]
+            : documenten;
   const zichtbaar = [...extraBestanden, ...rolItems].filter(
     (d) => filter === "Alles" || d.vak === filter || filter === "Alles",
   );
@@ -113,9 +165,11 @@ function Bestanden() {
           ? "Lesmateriaal, klassen en beoordeling overzichtelijk geordend"
           : role === "leerling"
             ? "Jouw persoonlijke opslag en gedeelde schoolbestanden"
-            : role === "teamleider" || role === "directie"
-              ? "Schoolbrede documenten en managementmappen"
-              : "Gedeelde schoolbestanden"
+            : role === "teamleider"
+              ? "Afdelingsdocumenten, analyses en teamdossiers"
+              : role === "directie"
+                ? "Strategische, bestuurlijke en schoolbrede directiedocumenten"
+                : "Gedeelde schoolbestanden"
       }
     >
       <div className="mb-6 flex flex-wrap items-center gap-3">

@@ -5,7 +5,16 @@ import { personeel } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Users, UserCheck, UserX, X, Briefcase } from "lucide-react";
+import {
+  Users,
+  UserCheck,
+  UserX,
+  X,
+  Briefcase,
+  Search,
+  MessageSquare,
+  FileText,
+} from "lucide-react";
 
 export const Route = createFileRoute("/app/personeel")({ component: PersoneelPage });
 
@@ -24,11 +33,18 @@ function PersoneelPage() {
     );
   }
 
-  return <PersoneelView />;
+  return <PersoneelView role={role} />;
 }
 
-function PersoneelView() {
+function PersoneelView({ role }: { role: "teamleider" | "directie" }) {
   const [filter, setFilter] = useState<"alle" | "aanwezig" | "afwezig">("alle");
+  const [zoek, setZoek] = useState("");
+  const [afdeling, setAfdeling] = useState("alle");
+  const [geselecteerd, setGeselecteerd] = useState<(typeof personeel)[number] | null>(null);
+  const [verlofStatus, setVerlofStatus] = useState<Record<string, string>>({
+    p3: "Openstaand",
+    p6: "Openstaand",
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [verlofForm, setVerlofForm] = useState({ van: "", tot: "", reden: "" });
 
@@ -36,9 +52,21 @@ function PersoneelView() {
   const aanwezig = personeel.filter((p) => p.aanwezig).length;
   const afwezig = personeel.filter((p) => !p.aanwezig).length;
 
-  const filtered = personeel.filter((p) =>
-    filter === "alle" ? true : filter === "aanwezig" ? p.aanwezig : !p.aanwezig,
-  );
+  const afdelingVoor = (p: (typeof personeel)[number]) =>
+    p.vakken.some((v) => ["Wiskunde A", "Wiskunde B", "Scheikunde", "Biologie"].includes(v))
+      ? "Bèta"
+      : p.vakken.some((v) => ["Nederlands", "Engels"].includes(v))
+        ? "Talen"
+        : "Mens & maatschappij";
+  const filtered = personeel.filter((p) => {
+    if (filter !== "alle" && (filter === "aanwezig") !== p.aanwezig) return false;
+    if (
+      zoek &&
+      !`${p.naam} ${p.rol} ${p.vakken.join(" ")}`.toLowerCase().includes(zoek.toLowerCase())
+    )
+      return false;
+    return afdeling === "alle" || afdelingVoor(p) === afdeling;
+  });
 
   const submitVerlof = () => {
     if (!verlofForm.van || !verlofForm.tot) {
@@ -97,6 +125,25 @@ function PersoneelView() {
             </button>
           ))}
         </div>
+        <div className="relative min-w-52 flex-1 sm:max-w-xs">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <input
+            value={zoek}
+            onChange={(e) => setZoek(e.target.value)}
+            placeholder="Zoek medewerker..."
+            className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-xs"
+          />
+        </div>
+        <select
+          value={afdeling}
+          onChange={(e) => setAfdeling(e.target.value)}
+          className="rounded-lg border border-border bg-card px-3 py-2 text-xs"
+        >
+          <option value="alle">Alle afdelingen</option>
+          <option>Bèta</option>
+          <option>Talen</option>
+          <option>Mens & maatschappij</option>
+        </select>
         <button
           onClick={() => setModalOpen(true)}
           className="rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-muted"
@@ -119,7 +166,11 @@ function PersoneelView() {
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((p) => (
-                <tr key={p.id} className="text-xs">
+                <tr
+                  key={p.id}
+                  onClick={() => setGeselecteerd(p)}
+                  className="cursor-pointer text-xs hover:bg-muted/40"
+                >
                   <td className="py-2.5 pr-4 font-semibold">{p.naam}</td>
                   <td className="py-2.5 pr-4 text-muted-foreground">{p.rol}</td>
                   <td className="hidden py-2.5 pr-4 text-muted-foreground sm:table-cell">
@@ -143,6 +194,74 @@ function PersoneelView() {
           </table>
         </div>
       </Card>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card title="Verlofaanvragen">
+          <div className="space-y-2">
+            {personeel
+              .filter((p) => !p.aanwezig)
+              .map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between rounded-xl border p-3 text-xs"
+                >
+                  <div>
+                    <strong>{p.naam}</strong>
+                    <div className="text-muted-foreground">{p.verlof ?? "Verlof"} · 8–10 juli</div>
+                  </div>
+                  <div className="flex gap-1">
+                    {role === "directie" && verlofStatus[p.id] === "Openstaand" ? (
+                      <>
+                        <button
+                          onClick={() => setVerlofStatus((s) => ({ ...s, [p.id]: "Goedgekeurd" }))}
+                          className="rounded bg-success px-2 py-1 text-white"
+                        >
+                          Goedkeuren
+                        </button>
+                        <button
+                          onClick={() => setVerlofStatus((s) => ({ ...s, [p.id]: "Afgewezen" }))}
+                          className="rounded border px-2 py-1"
+                        >
+                          Afwijzen
+                        </button>
+                      </>
+                    ) : (
+                      <span className="rounded bg-muted px-2 py-1">
+                        {verlofStatus[p.id] ?? "In behandeling"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </Card>
+        <Card title={role === "directie" ? "Formatie & vacatures" : "Afdelingstaken"}>
+          <div className="space-y-2 text-xs">
+            {(role === "directie"
+              ? [
+                  "Vacature docent Nederlands · 0,8 fte",
+                  "Aanstelling onderwijsassistent · in controle",
+                  "Formatie 2026-2027 · 94% ingevuld",
+                ]
+              : [
+                  "Toetsplanning periode 2 · Linda de Boer",
+                  "Mentoraat V4A · Mark Jansen",
+                  "Projectweek · Karin Visser",
+                ]
+            ).map((x) => (
+              <div key={x} className="flex justify-between rounded-xl border p-3">
+                <span>{x}</span>
+                <button
+                  onClick={() => toast.success("Onderdeel geopend")}
+                  className="font-semibold text-primary"
+                >
+                  Beheren
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       {modalOpen && (
         <div
@@ -212,6 +331,71 @@ function PersoneelView() {
                 className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
               >
                 Indienen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {geselecteerd && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setGeselecteerd(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border bg-card p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between">
+              <div>
+                <h3 className="font-bold">{geselecteerd.naam}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {geselecteerd.rol} · {afdelingVoor(geselecteerd)}
+                </p>
+              </div>
+              <button onClick={() => setGeselecteerd(null)}>
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+              {[
+                ["Vakken", geselecteerd.vakken.join(", ") || "Management"],
+                ["Uren", `${geselecteerd.uren} per week`],
+                [
+                  "Beschikbaarheid",
+                  geselecteerd.aanwezig
+                    ? "Vandaag beschikbaar"
+                    : (geselecteerd.verlof ?? "Afwezig"),
+                ],
+                ["Klassen", "V4A, V4B, V5A"],
+                ["Rooster", "18 lessen · 3 tussenuren"],
+                ["Beoordeling", "Voortgangsgesprek 18 sep"],
+              ].map(([l, v]) => (
+                <div key={l} className="rounded-xl bg-muted/50 p-3">
+                  <div className="text-muted-foreground">{l}</div>
+                  <strong>{v}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => toast.success(`Bericht aan ${geselecteerd.naam} geopend`)}
+                className="inline-flex gap-1 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"
+              >
+                <MessageSquare className="h-3 w-3" />
+                Contact
+              </button>
+              <button
+                onClick={() => toast.success("Personeelsdocumenten geopend")}
+                className="inline-flex gap-1 rounded-lg border px-3 py-2 text-xs"
+              >
+                <FileText className="h-3 w-3" />
+                Documenten
+              </button>
+              <button
+                onClick={() => toast.success("Gesprek ingepland")}
+                className="rounded-lg border px-3 py-2 text-xs"
+              >
+                Gesprek / beoordeling
               </button>
             </div>
           </div>
