@@ -52,22 +52,6 @@ const legacyEditableEntities = new Set([
   "consent",
 ]);
 
-const realtimeTables = [
-  "app_records",
-  "timetable_entries",
-  "attendance_records",
-  "absence_requests",
-  "messages",
-  "assignments",
-  "file_assets",
-  "assessments",
-  "grades",
-  "student_reports",
-  "notifications",
-  "student_support_notes",
-  "payment_requests",
-] as const;
-
 type EffectivePermission = {
   permission_key: string;
   scope: "own" | "assigned" | "team" | "school";
@@ -340,40 +324,15 @@ export function ProductionApp({
   const loadRecords = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error: queryError } = await supabase
-      .from("production_module_items")
-      .select("id,school_id,entity_type,title,description,event_at,status,updated_at")
-      .order("event_at", { ascending: true, nullsFirst: false })
-      .order("updated_at", { ascending: false });
-
-    if (queryError) {
-      setError(
-        "De productiedata kon niet worden geladen. Controleer of de nieuwste database-migratie is uitgevoerd.",
-      );
-      setRecords([]);
-    } else {
-      setRecords((data ?? []) as AppRecord[]);
-    }
+    setRecords([]);
     setLoading(false);
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     void loadAccess();
     void loadRecords();
 
-    let channel = supabase.channel(`school-app-${profile.school_id ?? "platform"}`);
-    realtimeTables.forEach((table) => {
-      channel = channel.on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table,
-          ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
-        },
-        () => void loadRecords(),
-      );
-    });
+    const channel = supabase.channel(`school-access-${profile.school_id ?? "platform"}`);
     channel
       .on(
         "postgres_changes",
@@ -414,30 +373,32 @@ export function ProductionApp({
     event.preventDefault();
     if (!profile.school_id || !title.trim()) return;
     setSaving(true);
-    const { error: insertError } = await supabase.from("app_records").insert({
-      school_id: profile.school_id,
-      entity_type: activeModule.entity,
-      title: title.trim(),
-      description: description.trim() || null,
-      event_at: eventAt ? new Date(eventAt).toISOString() : null,
-      created_by: profile.id,
-    });
+    setRecords((items) => [
+      {
+        id: crypto.randomUUID(),
+        school_id: profile.school_id!,
+        entity_type: activeModule.entity,
+        title: title.trim(),
+        description: description.trim() || null,
+        event_at: eventAt ? new Date(eventAt).toISOString() : null,
+        status: "concept",
+        updated_at: new Date().toISOString(),
+      },
+      ...items,
+    ]);
     setSaving(false);
-    if (insertError) {
-      toast.error("Opslaan mislukt", { description: insertError.message });
-      return;
-    }
     setTitle("");
     setDescription("");
     setEventAt("");
     setEditorOpen(false);
-    toast.success("Opgeslagen in Schoolpulse");
+    toast.success("Tijdelijk toegevoegd", {
+      description: "Databaseopslag wordt later gekoppeld; na verversen is dit item weg.",
+    });
   };
 
   const deleteRecord = async (id: string) => {
-    const { error: deleteError } = await supabase.from("app_records").delete().eq("id", id);
-    if (deleteError) toast.error("Verwijderen mislukt", { description: deleteError.message });
-    else toast.success("Item verwijderd");
+    setRecords((items) => items.filter((item) => item.id !== id));
+    toast.success("Tijdelijk item verwijderd");
   };
 
   const recordPermissionCategory = (entity: string) =>
@@ -541,7 +502,7 @@ export function ProductionApp({
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-semibold capitalize">{activeModule.label}</h1>
             <p className="truncate text-xs text-muted-foreground">
-              {profile.school_name || "Schoolpulse productie"} · live gegevens
+              {profile.school_name || "Schoolpulse productie"} · lege werkomgeving
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -599,7 +560,7 @@ export function ProductionApp({
                       : activeModule.label}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    Rechtstreeks uit de Schoolpulse-database; updates verschijnen automatisch.
+                    Klaar voor gebruik; gegevensopslag wordt later aan de database gekoppeld.
                   </p>
                 </div>
                 {canCreate && profile.school_id && activeModule.entity !== "dashboard" ? (
