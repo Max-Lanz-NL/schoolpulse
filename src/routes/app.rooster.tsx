@@ -37,14 +37,6 @@ import { useNavigate } from "@tanstack/react-router";
 export const Route = createFileRoute("/app/rooster")({ component: Rooster });
 
 const dagen = ["Ma", "Di", "Wo", "Do", "Vr"] as const;
-const dagLabels: Record<string, string> = {
-  Ma: "Maandag 6 jul",
-  Di: "Dinsdag 7 jul",
-  Wo: "Woensdag 8 jul",
-  Do: "Donderdag 9 jul",
-  Vr: "Vrijdag 10 jul",
-};
-
 type Detail = Les & { dag?: string };
 
 const managementLes = (
@@ -203,6 +195,13 @@ function Rooster() {
   const weekStart = new Date(2026, 6, 6 + weekOffset * 7);
   const weekEinde = new Date(weekStart);
   weekEinde.setDate(weekStart.getDate() + 4);
+  const geselecteerdeDatum = new Date(weekStart);
+  geselecteerdeDatum.setDate(weekStart.getDate() + dagIdx);
+  const geselecteerdeDagLabel = geselecteerdeDatum.toLocaleDateString("nl-NL", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+  });
   const korteDatum = (datum: Date) =>
     datum.toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
   const swipe = useSwipe(
@@ -284,7 +283,7 @@ function Rooster() {
 
       {view === "dag" ? (
         <Card
-          title={dagLabels[currentDag]}
+          title={geselecteerdeDagLabel.charAt(0).toUpperCase() + geselecteerdeDagLabel.slice(1)}
           action={
             <div className="flex items-center gap-1">
               <button

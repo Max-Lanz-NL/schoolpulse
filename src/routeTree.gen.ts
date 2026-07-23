@@ -31,6 +31,7 @@ import { Route as AppRoosterRouteImport } from './routes/app.rooster'
 import { Route as AppRechtenAanvragenRouteImport } from './routes/app.rechten-aanvragen'
 import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
 import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
+import { Route as AppOuderkoppelingenRouteImport } from './routes/app.ouderkoppelingen'
 import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
 import { Route as AppNotificatiesRouteImport } from './routes/app.notificaties'
 import { Route as AppLeerlingenRouteImport } from './routes/app.leerlingen'
@@ -166,6 +167,11 @@ const AppRapportenRoute = AppRapportenRouteImport.update({
 const AppPersoneelRoute = AppPersoneelRouteImport.update({
   id: '/personeel',
   path: '/personeel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOuderkoppelingenRoute = AppOuderkoppelingenRouteImport.update({
+  id: '/ouderkoppelingen',
+  path: '/ouderkoppelingen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppOpdrachtenRoute = AppOpdrachtenRouteImport.update({
@@ -332,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/notificaties': typeof AppNotificatiesRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/ouderkoppelingen': typeof AppOuderkoppelingenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/notificaties': typeof AppNotificatiesRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/ouderkoppelingen': typeof AppOuderkoppelingenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
@@ -431,6 +439,7 @@ export interface FileRoutesById {
   '/app/leerlingen': typeof AppLeerlingenRoute
   '/app/notificaties': typeof AppNotificatiesRoute
   '/app/opdrachten': typeof AppOpdrachtenRoute
+  '/app/ouderkoppelingen': typeof AppOuderkoppelingenRoute
   '/app/personeel': typeof AppPersoneelRoute
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
@@ -483,6 +492,7 @@ export interface FileRouteTypes {
     | '/app/leerlingen'
     | '/app/notificaties'
     | '/app/opdrachten'
+    | '/app/ouderkoppelingen'
     | '/app/personeel'
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
@@ -531,6 +541,7 @@ export interface FileRouteTypes {
     | '/app/leerlingen'
     | '/app/notificaties'
     | '/app/opdrachten'
+    | '/app/ouderkoppelingen'
     | '/app/personeel'
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
@@ -581,6 +592,7 @@ export interface FileRouteTypes {
     | '/app/leerlingen'
     | '/app/notificaties'
     | '/app/opdrachten'
+    | '/app/ouderkoppelingen'
     | '/app/personeel'
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
@@ -768,6 +780,13 @@ declare module '@tanstack/react-router' {
       path: '/personeel'
       fullPath: '/app/personeel'
       preLoaderRoute: typeof AppPersoneelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ouderkoppelingen': {
+      id: '/app/ouderkoppelingen'
+      path: '/ouderkoppelingen'
+      fullPath: '/app/ouderkoppelingen'
+      preLoaderRoute: typeof AppOuderkoppelingenRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/opdrachten': {
@@ -1000,6 +1019,7 @@ interface AppRouteChildren {
   AppLeerlingenRoute: typeof AppLeerlingenRoute
   AppNotificatiesRoute: typeof AppNotificatiesRoute
   AppOpdrachtenRoute: typeof AppOpdrachtenRoute
+  AppOuderkoppelingenRoute: typeof AppOuderkoppelingenRoute
   AppPersoneelRoute: typeof AppPersoneelRoute
   AppRapportenRoute: typeof AppRapportenRoute
   AppRechtenAanvragenRoute: typeof AppRechtenAanvragenRoute
@@ -1030,6 +1050,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLeerlingenRoute: AppLeerlingenRoute,
   AppNotificatiesRoute: AppNotificatiesRoute,
   AppOpdrachtenRoute: AppOpdrachtenRoute,
+  AppOuderkoppelingenRoute: AppOuderkoppelingenRoute,
   AppPersoneelRoute: AppPersoneelRoute,
   AppRapportenRoute: AppRapportenRoute,
   AppRechtenAanvragenRoute: AppRechtenAanvragenRoute,
