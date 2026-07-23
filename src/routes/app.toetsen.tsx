@@ -3,20 +3,46 @@ import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { docentKlassen } from "@/lib/demo-data";
 import { useState } from "react";
-import { Plus, X, CheckCircle2, PlayCircle } from "lucide-react";
+import {
+  Plus,
+  X,
+  CheckCircle2,
+  PlayCircle,
+  Pencil,
+  Trash2,
+  Copy,
+  Download,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/toetsen")({ component: ToetsenPage });
 
 type Vraag = { tekst: string; opties: [string, string, string, string]; correct: number };
 
-const bestaandeToetsen = [
+type Toets = {
+  id: string;
+  naam: string;
+  klas: string;
+  vak: string;
+  datum: string;
+  periode: string;
+  vragen: number;
+  gemiddelde: number | null;
+  status: string;
+  beschrijving?: string;
+  weging?: number;
+  rubric?: string;
+};
+
+const bestaandeToetsen: Toets[] = [
   {
     id: "bt1",
     naam: "Wiskunde B — Proefwerk H4",
     klas: "V4B",
     vak: "Wiskunde B",
     datum: "18 jun 2026",
+    periode: "Periode 4",
     vragen: 8,
     gemiddelde: 7.2,
     status: "nagekeken",
@@ -27,6 +53,7 @@ const bestaandeToetsen = [
     klas: "V5A",
     vak: "Wiskunde B",
     datum: "24 jun 2026",
+    periode: "Periode 4",
     vragen: 5,
     gemiddelde: 6.8,
     status: "nagekeken",
@@ -37,6 +64,7 @@ const bestaandeToetsen = [
     klas: "V4B",
     vak: "Wiskunde B",
     datum: "2 jul 2026",
+    periode: "Periode 4",
     vragen: 10,
     gemiddelde: null,
     status: "gepland",
@@ -76,12 +104,19 @@ function legeVraag(): Vraag {
 
 function ToetsenPage() {
   const [tab, setTab] = useState<"mijn" | "nieuw" | "nakijken">("mijn");
+  const [toetsen, setToetsen] = useState<Toets[]>(bestaandeToetsen);
+  const [filterKlas, setFilterKlas] = useState("alle");
+  const [filterVak, setFilterVak] = useState("alle");
 
   // Nieuw toets form
   const [toetsnaam, setToetsnaam] = useState("");
   const [selectedKlas, setSelectedKlas] = useState(docentKlassen[0].klas);
   const [selectedVak, setSelectedVak] = useState(docentKlassen[0].vak);
   const [vragen, setVragen] = useState<Vraag[]>([legeVraag()]);
+  const [toetsDatum, setToetsDatum] = useState("");
+  const [beschrijving, setBeschrijving] = useState("");
+  const [weging, setWeging] = useState("1");
+  const [rubric, setRubric] = useState("");
 
   // Nakijken
   const [nakijkStatus, setNakijkStatus] = useState<"idle" | "loading" | "done">("idle");
@@ -99,8 +134,29 @@ function ToetsenPage() {
     toast.success(`Toets "${toetsnaam}" opgeslagen`, {
       description: `${vragen.length} vragen · ${selectedKlas}`,
     });
+    setToetsen((items) => [
+      ...items,
+      {
+        id: `toets-${Date.now()}`,
+        naam: toetsnaam,
+        klas: selectedKlas,
+        vak: selectedVak,
+        datum: toetsDatum || "Nog te plannen",
+        periode: "Periode 4",
+        vragen: vragen.length,
+        gemiddelde: null,
+        status: "gepland",
+        beschrijving,
+        weging: Number(weging) || 1,
+        rubric,
+      },
+    ]);
     setToetsnaam("");
     setVragen([legeVraag()]);
+    setToetsDatum("");
+    setBeschrijving("");
+    setWeging("1");
+    setRubric("");
   };
 
   const startNakijken = () => {
@@ -152,37 +208,115 @@ function ToetsenPage() {
 
       {tab === "mijn" && (
         <div className="space-y-3">
-          {bestaandeToetsen.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+          <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-card p-3">
+            <select
+              value={filterKlas}
+              onChange={(e) => setFilterKlas(e.target.value)}
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
             >
-              <div>
-                <div className="text-sm font-semibold">{t.naam}</div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {t.klas} · {t.vragen} vragen · {t.datum}
+              <option value="alle">Alle klassen</option>
+              {docentKlassen.map((klas) => (
+                <option key={klas.klas}>{klas.klas}</option>
+              ))}
+            </select>
+            <select
+              value={filterVak}
+              onChange={(e) => setFilterVak(e.target.value)}
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option value="alle">Alle vakken</option>
+              <option>Wiskunde A</option>
+              <option>Wiskunde B</option>
+            </select>
+            <label className="ml-auto inline-flex cursor-pointer items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold">
+              <Upload className="h-3.5 w-3.5" /> Importeren
+              <input
+                type="file"
+                className="hidden"
+                onChange={() => toast.success("Toets geïmporteerd")}
+              />
+            </label>
+            <button
+              onClick={() => toast.success("Toetsen geëxporteerd")}
+              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold"
+            >
+              <Download className="h-3.5 w-3.5" /> Exporteren
+            </button>
+          </div>
+          {toetsen
+            .filter((toets) => filterKlas === "alle" || toets.klas === filterKlas)
+            .filter((toets) => filterVak === "alle" || toets.vak === filterVak)
+            .map((t) => (
+              <div
+                key={t.id}
+                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+              >
+                <div>
+                  <div className="text-sm font-semibold">{t.naam}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {t.klas} · {t.vragen} vragen · {t.datum}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {t.gemiddelde !== null && (
+                    <div
+                      className={`text-base font-bold ${t.gemiddelde < 6 ? "text-destructive" : "text-success"}`}
+                    >
+                      ∅ {t.gemiddelde.toFixed(1)}
+                    </div>
+                  )}
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      t.status === "nagekeken"
+                        ? "bg-success/15 text-success"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {t.status === "nagekeken" ? "Nagekeken" : "Gepland"}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setToetsnaam(t.naam);
+                      setSelectedKlas(t.klas);
+                      setSelectedVak(t.vak);
+                      setToetsDatum(t.datum);
+                      setBeschrijving(t.beschrijving ?? "");
+                      setWeging(String(t.weging ?? 1));
+                      setRubric(t.rubric ?? "");
+                      setTab("nieuw");
+                    }}
+                    className="rounded-md p-1.5 hover:bg-muted"
+                    aria-label="Toets bewerken"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setToetsen((items) => [
+                        ...items,
+                        {
+                          ...t,
+                          id: `kopie-${Date.now()}`,
+                          naam: `Kopie · ${t.naam}`,
+                          status: "gepland",
+                        },
+                      ])
+                    }
+                    className="rounded-md p-1.5 hover:bg-muted"
+                    aria-label="Toets kopiëren"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setToetsen((items) => items.filter((item) => item.id !== t.id))}
+                    className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
+                    aria-label="Toets verwijderen"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                {t.gemiddelde !== null && (
-                  <div
-                    className={`text-base font-bold ${t.gemiddelde < 6 ? "text-destructive" : "text-success"}`}
-                  >
-                    ∅ {t.gemiddelde.toFixed(1)}
-                  </div>
-                )}
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    t.status === "nagekeken"
-                      ? "bg-success/15 text-success"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {t.status === "nagekeken" ? "Nagekeken" : "Gepland"}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
@@ -230,6 +364,58 @@ function ToetsenPage() {
                 </select>
               </label>
             </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Toetsdatum
+                </span>
+                <input
+                  type="date"
+                  value={toetsDatum}
+                  onChange={(e) => setToetsDatum(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Weging
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  value={weging}
+                  onChange={(e) => setWeging(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Rubric
+                </span>
+                <select
+                  value={rubric}
+                  onChange={(e) => setRubric(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Geen rubric</option>
+                  <option>Wiskundige aanpak</option>
+                  <option>Probleemoplossend vermogen</option>
+                  <option>Presentatie en onderbouwing</option>
+                </select>
+              </label>
+            </div>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Beschrijving
+              </span>
+              <textarea
+                value={beschrijving}
+                onChange={(e) => setBeschrijving(e.target.value)}
+                rows={3}
+                placeholder="Leerdoelen, hulpmiddelen en instructies voor leerlingen..."
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            </label>
 
             <div>
               <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -374,7 +560,32 @@ function ToetsenPage() {
                 {(
                   nakijkLeerlingen.reduce((s, l) => s + l.score, 0) / nakijkLeerlingen.length
                 ).toFixed(1)}{" "}
-                · {nakijkLeerlingen.filter((l) => l.score < 5.5).length} onvoldoende
+                · hoogste {Math.max(...nakijkLeerlingen.map((l) => l.score)).toFixed(1)}
+                {" · "}laagste {Math.min(...nakijkLeerlingen.map((l) => l.score)).toFixed(1)}
+                {" · "}
+                {nakijkLeerlingen.filter((l) => l.score < 5.5).length} onvoldoende
+              </div>
+              <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+                <button
+                  onClick={() => toast.success("Inleveringen geopend voor feedback en annotatie")}
+                  className="rounded-lg border border-border px-3 py-2 text-xs font-semibold"
+                >
+                  Inleveringen & feedback
+                </button>
+                <button
+                  onClick={() =>
+                    toast.success("Onvoldoende toetsen teruggestuurd voor verbetering")
+                  }
+                  className="rounded-lg border border-warning/40 px-3 py-2 text-xs font-semibold text-warning"
+                >
+                  Terugsturen
+                </button>
+                <button
+                  onClick={() => toast.success("Definitieve cijfers gepubliceerd")}
+                  className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+                >
+                  Cijfers publiceren
+                </button>
               </div>
             </Card>
           )}

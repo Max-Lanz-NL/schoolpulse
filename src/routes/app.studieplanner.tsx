@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { useState } from "react";
-import { Plus, X, CalendarDays, BookOpen } from "lucide-react";
+import { Plus, X, CalendarDays, BookOpen, Sparkles, Clock3, Target } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/studieplanner")({ component: StudieplannerPage });
@@ -95,6 +95,37 @@ function StudieplannerPage() {
 
   return (
     <AppShell title="Studieplanner" subtitle="Plan je studiemomenten en toetsvoorbereiding">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-card to-card p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-5">
+          <div>
+            <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Slim plannen
+            </div>
+            <h2 className="mt-3 text-2xl font-bold">Rust in je toetsweek</h2>
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              Toetsen, deadlines en aanbevolen studiemomenten staan in één overzicht.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { icon: CalendarDays, value: aankomend.length, label: "toetsen" },
+              { icon: Clock3, value: extraBlokken.length, label: "blokken" },
+              { icon: Target, value: deadlines.length, label: "deadlines" },
+            ].map(({ icon: Icon, value, label }) => (
+              <div
+                key={label}
+                className="min-w-20 rounded-2xl border border-border/70 bg-background/80 p-3 text-center"
+              >
+                <Icon className="mx-auto h-4 w-4 text-primary" />
+                <div className="mt-1 text-lg font-bold">{value}</div>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         {/* Kalender */}
         <Card

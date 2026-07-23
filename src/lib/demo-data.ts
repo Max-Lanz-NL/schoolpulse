@@ -512,92 +512,58 @@ export type Leerling = {
   vakken: string[];
   cijfers: Record<string, { naam: string; cijfer: number; weging: number; datum: string }[]>;
 };
+
+const demoLeerlingNamen = [
+  "Sanne de Vries",
+  "Tom Bakker",
+  "Julia Smit",
+  "Ravi Kumar",
+  "Emma Visser",
+  "Noah Jansen",
+  "Lisa Peters",
+  "Daan de Wit",
+  "Mila de Jong",
+  "Youssef El Amrani",
+  "Fenna Vos",
+  "Lucas Meijer",
+  "Sara Özdemir",
+  "Bram van Dijk",
+  "Nora Mulder",
+  "Sem Hendriks",
+  "Lina Aydin",
+  "Thijs van Leeuwen",
+  "Zoë Vermeer",
+  "Adam Rahmani",
+  "Lotte de Boer",
+  "Finn Smit",
+  "Amira Hassan",
+  "Mees Kuiper",
+  "Sophie Bos",
+  "Olivier Dekker",
+];
+
+function maakDemoKlas(klas: string, vak: string, aantal: number): Leerling[] {
+  return demoLeerlingNamen.slice(0, aantal).map((naam, index) => {
+    const eerste = Number((5.4 + ((index * 7 + klas.length) % 38) / 10).toFixed(1));
+    const tweede = Number((5.8 + ((index * 5 + vak.length) % 34) / 10).toFixed(1));
+    return {
+      id: `${klas.toLowerCase()}-${index + 1}`,
+      naam,
+      vakken: [vak],
+      cijfers: {
+        [vak]: [
+          { naam: "Diagnostische toets", cijfer: eerste, weging: 1, datum: "12 nov" },
+          { naam: "Proefwerk periode 1", cijfer: tweede, weging: 3, datum: "18 okt" },
+        ],
+      },
+    };
+  });
+}
+
 export const docentKlassen: { klas: string; vak: string; leerlingen: Leerling[] }[] = [
-  {
-    klas: "V4B",
-    vak: "Wiskunde B",
-    leerlingen: [
-      {
-        id: "l1",
-        naam: "Sanne de Vries",
-        vakken: ["Wiskunde B"],
-        cijfers: {
-          "Wiskunde B": [
-            { naam: "SO H3", cijfer: 8.2, weging: 1, datum: "12 nov" },
-            { naam: "PW H1-H2", cijfer: 7.0, weging: 3, datum: "18 okt" },
-          ],
-        },
-      },
-      {
-        id: "l2",
-        naam: "Tom Bakker",
-        vakken: ["Wiskunde B"],
-        cijfers: {
-          "Wiskunde B": [
-            { naam: "SO H3", cijfer: 6.4, weging: 1, datum: "12 nov" },
-            { naam: "PW H1-H2", cijfer: 5.8, weging: 3, datum: "18 okt" },
-          ],
-        },
-      },
-      {
-        id: "l3",
-        naam: "Julia Smit",
-        vakken: ["Wiskunde B"],
-        cijfers: { "Wiskunde B": [{ naam: "SO H3", cijfer: 7.8, weging: 1, datum: "12 nov" }] },
-      },
-      {
-        id: "l4",
-        naam: "Ravi Kumar",
-        vakken: ["Wiskunde B"],
-        cijfers: {
-          "Wiskunde B": [
-            { naam: "SO H3", cijfer: 9.0, weging: 1, datum: "12 nov" },
-            { naam: "PW H1-H2", cijfer: 8.4, weging: 3, datum: "18 okt" },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    klas: "V4A",
-    vak: "Wiskunde B",
-    leerlingen: [
-      {
-        id: "a1",
-        naam: "Emma Visser",
-        vakken: ["Wiskunde B"],
-        cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 7.6, weging: 3, datum: "18 okt" }] },
-      },
-      {
-        id: "a2",
-        naam: "Noah Jansen",
-        vakken: ["Wiskunde B"],
-        cijfers: { "Wiskunde B": [{ naam: "PW H1-H2", cijfer: 6.2, weging: 3, datum: "18 okt" }] },
-      },
-    ],
-  },
-  {
-    klas: "V5A",
-    vak: "Wiskunde B",
-    leerlingen: [
-      {
-        id: "v1",
-        naam: "Lisa Peters",
-        vakken: ["Wiskunde B"],
-        cijfers: {
-          "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 7.2, weging: 1, datum: "24 nov" }],
-        },
-      },
-      {
-        id: "v2",
-        naam: "Daan de Wit",
-        vakken: ["Wiskunde B"],
-        cijfers: {
-          "Wiskunde B": [{ naam: "SO Vectoren", cijfer: 5.6, weging: 1, datum: "24 nov" }],
-        },
-      },
-    ],
-  },
+  { klas: "V4A", vak: "Wiskunde A", leerlingen: maakDemoKlas("V4A", "Wiskunde A", 22) },
+  { klas: "V4B", vak: "Wiskunde B", leerlingen: maakDemoKlas("V4B", "Wiskunde B", 24) },
+  { klas: "V5A", vak: "Wiskunde B", leerlingen: maakDemoKlas("V5A", "Wiskunde B", 21) },
 ];
 
 // Aanwezigheid per les — alleen leerlingen (docenten/teamleiders/directie nooit)

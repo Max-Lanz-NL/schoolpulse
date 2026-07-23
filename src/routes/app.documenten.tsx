@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRole } from "@/lib/role-context";
 
 export const Route = createFileRoute("/app/documenten")({ component: Bestanden });
 
@@ -30,13 +31,70 @@ type ExtraBestand = {
   isMap?: boolean;
 };
 
+const mapItem = (naam: string, vak: string, gedeeldMet: string[] = []): ExtraBestand => ({
+  naam,
+  vak,
+  grootte: "—",
+  datum: "Vandaag",
+  versie: "—",
+  gedeeldMet,
+  isMap: true,
+});
+
+const docentMappen = [
+  "Lesmateriaal",
+  "Klassen",
+  "Toetsen",
+  "Opdrachten",
+  "Nakijkwerk",
+  "Cijferlijsten",
+  "Presentaties",
+  "Vergaderingen",
+  "Administratie",
+].map((naam) => mapItem(naam, "Docent"));
+
+const docentBestanden: ExtraBestand[] = [
+  ["Presentatie · Differentiëren.pptx", "Presentaties"],
+  ["Werkblad · Functies en grafieken.pdf", "Lesmateriaal"],
+  ["Toets · Wiskunde B periode 2.docx", "Toetsen"],
+  ["Antwoordmodel · Periode 2.pdf", "Toetsen"],
+  ["Cijferlijst · V4B.xlsx", "Cijferlijsten"],
+  ["Lesplanning · Week 28.pdf", "Lesmateriaal"],
+  ["Ingeleverde opdrachten · V5A.zip", "Nakijkwerk"],
+  ["Feedbackdocument · Statistiek.docx", "Nakijkwerk"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: naam.endsWith(".zip") ? "8.4 MB" : "640 KB",
+  datum: "Vandaag",
+  versie: "v1",
+  gedeeldMet: [],
+}));
+
+const leerlingMappen = ["Mijn samenvattingen", "Projecten", "Ingeleverde opdrachten"].map((naam) =>
+  mapItem(naam, "Persoonlijk"),
+);
+
+const managementMappen = ["Schoolbeleid", "Rapportages", "Personeel", "Vergaderingen"].map((naam) =>
+  mapItem(naam, "Management", ["Directie"]),
+);
+
 function Bestanden() {
+  const { role } = useRole();
   const [filter, setFilter] = useState<string>("Alles");
   const [shareFile, setShareFile] = useState<string | null>(null);
   const [extraShares, setExtraShares] = useState<Record<string, string[]>>({});
   const [extraBestanden, setExtraBestanden] = useState<ExtraBestand[]>([]);
 
-  const zichtbaar = [...extraBestanden, ...documenten].filter(
+  const rolItems: ExtraBestand[] =
+    role === "docent"
+      ? [...docentMappen, ...docentBestanden]
+      : role === "leerling"
+        ? [...leerlingMappen, ...documenten]
+        : role === "teamleider" || role === "directie"
+          ? [...managementMappen, ...documenten]
+          : documenten;
+  const zichtbaar = [...extraBestanden, ...rolItems].filter(
     (d) => filter === "Alles" || d.vak === filter || filter === "Alles",
   );
 
@@ -48,7 +106,18 @@ function Bestanden() {
   };
 
   return (
-    <AppShell title="Bestanden" subtitle="Centrale opslag van lesmateriaal en documenten">
+    <AppShell
+      title="Bestanden"
+      subtitle={
+        role === "docent"
+          ? "Lesmateriaal, klassen en beoordeling overzichtelijk geordend"
+          : role === "leerling"
+            ? "Jouw persoonlijke opslag en gedeelde schoolbestanden"
+            : role === "teamleider" || role === "directie"
+              ? "Schoolbrede documenten en managementmappen"
+              : "Gedeelde schoolbestanden"
+      }
+    >
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">
           <Upload className="h-4 w-4" /> Uploaden
@@ -214,7 +283,7 @@ function Bestanden() {
       {shareFile && (
         <ShareModal
           file={shareFile}
-          origineel={documenten.find((d) => d.naam === shareFile)?.gedeeldMet ?? []}
+          origineel={rolItems.find((d) => d.naam === shareFile)?.gedeeldMet ?? []}
           extras={extraShares[shareFile] ?? []}
           onAdd={(t) => addShare(shareFile, t)}
           onRemove={(t) => removeShare(shareFile, t)}
