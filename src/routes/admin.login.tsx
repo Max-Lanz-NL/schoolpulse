@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
@@ -33,8 +33,13 @@ function getSignInErrorMessage(error: { code?: string; message?: string } | null
   }
 }
 
+function openAdminDestination() {
+  const destination = sessionStorage.getItem("schoolpulse-admin-return-to") || "/admin/dashboard";
+  sessionStorage.removeItem("schoolpulse-admin-return-to");
+  window.location.assign(destination);
+}
+
 function AdminLoginPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
@@ -57,7 +62,7 @@ function AdminLoginPage() {
           const profile = await getCurrentProfile(data.session.user.id);
           if (!active) return;
           if (profile?.role === "platform_admin") {
-            void navigate({ to: "/admin/dashboard", replace: true });
+            openAdminDestination();
             return;
           }
           await supabase.auth.signOut();
@@ -77,7 +82,7 @@ function AdminLoginPage() {
     return () => {
       active = false;
     };
-  }, [navigate]);
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +121,7 @@ function AdminLoginPage() {
       }
 
       setSubmitting(false);
-      void navigate({ to: "/admin/dashboard", replace: true });
+      openAdminDestination();
     } catch (profileError) {
       await supabase.auth.signOut();
       setSubmitting(false);

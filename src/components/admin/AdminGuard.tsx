@@ -25,6 +25,9 @@ export function AdminGuard({ children }: { children: (profile: Profile) => React
       if (!active) return;
 
       if (sessionError || !data.session?.user) {
+        if (window.location.pathname === "/admin/docs") {
+          sessionStorage.setItem("schoolpulse-admin-return-to", "/admin/docs");
+        }
         void navigate({ to: "/admin/login", replace: true });
         setLoading(false);
         return;

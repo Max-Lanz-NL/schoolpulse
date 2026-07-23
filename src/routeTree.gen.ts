@@ -54,6 +54,7 @@ import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminRelationsRouteImport } from './routes/admin.relations'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminDocsRouteImport } from './routes/admin.docs'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
 
@@ -282,6 +283,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -302,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/voorwaarden': typeof VoorwaardenRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/relations': typeof AdminRelationsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/voorwaarden': typeof VoorwaardenRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/relations': typeof AdminRelationsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/voorwaarden': typeof VoorwaardenRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/relations': typeof AdminRelationsRoute
   '/admin/roles': typeof AdminRolesRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/voorwaarden'
     | '/admin/accounts'
     | '/admin/dashboard'
+    | '/admin/docs'
     | '/admin/login'
     | '/admin/relations'
     | '/admin/roles'
@@ -497,6 +507,7 @@ export interface FileRouteTypes {
     | '/voorwaarden'
     | '/admin/accounts'
     | '/admin/dashboard'
+    | '/admin/docs'
     | '/admin/login'
     | '/admin/relations'
     | '/admin/roles'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/voorwaarden'
     | '/admin/accounts'
     | '/admin/dashboard'
+    | '/admin/docs'
     | '/admin/login'
     | '/admin/relations'
     | '/admin/roles'
@@ -919,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/dashboard'
@@ -939,6 +958,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDocsRoute: typeof AdminDocsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminRelationsRoute: typeof AdminRelationsRoute
   AdminRolesRoute: typeof AdminRolesRoute
@@ -950,6 +970,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAccountsRoute: AdminAccountsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminDocsRoute: AdminDocsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminRelationsRoute: AdminRelationsRoute,
   AdminRolesRoute: AdminRolesRoute,

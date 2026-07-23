@@ -123,14 +123,22 @@ function apiDomainResponse(pathname: string): Response {
 }
 
 function docsDomainResponse(pathname: string): Response {
-  if (pathname !== "/" && pathname !== "/index.html" && pathname !== "/handleiding") {
+  if (pathname === "/" || pathname === "/index.html" || pathname === "/handleiding") {
+    return redirect(`${DOMAIN_ORIGINS.docs}/gebruikers`);
+  }
+
+  if (pathname === "/beheer" || pathname === "/admin") {
+    return redirect(`${DOMAIN_ORIGINS.admin}/admin/docs`);
+  }
+
+  if (pathname !== "/gebruikers") {
     return htmlResponse(
       `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Schoolpulse Docs</title></head><body style="font-family: Inter, system-ui, sans-serif; margin: 40px; line-height: 1.5;"><h1>Documentatiepad niet gevonden</h1><p>De documentatie-home staat op <a href="${DOMAIN_ORIGINS.docs}/">${DOMAIN_ORIGINS.docs}</a>.</p></body></html>`,
       404,
     );
   }
 
-  return htmlResponse(getDocsSiteHtml());
+  return htmlResponse(getDocsSiteHtml("users"));
 }
 
 export function handleDomainRouting(request: Request): Response | null {
