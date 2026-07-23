@@ -350,6 +350,8 @@ export function ProductionApp({
   const [sourceFile, setSourceFile] = useState("");
   const [retentionPeriod, setRetentionPeriod] = useState("");
   const [consentRequired, setConsentRequired] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [replyConversationId, setReplyConversationId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [effectivePermissions, setEffectivePermissions] = useState<EffectivePermission[]>([]);
   const [effectiveRank, setEffectiveRank] = useState(0);
@@ -384,45 +386,227 @@ export function ProductionApp({
   const loadRecords = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error: recordsError } = await supabase
-      .from("app_records")
-      .select(
-        "id,school_id,entity_type,title,description,event_at,status,payload,created_by,owner_profile_id,audience_profile_ids,visibility,updated_at",
-      )
-      .order("updated_at", { ascending: false });
-    if (recordsError) {
+    const [
+      workspaceResult,
+      guardianLinksResult,
+      messagesResult,
+      assessmentsResult,
+      assignmentsResult,
+      gradesResult,
+    ] = await Promise.all([
+      supabase
+        .from("app_records")
+        .select(
+          "id,school_id,entity_type,title,description,event_at,status,payload,created_by,owner_profile_id,audience_profile_ids,visibility,updated_at",
+        )
+        .order("updated_at", { ascending: false }),
+      supabase
+        .from("guardian_student_links")
+        .select(
+          "id,school_id,relationship,has_legal_authority,receives_communication,financial_responsibility,is_active,updated_at,guardian:profiles!guardian_student_links_guardian_profile_id_fkey(email,full_name),student:profiles!guardian_student_links_student_profile_id_fkey(email,full_name)",
+        )
+        .eq("is_active", true),
+      supabase
+        .from("messages")
+        .select(
+          "id,school_id,body,sent_at,edited_at,deleted_at,conversation:conversations!inner(id,subject,kind),sender:profiles!messages_sender_id_fkey(id,email,full_name)",
+        )
+        .is("deleted_at", null)
+        .order("sent_at", { ascending: false })
+        .limit(250),
+      supabase
+        .from("assessments")
+        .select(
+          "id,school_id,title,assessment_type,occurs_at,maximum_score,weight,status,created_by,updated_at,group:teaching_groups!assessments_teaching_group_id_fkey(name),subject:subjects!assessments_subject_id_fkey(name)",
+        )
+        .order("updated_at", { ascending: false }),
+      supabase
+        .from("assignments")
+        .select(
+          "id,school_id,title,instructions,due_at,status,created_by,updated_at,group:teaching_groups!assignments_teaching_group_id_fkey(name),subject:subjects!assignments_subject_id_fkey(name)",
+        )
+        .order("updated_at", { ascending: false }),
+      supabase
+        .from("grades")
+        .select(
+          "id,school_id,score,grade,note,status,graded_by,graded_at,updated_at,assessment:assessments!grades_assessment_id_fkey(title,weight,maximum_score,assessment_type),student:profiles!grades_student_profile_id_fkey(full_name,email)",
+        )
+        .order("updated_at", { ascending: false }),
+    ]);
+    if (workspaceResult.error) {
       setRecords([]);
       setError(
         "De gedeelde schoolgegevens konden niet worden geladen. Controleer de database en je rechten.",
       );
     } else {
-      setRecords(
-        (data ?? []).map((record) => {
-          const payload =
-            record.payload && typeof record.payload === "object"
-              ? (record.payload as {
-                  metadata?: Record<string, string | boolean>;
-                  history?: Array<{ at: string; action: string }>;
-                })
-              : {};
-          return {
-            id: record.id,
-            school_id: record.school_id,
-            entity_type: record.entity_type,
-            title: record.title,
-            description: record.description,
-            event_at: record.event_at,
-            status: record.status,
-            updated_at: record.updated_at,
-            created_by: record.created_by,
-            owner_profile_id: record.owner_profile_id,
-            audience_profile_ids: record.audience_profile_ids,
-            visibility: record.visibility,
-            metadata: payload.metadata,
-            history: payload.history,
-          };
-        }),
-      );
+      const workspaceRecords = (workspaceResult.data ?? []).map((record) => {
+        const payload =
+          record.payload && typeof record.payload === "object"
+            ? (record.payload as {
+                metadata?: Record<string, string | boolean>;
+                history?: Array<{ at: string; action: string }>;
+              })
+            : {};
+        return {
+          id: record.id,
+          school_id: record.school_id,
+          entity_type: record.entity_type,
+          title: record.title,
+          description: record.description,
+          event_at: record.event_at,
+          status: record.status,
+          updated_at: record.updated_at,
+          created_by: record.created_by,
+          owner_profile_id: record.owner_profile_id,
+          audience_profile_ids: record.audience_profile_ids,
+          visibility: record.visibility,
+          metadata: payload.metadata,
+          history: payload.history,
+        };
+      });
+      const guardianRecords: AppRecord[] = guardianLinksResult.error
+        ? []
+        : (guardianLinksResult.data ?? []).map((link) => {
+            const guardian = Array.isArray(link.guardian) ? link.guardian[0] : link.guardian;
+            const student = Array.isArray(link.student) ? link.student[0] : link.student;
+            return {
+              id: link.id,
+              school_id: link.school_id,
+              entity_type: "parent_link",
+              title: `${guardian?.full_name || guardian?.email || "Ouder"} → ${student?.full_name || student?.email || "Leerling"}`,
+              description: link.relationship,
+              event_at: null,
+              status: "actief",
+              updated_at: link.updated_at,
+              metadata: {
+                guardianEmail: guardian?.email ?? "",
+                studentReference: student?.email ?? "",
+                relationship: link.relationship,
+                legalAuthority: link.has_legal_authority,
+                receivesCommunication: link.receives_communication,
+                financialResponsibility: link.financial_responsibility,
+              },
+              history: [],
+            };
+          });
+      const messageRecords: AppRecord[] = messagesResult.error
+        ? []
+        : (messagesResult.data ?? []).map((message) => {
+            const conversation = Array.isArray(message.conversation)
+              ? message.conversation[0]
+              : message.conversation;
+            const sender = Array.isArray(message.sender) ? message.sender[0] : message.sender;
+            return {
+              id: message.id,
+              school_id: message.school_id,
+              entity_type: "message",
+              title: conversation?.subject ?? "Bericht",
+              description: message.body,
+              event_at: message.sent_at,
+              status: "verzonden",
+              updated_at: message.edited_at ?? message.sent_at,
+              created_by: sender?.id,
+              metadata: {
+                conversationId: conversation?.id ?? "",
+                conversationKind: conversation?.kind ?? "direct",
+                sender: sender?.full_name || sender?.email || "Onbekend",
+              },
+              history: [],
+            };
+          });
+      const assessmentRecords: AppRecord[] = assessmentsResult.error
+        ? []
+        : (assessmentsResult.data ?? []).map((assessment) => {
+            const assessmentGroup = Array.isArray(assessment.group)
+              ? assessment.group[0]
+              : assessment.group;
+            const assessmentSubject = Array.isArray(assessment.subject)
+              ? assessment.subject[0]
+              : assessment.subject;
+            return {
+              id: assessment.id,
+              school_id: assessment.school_id,
+              entity_type: "test",
+              title: assessment.title,
+              description: assessment.assessment_type,
+              event_at: assessment.occurs_at,
+              status: assessment.status,
+              updated_at: assessment.updated_at,
+              created_by: assessment.created_by,
+              metadata: {
+                domainRecord: true,
+                group: assessmentGroup?.name ?? "",
+                subject: assessmentSubject?.name ?? "",
+                assessmentType: assessment.assessment_type,
+                maximumScore: String(assessment.maximum_score ?? ""),
+                weight: String(assessment.weight),
+              },
+              history: [],
+            };
+          });
+      const assignmentRecords: AppRecord[] = assignmentsResult.error
+        ? []
+        : (assignmentsResult.data ?? []).map((assignment) => {
+            const assignmentGroup = Array.isArray(assignment.group)
+              ? assignment.group[0]
+              : assignment.group;
+            const assignmentSubject = Array.isArray(assignment.subject)
+              ? assignment.subject[0]
+              : assignment.subject;
+            return {
+              id: assignment.id,
+              school_id: assignment.school_id,
+              entity_type: "assignment",
+              title: assignment.title,
+              description: assignment.instructions,
+              event_at: assignment.due_at,
+              status: assignment.status,
+              updated_at: assignment.updated_at,
+              created_by: assignment.created_by,
+              metadata: {
+                domainRecord: true,
+                group: assignmentGroup?.name ?? "",
+                subject: assignmentSubject?.name ?? "",
+              },
+              history: [],
+            };
+          });
+      const gradeRecords: AppRecord[] = gradesResult.error
+        ? []
+        : (gradesResult.data ?? []).map((grade) => {
+            const assessment = Array.isArray(grade.assessment)
+              ? grade.assessment[0]
+              : grade.assessment;
+            const student = Array.isArray(grade.student) ? grade.student[0] : grade.student;
+            return {
+              id: grade.id,
+              school_id: grade.school_id,
+              entity_type: "grade",
+              title: assessment?.title ?? "Cijfer",
+              description: grade.note,
+              event_at: grade.graded_at,
+              status: grade.status,
+              updated_at: grade.updated_at,
+              created_by: grade.graded_by,
+              metadata: {
+                domainRecord: true,
+                group: student?.full_name || student?.email || "",
+                assessmentType: assessment?.assessment_type ?? "cijfer",
+                score: String(grade.grade ?? grade.score ?? ""),
+                maximumScore: String(assessment?.maximum_score ?? "10"),
+                weight: String(assessment?.weight ?? "1"),
+              },
+              history: [],
+            };
+          });
+      setRecords([
+        ...guardianRecords,
+        ...messageRecords,
+        ...assessmentRecords,
+        ...assignmentRecords,
+        ...gradeRecords,
+        ...workspaceRecords,
+      ]);
     }
     setLoading(false);
   }, [supabase]);
@@ -533,6 +717,26 @@ export function ProductionApp({
         },
         () => void loadRecords(),
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "guardian_student_links",
+          ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
+        },
+        () => void loadRecords(),
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+          ...(profile.school_id ? { filter: `school_id=eq.${profile.school_id}` } : {}),
+        },
+        () => void loadRecords(),
+      )
       .subscribe();
 
     return () => {
@@ -610,6 +814,8 @@ export function ProductionApp({
     setSourceFile("");
     setRetentionPeriod("");
     setConsentRequired(false);
+    setSelectedFile(null);
+    setReplyConversationId(null);
     setEditorOpen(false);
   };
 
@@ -646,6 +852,201 @@ export function ProductionApp({
       toast.error("Vul een titel in.");
       return;
     }
+    if (isParentLink) {
+      const { error: linkError } = await supabase.rpc("manage_guardian_student_link", {
+        _guardian_email: guardianEmail.trim().toLocaleLowerCase("nl-NL"),
+        _student_reference: studentReference.trim(),
+        _relationship: relationship,
+        _has_legal_authority: legalAuthority,
+        _receives_communication: receivesCommunication,
+        _financial_responsibility: financialResponsibility,
+      });
+      setSaving(false);
+      if (linkError) {
+        toast.error("Ouder-kindkoppeling niet opgeslagen", {
+          description: linkError.message,
+        });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success("Ouder en leerling zijn gekoppeld");
+      return;
+    }
+    if (activeModule.entity === "message") {
+      if (replyConversationId) {
+        const { error: replyError } = await supabase.rpc("send_school_message", {
+          _conversation_id: replyConversationId,
+          _body: description.trim(),
+        });
+        setSaving(false);
+        if (replyError) {
+          toast.error("Antwoord kon niet worden verzonden", {
+            description: replyError.message,
+          });
+          return;
+        }
+        resetEditor();
+        await loadRecords();
+        toast.success("Antwoord verzonden");
+        return;
+      }
+      const participantEmails = participants
+        .split(/[;,\n]/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const { error: messageError } = await supabase.rpc("create_school_conversation", {
+        _subject: title.trim(),
+        _body: description.trim(),
+        _participant_emails: participantEmails,
+        _kind: participantEmails.length > 1 ? "group" : "direct",
+      });
+      setSaving(false);
+      if (messageError) {
+        toast.error("Bericht kon niet worden verzonden", {
+          description: messageError.message,
+        });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success("Bericht verzonden");
+      return;
+    }
+    if (activeModule.entity === "test") {
+      const databaseStatus =
+        status === "gepubliceerd" ? "published" : status === "geannuleerd" ? "cancelled" : "draft";
+      const { error: assessmentError } = await supabase.rpc("create_school_assessment", {
+        _title: title.trim(),
+        _group_reference: group.trim(),
+        _subject_reference: subject.trim(),
+        _assessment_type: assessmentType,
+        _occurs_at: eventAt ? new Date(eventAt).toISOString() : null,
+        _maximum_score: maximumScore ? Number(maximumScore) : null,
+        _weight: Number(weight || "1"),
+        _status: databaseStatus,
+      });
+      setSaving(false);
+      if (assessmentError) {
+        toast.error("Toets kon niet worden opgeslagen", {
+          description: assessmentError.message,
+        });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success("Toets opgeslagen");
+      return;
+    }
+    if (activeModule.entity === "assignment") {
+      const databaseStatus = status === "gepubliceerd" ? "published" : "draft";
+      const { error: assignmentError } = await supabase.rpc("create_school_assignment", {
+        _title: title.trim(),
+        _instructions: description.trim(),
+        _group_reference: group.trim(),
+        _subject_reference: subject.trim(),
+        _due_at: eventAt ? new Date(eventAt).toISOString() : null,
+        _status: databaseStatus,
+      });
+      setSaving(false);
+      if (assignmentError) {
+        toast.error("Opdracht kon niet worden opgeslagen", {
+          description: assignmentError.message,
+        });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success("Opdracht opgeslagen");
+      return;
+    }
+    if (activeModule.entity === "grade") {
+      const numericResult = score.trim() ? Number(score) : null;
+      const databaseStatus = status === "gepubliceerd" ? "published" : "draft";
+      const { error: gradeError } = await supabase.rpc("record_school_grade", {
+        _assessment_title: title.trim(),
+        _student_reference: group.trim(),
+        _score: numericResult,
+        _grade: assessmentType === "cijfer" ? numericResult : null,
+        _note: feedback.trim() || description.trim(),
+        _status: databaseStatus,
+      });
+      setSaving(false);
+      if (gradeError) {
+        toast.error("Cijfer kon niet worden opgeslagen", {
+          description: gradeError.message,
+        });
+        return;
+      }
+      resetEditor();
+      await loadRecords();
+      toast.success(databaseStatus === "published" ? "Cijfer gepubliceerd" : "Cijfer opgeslagen");
+      return;
+    }
+    let documentMetadata: Record<string, string | boolean> | undefined;
+    if (activeModule.entity === "document" && selectedFile) {
+      if (selectedFile.size > 50 * 1024 * 1024) {
+        setSaving(false);
+        toast.error("Bestand is groter dan 50 MB.");
+        return;
+      }
+      const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+      const storagePath = `${profile.school_id}/${profile.id}/${crypto.randomUUID()}-${safeName}`;
+      const { error: uploadError } = await supabase.storage
+        .from("school-files")
+        .upload(storagePath, selectedFile, { upsert: false });
+      if (uploadError) {
+        setSaving(false);
+        toast.error("Bestand uploaden is mislukt", { description: uploadError.message });
+        return;
+      }
+      const { data: fileAsset, error: assetError } = await supabase
+        .from("file_assets")
+        .insert({
+          school_id: profile.school_id,
+          owner_id: profile.id,
+          bucket: "school-files",
+          storage_path: storagePath,
+          file_name: selectedFile.name,
+          mime_type: selectedFile.type || null,
+          size_bytes: selectedFile.size,
+          visibility: "school",
+          related_type: "document",
+          scan_status: "pending",
+        })
+        .select("id")
+        .single();
+      if (assetError) {
+        await supabase.storage.from("school-files").remove([storagePath]);
+        setSaving(false);
+        toast.error("Bestandsregistratie is mislukt", { description: assetError.message });
+        return;
+      }
+      const previousDocument = editingId
+        ? records.find((record) => record.id === editingId)
+        : undefined;
+      if (previousDocument?.metadata?.storagePath) {
+        const previousBucket = String(previousDocument.metadata.bucket ?? "school-files");
+        await supabase.storage
+          .from(previousBucket)
+          .remove([String(previousDocument.metadata.storagePath)]);
+        if (previousDocument.metadata.fileAssetId) {
+          await supabase
+            .from("file_assets")
+            .delete()
+            .eq("id", String(previousDocument.metadata.fileAssetId));
+        }
+      }
+      documentMetadata = {
+        fileAssetId: fileAsset.id,
+        storagePath,
+        bucket: "school-files",
+        fileName: selectedFile.name,
+        mimeType: selectedFile.type || "application/octet-stream",
+        sizeBytes: String(selectedFile.size),
+        scanStatus: "pending",
+      };
+    }
     const nextRecord: AppRecord = {
       id: crypto.randomUUID(),
       school_id: profile.school_id!,
@@ -678,47 +1079,54 @@ export function ProductionApp({
             receivesCommunication,
             financialResponsibility,
           }
-        : isEducationRecord
+        : activeModule.entity === "document"
           ? {
-              subject: subject.trim(),
-              group: group.trim(),
-              weight,
-              assessmentType,
-              score,
-              maximumScore,
-              feedback: feedback.trim(),
-              rubricEnabled,
-              allowResubmit,
+              ...(editingId
+                ? (records.find((record) => record.id === editingId)?.metadata ?? {})
+                : {}),
+              ...(documentMetadata ?? {}),
             }
-          : isOperationsRecord
+          : isEducationRecord
             ? {
-                person: person.trim(),
-                reason: reason.trim(),
-                endAt,
-                location: location.trim(),
-                capacity,
-                budget,
-                department: department.trim(),
-                availability: availability.trim(),
-                replacement: replacement.trim(),
-                notifyInvolved,
+                subject: subject.trim(),
+                group: group.trim(),
+                weight,
+                assessmentType,
+                score,
+                maximumScore,
+                feedback: feedback.trim(),
+                rubricEnabled,
+                allowResubmit,
               }
-            : isAdministrationRecord
+            : isOperationsRecord
               ? {
                   person: person.trim(),
-                  category: category.trim(),
-                  assignedTo: assignedTo.trim(),
-                  participants: participants.trim(),
-                  outcome: outcome.trim(),
-                  sensitive,
-                  accountEmail: accountEmail.trim().toLocaleLowerCase("nl-NL"),
-                  accountRole,
-                  importMode,
-                  sourceFile: sourceFile.trim(),
-                  retentionPeriod: retentionPeriod.trim(),
-                  consentRequired,
+                  reason: reason.trim(),
+                  endAt,
+                  location: location.trim(),
+                  capacity,
+                  budget,
+                  department: department.trim(),
+                  availability: availability.trim(),
+                  replacement: replacement.trim(),
+                  notifyInvolved,
                 }
-              : undefined,
+              : isAdministrationRecord
+                ? {
+                    person: person.trim(),
+                    category: category.trim(),
+                    assignedTo: assignedTo.trim(),
+                    participants: participants.trim(),
+                    outcome: outcome.trim(),
+                    sensitive,
+                    accountEmail: accountEmail.trim().toLocaleLowerCase("nl-NL"),
+                    accountRole,
+                    importMode,
+                    sourceFile: sourceFile.trim(),
+                    retentionPeriod: retentionPeriod.trim(),
+                    consentRequired,
+                  }
+                : undefined,
       history: [
         ...(editingId ? (records.find((record) => record.id === editingId)?.history ?? []) : []),
         {
@@ -788,6 +1196,17 @@ export function ProductionApp({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const replyToMessage = (record: AppRecord) => {
+    const conversationId = String(record.metadata?.conversationId ?? "");
+    if (!conversationId) return;
+    resetEditor();
+    setReplyConversationId(conversationId);
+    setTitle(record.title);
+    setDescription("");
+    setEditorOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const duplicateRecord = async (record: AppRecord) => {
     const saved = await applyRecords([
       {
@@ -840,8 +1259,65 @@ export function ProductionApp({
 
   const deleteRecord = async (id: string) => {
     if (!window.confirm("Weet je zeker dat je dit item wilt verwijderen?")) return;
+    const selectedRecord = records.find((record) => record.id === id);
+    if (selectedRecord?.entity_type === "parent_link") {
+      const { error: linkError } = await supabase.rpc("deactivate_guardian_student_link", {
+        _link_id: id,
+      });
+      if (linkError) {
+        toast.error("Koppeling kon niet worden beëindigd", {
+          description: linkError.message,
+        });
+        return;
+      }
+      await loadRecords();
+      toast.success("Ouder-kindkoppeling beëindigd");
+      return;
+    }
+    if (selectedRecord?.entity_type === "document" && selectedRecord.metadata?.storagePath) {
+      const storagePath = String(selectedRecord.metadata.storagePath);
+      const bucket = String(selectedRecord.metadata.bucket ?? "school-files");
+      const { error: storageError } = await supabase.storage.from(bucket).remove([storagePath]);
+      if (storageError) {
+        toast.error("Bestand kon niet uit de opslag worden verwijderd", {
+          description: storageError.message,
+        });
+        return;
+      }
+      if (selectedRecord.metadata.fileAssetId) {
+        const { error: assetError } = await supabase
+          .from("file_assets")
+          .delete()
+          .eq("id", String(selectedRecord.metadata.fileAssetId));
+        if (assetError) {
+          toast.error("Bestandsregistratie kon niet worden verwijderd", {
+            description: assetError.message,
+          });
+          return;
+        }
+      }
+    }
     const saved = await applyRecords(records.filter((item) => item.id !== id));
     if (saved) toast.success("Item verwijderd");
+  };
+
+  const downloadDocument = async (record: AppRecord) => {
+    const storagePath = String(record.metadata?.storagePath ?? "");
+    if (!storagePath) {
+      toast.error("Dit document heeft geen gekoppeld bestand.");
+      return;
+    }
+    const bucket = String(record.metadata?.bucket ?? "school-files");
+    const { data, error: downloadError } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(storagePath, 60);
+    if (downloadError || !data?.signedUrl) {
+      toast.error("Downloadlink kon niet worden gemaakt", {
+        description: downloadError?.message,
+      });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   };
 
   const exportRecords = () => {
@@ -1171,6 +1647,7 @@ export function ProductionApp({
                         onChange={(event) => setTitle(event.target.value)}
                         placeholder="Titel"
                         required
+                        disabled={Boolean(replyConversationId)}
                         className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
                       />
                       <input
@@ -1186,6 +1663,30 @@ export function ProductionApp({
                         rows={3}
                         className="rounded-lg border border-border bg-background px-3 py-2 text-sm md:col-span-2"
                       />
+                      {activeModule.entity === "message" && !replyConversationId ? (
+                        <input
+                          value={participants}
+                          onChange={(event) => setParticipants(event.target.value)}
+                          placeholder="Ontvangers: school-e-mailadressen, gescheiden met komma's"
+                          required
+                          className="rounded-lg border border-border bg-background px-3 py-2 text-sm md:col-span-2"
+                        />
+                      ) : null}
+                      {activeModule.entity === "document" ? (
+                        <label className="rounded-lg border border-dashed border-border bg-background p-3 text-sm md:col-span-2">
+                          <span className="mb-2 block font-semibold">Bestand uploaden</span>
+                          <input
+                            type="file"
+                            onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.png,.jpg,.jpeg,.webp"
+                            className="block w-full text-xs"
+                          />
+                          <span className="mt-2 block text-xs text-muted-foreground">
+                            Maximaal 50 MB. Gedeelde toegang volgt pas nadat de veiligheidsscan
+                            gereed is.
+                          </span>
+                        </label>
+                      ) : null}
                       {["grade", "test", "assignment"].includes(activeModule.entity) ? (
                         <>
                           <input
@@ -1850,7 +2351,25 @@ export function ProductionApp({
                       </div>
                     </div>
                     <div className="flex flex-wrap justify-end gap-1">
-                      {canUpdate ? (
+                      {record.entity_type === "message" && record.metadata?.conversationId ? (
+                        <button
+                          onClick={() => replyToMessage(record)}
+                          className="rounded-lg border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
+                        >
+                          Reageren
+                        </button>
+                      ) : null}
+                      {record.entity_type === "document" && record.metadata?.storagePath ? (
+                        <button
+                          onClick={() => downloadDocument(record)}
+                          className="rounded-lg border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
+                        >
+                          Downloaden
+                        </button>
+                      ) : null}
+                      {canUpdate &&
+                      record.entity_type !== "message" &&
+                      !record.metadata?.domainRecord ? (
                         <>
                           <button
                             onClick={() => editRecord(record)}
@@ -1918,7 +2437,9 @@ export function ProductionApp({
                           </button>
                         </>
                       ) : null}
-                      {canApprove && record.status !== "goedgekeurd" ? (
+                      {canApprove &&
+                      record.status !== "goedgekeurd" &&
+                      !record.metadata?.domainRecord ? (
                         <button
                           onClick={() => updateRecordStatus(record, "goedgekeurd")}
                           className="rounded-lg border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
@@ -1936,7 +2457,9 @@ export function ProductionApp({
                           Afwijzen
                         </button>
                       ) : null}
-                      {canPublish && record.status !== "gepubliceerd" ? (
+                      {canPublish &&
+                      record.status !== "gepubliceerd" &&
+                      !record.metadata?.domainRecord ? (
                         <button
                           onClick={() => updateRecordStatus(record, "gepubliceerd")}
                           className="rounded-lg bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground"
@@ -1944,7 +2467,9 @@ export function ProductionApp({
                           Publiceren
                         </button>
                       ) : null}
-                      {canCancel && record.status !== "geannuleerd" ? (
+                      {canCancel &&
+                      record.status !== "geannuleerd" &&
+                      !record.metadata?.domainRecord ? (
                         <button
                           onClick={() => updateRecordStatus(record, "geannuleerd")}
                           className="rounded-lg border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
@@ -1952,7 +2477,9 @@ export function ProductionApp({
                           Annuleren
                         </button>
                       ) : null}
-                      {canDelete ? (
+                      {canDelete &&
+                      record.entity_type !== "message" &&
+                      !record.metadata?.domainRecord ? (
                         <button
                           onClick={() => void deleteRecord(record.id)}
                           className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
