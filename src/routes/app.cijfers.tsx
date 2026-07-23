@@ -14,6 +14,8 @@ import {
   X,
   Users,
   BarChart3,
+  History,
+  Undo2,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -282,7 +284,15 @@ function TrendIcon({ trend }: { trend: string }) {
 }
 
 // ─────────────── DOCENT ───────────────
-type Cijfer = { naam: string; cijfer: number; weging: number; datum: string };
+type Cijfer = {
+  naam: string;
+  cijfer: number;
+  weging: number;
+  datum: string;
+  beoordelingstype?: "Cijfer" | "Voldoende/onvoldoende" | "Behaald/niet behaald";
+  opmerking?: string;
+  status?: "concept" | "gepubliceerd";
+};
 
 function DocentCijfers() {
   const [klasIdx, setKlasIdx] = useState<number | null>(null);
@@ -292,6 +302,8 @@ function DocentCijfers() {
   );
   const [modal, setModal] = useState<{ leerling: Leerling; index: number | null } | null>(null);
   const [docentTab, setDocentTab] = useState<"leerlingen" | "snel">("leerlingen");
+  const [geschiedenis, setGeschiedenis] = useState<string[]>([]);
+  const [vorigeData, setVorigeData] = useState<typeof docentKlassen | null>(null);
 
   if (klasIdx === null) {
     return (
@@ -378,6 +390,7 @@ function DocentCijfers() {
   const cs = leerling.cijfers[vak] ?? [];
 
   const saveCijfer = (c: Cijfer, idx: number | null) => {
+    setVorigeData(JSON.parse(JSON.stringify(data)) as typeof docentKlassen);
     setData((d) => {
       const nd = JSON.parse(JSON.stringify(d)) as typeof d;
       const list = nd[klasIdx].leerlingen[leerlingIdx].cijfers[vak] ?? [];
@@ -386,14 +399,24 @@ function DocentCijfers() {
       nd[klasIdx].leerlingen[leerlingIdx].cijfers[vak] = list;
       return nd;
     });
+    setGeschiedenis((items) => [
+      `${new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · ${idx === null ? "Cijfer toegevoegd" : "Cijfer gewijzigd"} · ${c.naam} (${c.status ?? "gepubliceerd"})`,
+      ...items,
+    ]);
     setModal(null);
   };
   const delCijfer = (idx: number) => {
+    setVorigeData(JSON.parse(JSON.stringify(data)) as typeof docentKlassen);
+    const verwijderd = cs[idx];
     setData((d) => {
       const nd = JSON.parse(JSON.stringify(d)) as typeof d;
       nd[klasIdx].leerlingen[leerlingIdx].cijfers[vak].splice(idx, 1);
       return nd;
     });
+    setGeschiedenis((items) => [
+      `${new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })} · Cijfer verwijderd · ${verwijderd?.naam ?? "Onbekend"}`,
+      ...items,
+    ]);
   };
 
   return (
@@ -407,12 +430,27 @@ function DocentCijfers() {
       <Card
         title={vak}
         action={
-          <button
-            onClick={() => setModal({ leerling, index: null })}
-            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-          >
-            <Plus className="h-3.5 w-3.5" /> Cijfer toevoegen
-          </button>
+          <div className="flex gap-2">
+            <button
+              disabled={!vorigeData}
+              onClick={() => {
+                if (!vorigeData) return;
+                setData(vorigeData);
+                setVorigeData(null);
+                setGeschiedenis((items) => ["Laatste wijziging ongedaan gemaakt", ...items]);
+                toast.success("Laatste wijziging ongedaan gemaakt");
+              }}
+              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold disabled:opacity-40"
+            >
+              <Undo2 className="h-3.5 w-3.5" /> Ongedaan
+            </button>
+            <button
+              onClick={() => setModal({ leerling, index: null })}
+              className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              <Plus className="h-3.5 w-3.5" /> Cijfer toevoegen
+            </button>
+          </div>
         }
       >
         {cs.length === 0 ? (
@@ -453,6 +491,25 @@ function DocentCijfers() {
             ))}
           </div>
         )}
+      </Card>
+
+      <Card title="Wijzigingsgeschiedenis">
+        <div className="space-y-2">
+          {geschiedenis.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              Nog geen wijzigingen in deze sessie.
+            </div>
+          ) : (
+            geschiedenis.map((item, index) => (
+              <div
+                key={`${item}-${index}`}
+                className="flex items-center gap-2 rounded-lg bg-muted/50 p-2 text-xs"
+              >
+                <History className="h-3.5 w-3.5 text-primary" /> {item}
+              </div>
+            ))
+          )}
+        </div>
       </Card>
 
       {modal && (
@@ -573,6 +630,10 @@ function CijferModal({
   const [weging, setWeging] = useState(init?.weging.toString() ?? "1");
   const vandaag = new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
   const [datum, setDatum] = useState(init?.datum ?? vandaag);
+  const [beoordelingstype, setBeoordelingstype] = useState<Cijfer["beoordelingstype"]>(
+    init?.beoordelingstype ?? "Cijfer",
+  );
+  const [opmerking, setOpmerking] = useState(init?.opmerking ?? "");
 
   return (
     <div
@@ -629,19 +690,64 @@ function CijferModal({
               />
             </Field>
           </div>
+          <Field label="Beoordelingstype">
+            <select
+              value={beoordelingstype}
+              onChange={(e) => setBeoordelingstype(e.target.value as Cijfer["beoordelingstype"])}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            >
+              <option>Cijfer</option>
+              <option>Voldoende/onvoldoende</option>
+              <option>Behaald/niet behaald</option>
+            </select>
+          </Field>
+          <Field label="Opmerking">
+            <textarea
+              value={opmerking}
+              onChange={(e) => setOpmerking(e.target.value)}
+              rows={3}
+              placeholder="Interne of zichtbare toelichting..."
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </Field>
         </div>
-        <div className="flex justify-end gap-2 border-t border-border p-3">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-border p-3">
           <button onClick={onClose} className="rounded-lg border border-border px-3 py-2 text-sm">
             Annuleren
           </button>
           <button
             disabled={!naam || !cijfer}
             onClick={() =>
-              onSave({ naam, cijfer: parseFloat(cijfer), weging: parseInt(weging) || 1, datum })
+              onSave({
+                naam,
+                cijfer: parseFloat(cijfer),
+                weging: parseInt(weging) || 1,
+                datum,
+                beoordelingstype,
+                opmerking,
+                status: "concept",
+              })
+            }
+            className="rounded-lg border border-border px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            Concept opslaan
+          </button>
+          <button
+            disabled={!naam || !cijfer}
+            onClick={() =>
+              onSave({
+                naam,
+                cijfer: parseFloat(cijfer),
+                weging: parseInt(weging) || 1,
+                datum,
+                beoordelingstype,
+                opmerking,
+                status: "gepubliceerd",
+              })
             }
             className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Opslaan
+            Publiceren
           </button>
         </div>
       </div>

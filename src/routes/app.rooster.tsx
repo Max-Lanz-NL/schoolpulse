@@ -55,6 +55,7 @@ function Rooster() {
   const [view, setView] = useState<"dag" | "week">("dag");
   const [aiOpen, setAiOpen] = useState(false);
   const [dagIdx, setDagIdx] = useState(1); // di default
+  const [weekOffset, setWeekOffset] = useState(0);
   const [huiswerkModal, setHuiswerkModal] = useState<Detail | null>(null);
   const [absentiesLes, setAbsentiesLes] = useState<Detail | null>(null);
   const [aanwezigheidState, setAanwezigheidState] = useState<Record<string, LesStatus>>(() => {
@@ -67,7 +68,37 @@ function Rooster() {
   const [huiswerken, setHuiswerken] = useState<Record<string, string>>({});
 
   const currentDag = dagen[dagIdx];
-  const dagLessen = weekRooster[currentDag] ?? roosterVandaag;
+  const docentKlasPerDag: Record<string, string> = {
+    Ma: "V4A",
+    Di: "V4B",
+    Wo: "V5A",
+    Do: "V4A",
+    Vr: "V4B",
+  };
+  const rooster: Record<string, Les[]> = isDocent
+    ? Object.fromEntries(
+        dagen.map((dag) => [
+          dag,
+          (weekRooster[dag] ?? [])
+            .filter((les) => les.docentId === "jansen")
+            .map((les) => ({
+              ...les,
+              vak: dag === "Ma" || dag === "Do" ? "Wiskunde A" : "Wiskunde B",
+              docent: "M. Jansen",
+              docentId: "jansen",
+              wijziging: undefined,
+              huiswerk: `${docentKlasPerDag[dag]} · Opgaven voor de volgende les`,
+            })),
+        ]),
+      )
+    : weekRooster;
+  const dagLessen = rooster[currentDag] ?? roosterVandaag;
+  const weekNummer = 28 + weekOffset;
+  const weekStart = new Date(2026, 6, 6 + weekOffset * 7);
+  const weekEinde = new Date(weekStart);
+  weekEinde.setDate(weekStart.getDate() + 4);
+  const korteDatum = (datum: Date) =>
+    datum.toLocaleDateString("nl-NL", { day: "numeric", month: "short" });
   const swipe = useSwipe(
     () => setDagIdx((i) => Math.min(dagen.length - 1, i + 1)),
     () => setDagIdx((i) => Math.max(0, i - 1)),
@@ -80,7 +111,10 @@ function Rooster() {
   };
 
   return (
-    <AppShell title="Rooster" subtitle="Week 28 · 6 – 10 juli 2026">
+    <AppShell
+      title="Rooster"
+      subtitle={`Week ${weekNummer} · ${korteDatum(weekStart)} – ${korteDatum(weekEinde)} 2026`}
+    >
       {toonAI && (
         <div className="mb-6 flex flex-wrap items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
@@ -116,6 +150,28 @@ function Rooster() {
             className={`hidden md:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold ${view === "week" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
           >
             <Grid3x3 className="h-3.5 w-3.5" /> Week
+          </button>
+        </div>
+        <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+          <button
+            onClick={() => setWeekOffset((week) => week - 1)}
+            className="rounded-md p-1.5 hover:bg-muted"
+            aria-label="Vorige week"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setWeekOffset(0)}
+            className="min-w-24 rounded-md px-2 py-1 text-xs font-semibold hover:bg-muted"
+          >
+            Week {weekNummer}
+          </button>
+          <button
+            onClick={() => setWeekOffset((week) => week + 1)}
+            className="rounded-md p-1.5 hover:bg-muted"
+            aria-label="Volgende week"
+          >
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -207,7 +263,7 @@ function Rooster() {
           </div>
         </Card>
       ) : (
-        <Card title="Weekrooster">
+        <Card title={`Weekrooster · week ${weekNummer}`}>
           <div className="overflow-x-auto">
             <div className="min-w-[720px]">
               <div className="grid grid-cols-[90px_repeat(5,1fr)] gap-2">
@@ -230,7 +286,15 @@ function Rooster() {
                     7: "13:50",
                     8: "14:40",
                   }[uur]!;
-                  return <FragmentRow key={uur} start={start} uur={uur} onOpen={openDetail} />;
+                  return (
+                    <FragmentRow
+                      key={uur}
+                      start={start}
+                      uur={uur}
+                      rooster={rooster}
+                      onOpen={openDetail}
+                    />
+                  );
                 })}
               </div>
             </div>
@@ -300,10 +364,12 @@ function Rooster() {
 function FragmentRow({
   start,
   uur,
+  rooster,
   onOpen,
 }: {
   start: string;
   uur: number;
+  rooster: Record<string, Les[]>;
   onOpen: (l: Les, d: string) => void;
 }) {
   return (
@@ -313,7 +379,7 @@ function FragmentRow({
         <div className="text-[11px] text-muted-foreground">{start}</div>
       </div>
       {dagen.map((d) => {
-        const cell = weekRooster[d]?.find((l) => l.start === start);
+        const cell = rooster[d]?.find((l) => l.start === start);
         if (!cell) return <div key={d + start} className="min-h-[64px] rounded-lg bg-muted/40" />;
         return (
           <button

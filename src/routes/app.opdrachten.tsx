@@ -47,6 +47,7 @@ function LeerlingOpdrachten() {
   const [filterVak, setFilterVak] = useState("alle");
   const [filterDeadline, setFilterDeadline] = useState("alle");
   const [filterStatus, setFilterStatus] = useState<"alle" | "open" | "afgerond">("alle");
+  const [groep, setGroep] = useState<string[]>([]);
 
   const vakken = Array.from(new Set(opdrachten.map((o) => o.vak)));
   const today = new Date("2026-07-05T00:00:00");
@@ -95,6 +96,28 @@ function LeerlingOpdrachten() {
   return (
     <AppShell title="Opdrachten" subtitle="Digitale inlevering en beoordeling">
       <Card title="Alle opdrachten">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+          <div>
+            <div className="text-sm font-semibold">Projectgroep</div>
+            <div className="text-xs text-muted-foreground">
+              {groep.length ? groep.join(", ") : "Nog geen groep samengesteld"}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              const nieuweGroep = groep.length
+                ? []
+                : ["Sanne de Vries", "Mila de Jong", "Youssef El Amrani"];
+              setGroep(nieuweGroep);
+              toast.success(
+                nieuweGroep.length ? "Projectgroep aangemaakt" : "Projectgroep opgeheven",
+              );
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold"
+          >
+            <Users className="h-4 w-4" /> {groep.length ? "Groep aanpassen" : "Groepje aanmaken"}
+          </button>
+        </div>
         <div className="mb-4 flex flex-wrap gap-2">
           <select
             value={filterVak}
@@ -717,6 +740,10 @@ function BeoordeelModal({
   onClose: () => void;
 }) {
   const [cijfers, setCijfers] = useState<Record<string, string>>({});
+  const [geselecteerd, setGeselecteerd] = useState(leerlingenInKlas[0] ?? "");
+  const [feedback, setFeedback] = useState<Record<string, string>>({});
+  const [rubrics, setRubrics] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<Record<string, string>>({});
   const heeftCijfers = Object.values(cijfers).some(Boolean);
   return (
     <div
@@ -724,7 +751,7 @@ function BeoordeelModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -736,22 +763,102 @@ function BeoordeelModal({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="divide-y divide-border">
-          {leerlingenInKlas.map((l) => (
-            <div key={l} className="flex items-center gap-3 p-3">
-              <div className="min-w-0 flex-1 text-sm font-medium">{l}</div>
-              <input
-                value={cijfers[l] ?? ""}
-                onChange={(e) => setCijfers((s) => ({ ...s, [l]: e.target.value }))}
-                type="number"
-                step="0.1"
-                min="1"
-                max="10"
-                placeholder="-"
-                className="w-20 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-right outline-none focus:border-primary"
-              />
+        <div className="grid max-h-[65vh] overflow-hidden md:grid-cols-[280px_1fr]">
+          <div className="overflow-y-auto border-r border-border">
+            {leerlingenInKlas.map((l) => (
+              <button
+                key={l}
+                onClick={() => setGeselecteerd(l)}
+                className={`flex w-full items-center gap-3 border-b border-border p-3 text-left ${geselecteerd === l ? "bg-primary/10" : "hover:bg-muted/50"}`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium">{l}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {status[l] ?? "Ingeleverd · PDF"}
+                  </div>
+                </div>
+                <input
+                  value={cijfers[l] ?? ""}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => setCijfers((s) => ({ ...s, [l]: e.target.value }))}
+                  type="number"
+                  step="0.1"
+                  min="1"
+                  max="10"
+                  placeholder="-"
+                  className="w-16 rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-right"
+                />
+              </button>
+            ))}
+          </div>
+          <div className="overflow-y-auto p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-sm font-bold">{geselecteerd}</div>
+                <div className="text-xs text-muted-foreground">
+                  inlevering-{geselecteerd.toLowerCase().replaceAll(" ", "-")}.pdf
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toast.success("Bestand geopend in annotatiemodus")}
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold"
+                >
+                  Open & annoteer
+                </button>
+                <button
+                  onClick={() => {
+                    setStatus((s) => ({ ...s, [geselecteerd]: "Opnieuw inleveren" }));
+                    toast.success("Teruggestuurd voor verbetering");
+                  }}
+                  className="rounded-lg border border-warning/40 px-3 py-1.5 text-xs font-semibold text-warning"
+                >
+                  Terugsturen
+                </button>
+              </div>
             </div>
-          ))}
+            <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+              Voorvertoning van de ingeleverde opdracht · klik op “Open & annoteer”
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">Rubric</span>
+                <select
+                  value={rubrics[geselecteerd] ?? ""}
+                  onChange={(e) => setRubrics((s) => ({ ...s, [geselecteerd]: e.target.value }))}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Kies beoordeling</option>
+                  <option>Onvoldoende</option>
+                  <option>In ontwikkeling</option>
+                  <option>Goed</option>
+                  <option>Uitstekend</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">Score</span>
+                <input
+                  value={cijfers[geselecteerd] ?? ""}
+                  onChange={(e) => setCijfers((s) => ({ ...s, [geselecteerd]: e.target.value }))}
+                  type="number"
+                  step="0.1"
+                  min="1"
+                  max="10"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+              </label>
+            </div>
+            <label className="mt-3 block">
+              <span className="mb-1 block text-xs font-semibold">Feedback</span>
+              <textarea
+                value={feedback[geselecteerd] ?? ""}
+                onChange={(e) => setFeedback((s) => ({ ...s, [geselecteerd]: e.target.value }))}
+                rows={4}
+                placeholder="Geef gerichte feedback op inhoud, aanpak en presentatie..."
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
         </div>
         <div className="flex justify-end gap-2 border-t border-border p-3">
           <button onClick={onClose} className="rounded-lg border border-border px-3 py-2 text-sm">
@@ -762,7 +869,7 @@ function BeoordeelModal({
             disabled={!heeftCijfers}
             className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Cijfers opslaan
+            Beoordelingen publiceren
           </button>
         </div>
       </div>

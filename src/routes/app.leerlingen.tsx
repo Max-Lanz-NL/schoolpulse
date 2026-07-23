@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/Card";
 import { docentKlassen, leerlingAanwezigheid, type Leerling } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { useState } from "react";
-import { ArrowLeft, AlertTriangle, Plus, X } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, X, Search, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/leerlingen")({ component: LeerlingenPage });
@@ -32,9 +32,12 @@ function LeerlingenView() {
   const [selectedLeerling, setSelectedLeerling] = useState<Leerling | null>(null);
   const [notities, setNotities] = useState<Record<string, string>>({});
   const [notitieInput, setNotitieInput] = useState("");
+  const [zoekterm, setZoekterm] = useState("");
 
   const klasData = docentKlassen.find((k) => k.klas === klas);
-  const leerlingen = klasData?.leerlingen ?? [];
+  const leerlingen = (klasData?.leerlingen ?? []).filter((leerling) =>
+    leerling.naam.toLowerCase().includes(zoekterm.toLowerCase()),
+  );
 
   const getGem = (l: Leerling) => {
     const all = Object.values(l.cijfers).flat();
@@ -58,7 +61,7 @@ function LeerlingenView() {
 
   return (
     <AppShell title="Leerlingen" subtitle="Dossier en voortgang per leerling">
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <label className="text-xs font-semibold text-muted-foreground">Klas:</label>
         <select
           value={klas}
@@ -72,6 +75,15 @@ function LeerlingenView() {
             <option key={k.klas}>{k.klas}</option>
           ))}
         </select>
+        <div className="flex min-w-60 flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            value={zoekterm}
+            onChange={(e) => setZoekterm(e.target.value)}
+            placeholder="Zoek leerling op naam..."
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </div>
       </div>
 
       {selectedLeerling ? (
@@ -136,6 +148,7 @@ function LeerlingDetail({
   onBack: () => void;
   getGem: (l: Leerling) => number;
 }) {
+  const navigate = useNavigate();
   const gem = getGem(leerling);
   const aanwPct = Math.round(
     (leerlingAanwezigheid.filter((e) => e.status === "aanwezig").length /
@@ -190,9 +203,19 @@ function LeerlingDetail({
         <ArrowLeft className="h-3.5 w-3.5" /> Terug naar leerlingen
       </button>
 
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <div className="text-lg font-bold">{leerling.naam}</div>
-        <div className="text-xs text-muted-foreground">{klas} · Mentor: L. de Boer</div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+        <div>
+          <div className="text-lg font-bold">{leerling.naam}</div>
+          <div className="text-xs text-muted-foreground">
+            {klas} · Mentor: L. de Boer · leerlingnummer {leerling.id.toUpperCase()}
+          </div>
+        </div>
+        <button
+          onClick={() => navigate({ to: "/app/berichten" })}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+        >
+          <MessageSquare className="h-4 w-4" /> Stuur bericht
+        </button>
       </div>
 
       {signaleringen.length > 0 && (
@@ -247,6 +270,21 @@ function LeerlingDetail({
             className={`h-full rounded-full ${aanwPct < 90 ? "bg-destructive" : "bg-success"}`}
             style={{ width: `${aanwPct}%` }}
           />
+        </div>
+      </Card>
+
+      <Card title="Opdrachten">
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            ["Opgaven hoofdstuk 4", "Ingeleverd", "text-success"],
+            ["Praktische opdracht statistiek", "Te beoordelen", "text-warning"],
+            ["Herhaling periode 2", "Open", "text-primary"],
+          ].map(([titel, status, kleur]) => (
+            <div key={titel} className="rounded-xl border border-border bg-background p-3">
+              <div className="text-sm font-semibold">{titel}</div>
+              <div className={`mt-1 text-xs font-medium ${kleur}`}>{status}</div>
+            </div>
+          ))}
         </div>
       </Card>
 
