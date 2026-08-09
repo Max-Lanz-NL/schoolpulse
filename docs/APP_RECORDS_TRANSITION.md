@@ -8,15 +8,15 @@
 
 ## Replacement map
 
-| Current entity                                                                                       | Official source                                        | Planned phase                           |
-| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------- |
-| schedule, substitution                                                                               | `timetable_entries`, `substitutions`                   | Phase 2                                 |
-| attendance, absence                                                                                  | `attendance_records`, `absence_requests`               | Phase 3                                 |
-| grade, test                                                                                          | `grades`, `assessments`                                | Phase 4                                 |
-| homework, assignment, document                                                                       | `assignments`, `assignment_submissions`, `file_assets` | Phase 5                                 |
-| student, staff, parent_link                                                                          | People tables                                          | Phase 1                                 |
-| dashboard                                                                                            | Aggregated domain queries                              | Phase 6                                 |
-| messages, activities, agenda, consent, reports, notifications, care, integrations, payments, privacy | Outside the primary 1.0 scope                          | Keep transitionally; reassess after 1.0 |
+| Current entity                                                                                       | Official source                                        | Planned phase                                                               |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| schedule, substitution                                                                               | `timetable_entries`, `substitutions`                   | Phase 2                                                                     |
+| attendance, absence                                                                                  | `attendance_records`, `absence_requests`               | Phase 3                                                                     |
+| grade, test                                                                                          | `grades`, `assessments`                                | Phase 4                                                                     |
+| homework, assignment, document                                                                       | `assignments`, `assignment_submissions`, `file_assets` | Phase 5                                                                     |
+| student, staff, parent_link                                                                          | People tables                                          | Phase 1 typed production reads complete; legacy retained for reconciliation |
+| dashboard                                                                                            | Aggregated domain queries                              | Phase 6                                                                     |
+| messages, activities, agenda, consent, reports, notifications, care, integrations, payments, privacy | Outside the primary 1.0 scope                          | Keep transitionally; reassess after 1.0                                     |
 
 ## Rules
 
@@ -24,3 +24,7 @@
 2. Migrate one domain at a time, with role/RLS and end-to-end tests.
 3. Do not delete legacy records until production migration, reconciliation and rollback have been proven.
 4. The dashboard never becomes a new source of truth.
+
+## Phase 1 result
+
+The production routes for pupils and staff render the official People tables through domain services. School structure and user/role directories use their typed sources as well. Generic Phase 1 create, status and delete handlers are explicitly blocked. `app_records` remains for transition modules and historical reconciliation, but Phase 1 screens do not render or mutate Identity, School or People through it.

@@ -32,16 +32,16 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 
 ## Status per domain
 
-| Domain     | Reset status | Functional 1.0 status                                               |
-| ---------- | ------------ | ------------------------------------------------------------------- |
-| Identity   | IN PROGRESS  | Existing auth/RBAC; service extraction started; hardening pending   |
-| School     | NOT STARTED  | Schema/admin screens exist; production domain service pending       |
-| People     | NOT STARTED  | Schema and partial workflows exist; typed production module pending |
-| Timetable  | NOT STARTED  | Schema exists; production still uses transition records             |
-| Attendance | NOT STARTED  | Schema exists; typed production flow pending                        |
-| Results    | NOT STARTED  | Typed reads/writes partly exist; separation and tests pending       |
-| Learning   | NOT STARTED  | Assignments/files partly typed; submissions/version UI pending      |
-| Dashboard  | NOT STARTED  | Current counts are transition records, not domain aggregation       |
+| Domain     | Reset status   | Functional 1.0 status                                                             |
+| ---------- | -------------- | --------------------------------------------------------------------------------- |
+| Identity   | READY FOR TEST | Typed identity context, roles, permissions, preferences and school user directory |
+| School     | READY FOR TEST | Typed service/query layer and production overview; existing typed admin writes    |
+| People     | READY FOR TEST | Typed pupils, staff, enrolments, guardians and teaching assignments               |
+| Timetable  | NOT STARTED    | Schema exists; production still uses transition records                           |
+| Attendance | NOT STARTED    | Schema exists; typed production flow pending                                      |
+| Results    | NOT STARTED    | Typed reads/writes partly exist; separation and tests pending                     |
+| Learning   | NOT STARTED    | Assignments/files partly typed; submissions/version UI pending                    |
+| Dashboard  | NOT STARTED    | Current counts are transition records, not domain aggregation                     |
 
 `DONE` means its Definition of Done scenarios and automated controls pass. No domain is marked DONE during this reset.
 
@@ -86,13 +86,15 @@ Other routes remain available transitionally but are hidden from primary 1.0 nav
 
 ## Roadmap
 
-### Phase 0 — Architecture Reset — IN PROGRESS
+### Phase 0 — Architecture Reset — DONE
 
 Domain contracts, official sources, transition plan, 1.0 navigation, mobile reachability, initial identity services and quality plan. No feature completion.
 
-### Phase 1 — Identity + School + People foundation
+### Phase 1 — Identity + School + People foundation — READY FOR TEST
 
 Complete services/queries, remove their generic production writes, connect management UI, prove tenant/role scopes and establish reusable test fixtures.
+
+Implemented: typed domain services and hooks, production directories, explicit Data API grants, scoped RLS adjustments and a 24-assertion two-school pgTAP suite. Manual role acceptance and write-form usability remain before `DONE`.
 
 ### Phase 2 — Timetable
 
@@ -126,6 +128,8 @@ Automated E2E/RLS tests, accessibility/mobile checks, performance, observability
 - **E2E:** login and the Definition of Done journeys for pupil, teacher and administration.
 - **Mobile:** 360px phone, tablet and Chromebook viewport; drawer, bottom navigation, forms and tables.
 - **Quality gates:** typecheck, lint, production build and portability on every phase.
+
+Run local database regression tests with `npm run test:rls`. This requires Docker and a running local Supabase stack. Rebuild all migrations with `npx supabase db reset --local --no-seed --yes` when needed.
 
 ## P0 before production
 

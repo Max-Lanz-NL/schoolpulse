@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "portability:check": "node scripts/check-portability.mjs"
+    "portability:check": "node scripts/check-portability.mjs",
+    "test:rls": "npx supabase test db --local supabase/tests"
   },
   "engines": {
     "node": ">=22 <25"
