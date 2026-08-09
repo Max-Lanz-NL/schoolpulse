@@ -75,6 +75,15 @@ export const productionModules: ProductionModule[] = [
     navigation: "management",
   },
   {
+    path: "/app/schoolstructuur",
+    entity: "school_structure",
+    permission: "school_settings.view",
+    label: "Schoolstructuur",
+    icon: "settings",
+    domain: "school",
+    navigation: "management",
+  },
+  {
     path: "/app/personeel",
     entity: "staff",
     permission: "staff.view",

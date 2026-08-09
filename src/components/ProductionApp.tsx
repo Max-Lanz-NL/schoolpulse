@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 import { ProductionDesktopNavigation } from "@/components/production/ProductionDesktopNavigation";
 import { ProductionMobileNavigation } from "@/components/production/ProductionMobileNavigation";
+import { Phase1Directory } from "@/components/production/Phase1Directory";
 import { getEffectiveAccess } from "@/domains/identity/services/access-service";
 import {
   getProfilePreferences,
@@ -132,6 +133,13 @@ const modules = [
     entity: "student",
     permission: "students.view",
     label: "Leerlingen",
+    icon: Users,
+  },
+  {
+    path: "/app/schoolstructuur",
+    entity: "school_structure",
+    permission: "school_settings.view",
+    label: "Schoolstructuur",
     icon: Users,
   },
   {
@@ -295,6 +303,8 @@ function defaultRecordVisibility(entity: string): AppRecord["visibility"] {
   if (["test", "assignment", "attendance"].includes(entity)) return "assigned";
   return "private";
 }
+
+const phase1TypedEntities = new Set(["student", "staff", "school_structure", "user_management"]);
 
 export function ProductionApp({
   profile,
@@ -934,6 +944,12 @@ export function ProductionApp({
 
   const saveRecord = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (phase1TypedEntities.has(activeModule.entity)) {
+      toast.error(
+        "Deze gegevens worden alleen via de beveiligde SchoolPulse 1.0-beheerflow gewijzigd.",
+      );
+      return;
+    }
     if (!profile.school_id) return;
     setSaving(true);
     const isParentLink = activeModule.entity === "parent_link";
@@ -1430,6 +1446,10 @@ export function ProductionApp({
   };
 
   const updateRecordStatus = async (record: AppRecord, nextStatus: string) => {
+    if (phase1TypedEntities.has(record.entity_type)) {
+      toast.error("Deze status hoort bij een officiële Identity-, School- of People-bron.");
+      return;
+    }
     if (record.entity_type === "user_management" && record.metadata?.domainRecord) {
       const action =
         nextStatus === "wachtwoordherstel_verstuurd" ? "reset_password" : "set_user_blocked";
@@ -1511,6 +1531,10 @@ export function ProductionApp({
   };
 
   const deleteRecord = async (id: string) => {
+    if (phase1TypedEntities.has(activeModule.entity)) {
+      toast.error("Verwijderen verloopt uitsluitend via de beveiligde SchoolPulse 1.0-beheerflow.");
+      return;
+    }
     if (!window.confirm("Weet je zeker dat je dit item wilt verwijderen?")) return;
     const selectedRecord = records.find((record) => record.id === id);
     if (
@@ -1751,7 +1775,17 @@ export function ProductionApp({
         </header>
 
         <main className="p-4 pb-24 md:p-8">
-          {activeModule.entity === "permission_requests" ? (
+          {["student", "staff", "school_structure", "user_management"].includes(
+            activeModule.entity,
+          ) ? (
+            <Phase1Directory
+              entity={
+                activeModule.entity as "student" | "staff" | "school_structure" | "user_management"
+              }
+              profile={profile}
+              supabase={supabase}
+            />
+          ) : activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />
           ) : activeModule.entity === "dashboard" ? (
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -1777,7 +1811,13 @@ export function ProductionApp({
             </div>
           ) : null}
 
-          {activeModule.entity !== "permission_requests" ? (
+          {![
+            "student",
+            "staff",
+            "school_structure",
+            "user_management",
+            "permission_requests",
+          ].includes(activeModule.entity) ? (
             <section className="rounded-2xl border border-border bg-card shadow-sm">
               <div className="flex items-center justify-between border-b border-border p-4 md:p-5">
                 <div>

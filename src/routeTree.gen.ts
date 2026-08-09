@@ -27,6 +27,7 @@ import { Route as AppVervangingRouteImport } from './routes/app.vervanging'
 import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
 import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
 import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
+import { Route as AppSchoolstructuurRouteImport } from './routes/app.schoolstructuur'
 import { Route as AppRoosterRouteImport } from './routes/app.rooster'
 import { Route as AppRechtenAanvragenRouteImport } from './routes/app.rechten-aanvragen'
 import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
@@ -147,6 +148,11 @@ const AppToestemmingRoute = AppToestemmingRouteImport.update({
 const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
   id: '/studieplanner',
   path: '/studieplanner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSchoolstructuurRoute = AppSchoolstructuurRouteImport.update({
+  id: '/schoolstructuur',
+  path: '/schoolstructuur',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRoosterRoute = AppRoosterRouteImport.update({
@@ -343,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
+  '/app/schoolstructuur': typeof AppSchoolstructuurRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
   '/app/toetsen': typeof AppToetsenRoute
@@ -392,6 +399,7 @@ export interface FileRoutesByTo {
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
+  '/app/schoolstructuur': typeof AppSchoolstructuurRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
   '/app/toetsen': typeof AppToetsenRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   '/app/rapporten': typeof AppRapportenRoute
   '/app/rechten-aanvragen': typeof AppRechtenAanvragenRoute
   '/app/rooster': typeof AppRoosterRoute
+  '/app/schoolstructuur': typeof AppSchoolstructuurRoute
   '/app/studieplanner': typeof AppStudieplannerRoute
   '/app/toestemming': typeof AppToestemmingRoute
   '/app/toetsen': typeof AppToetsenRoute
@@ -497,6 +506,7 @@ export interface FileRouteTypes {
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
     | '/app/rooster'
+    | '/app/schoolstructuur'
     | '/app/studieplanner'
     | '/app/toestemming'
     | '/app/toetsen'
@@ -546,6 +556,7 @@ export interface FileRouteTypes {
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
     | '/app/rooster'
+    | '/app/schoolstructuur'
     | '/app/studieplanner'
     | '/app/toestemming'
     | '/app/toetsen'
@@ -597,6 +608,7 @@ export interface FileRouteTypes {
     | '/app/rapporten'
     | '/app/rechten-aanvragen'
     | '/app/rooster'
+    | '/app/schoolstructuur'
     | '/app/studieplanner'
     | '/app/toestemming'
     | '/app/toetsen'
@@ -752,6 +764,13 @@ declare module '@tanstack/react-router' {
       path: '/studieplanner'
       fullPath: '/app/studieplanner'
       preLoaderRoute: typeof AppStudieplannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/schoolstructuur': {
+      id: '/app/schoolstructuur'
+      path: '/schoolstructuur'
+      fullPath: '/app/schoolstructuur'
+      preLoaderRoute: typeof AppSchoolstructuurRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/rooster': {
@@ -1024,6 +1043,7 @@ interface AppRouteChildren {
   AppRapportenRoute: typeof AppRapportenRoute
   AppRechtenAanvragenRoute: typeof AppRechtenAanvragenRoute
   AppRoosterRoute: typeof AppRoosterRoute
+  AppSchoolstructuurRoute: typeof AppSchoolstructuurRoute
   AppStudieplannerRoute: typeof AppStudieplannerRoute
   AppToestemmingRoute: typeof AppToestemmingRoute
   AppToetsenRoute: typeof AppToetsenRoute
@@ -1055,6 +1075,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppRapportenRoute: AppRapportenRoute,
   AppRechtenAanvragenRoute: AppRechtenAanvragenRoute,
   AppRoosterRoute: AppRoosterRoute,
+  AppSchoolstructuurRoute: AppSchoolstructuurRoute,
   AppStudieplannerRoute: AppStudieplannerRoute,
   AppToestemmingRoute: AppToestemmingRoute,
   AppToetsenRoute: AppToetsenRoute,
