@@ -1,0 +1,470 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/components/AppShell";
+import { Card } from "@/components/Card";
+import { documenten } from "@/lib/demo-data";
+import {
+  FileText,
+  Download,
+  MoreHorizontal,
+  FolderPlus,
+  Upload,
+  UserPlus,
+  X,
+  Users,
+  Folder,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useRole } from "@/lib/role-context";
+
+export const Route = createFileRoute("/app/documenten")({ component: Bestanden });
+
+const filters = ["Alles", "Wiskunde", "Nederlands", "Scheikunde", "Engels", "Algemeen"];
+
+type ExtraBestand = {
+  naam: string;
+  vak: string;
+  grootte: string;
+  datum: string;
+  versie: string;
+  gedeeldMet: string[];
+  isMap?: boolean;
+};
+
+const mapItem = (naam: string, vak: string, gedeeldMet: string[] = []): ExtraBestand => ({
+  naam,
+  vak,
+  grootte: "—",
+  datum: "Vandaag",
+  versie: "—",
+  gedeeldMet,
+  isMap: true,
+});
+
+const docentMappen = [
+  "Lesmateriaal",
+  "Klassen",
+  "Toetsen",
+  "Opdrachten",
+  "Nakijkwerk",
+  "Cijferlijsten",
+  "Presentaties",
+  "Vergaderingen",
+  "Administratie",
+].map((naam) => mapItem(naam, "Docent"));
+
+const docentBestanden: ExtraBestand[] = [
+  ["Presentatie · Differentiëren.pptx", "Presentaties"],
+  ["Werkblad · Functies en grafieken.pdf", "Lesmateriaal"],
+  ["Toets · Wiskunde B periode 2.docx", "Toetsen"],
+  ["Antwoordmodel · Periode 2.pdf", "Toetsen"],
+  ["Cijferlijst · V4B.xlsx", "Cijferlijsten"],
+  ["Lesplanning · Week 28.pdf", "Lesmateriaal"],
+  ["Ingeleverde opdrachten · V5A.zip", "Nakijkwerk"],
+  ["Feedbackdocument · Statistiek.docx", "Nakijkwerk"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: naam.endsWith(".zip") ? "8.4 MB" : "640 KB",
+  datum: "Vandaag",
+  versie: "v1",
+  gedeeldMet: [],
+}));
+
+const leerlingMappen = ["Mijn samenvattingen", "Projecten", "Ingeleverde opdrachten"].map((naam) =>
+  mapItem(naam, "Persoonlijk"),
+);
+
+const teamleiderMappen = [
+  "Afdelingsbeleid",
+  "Teamvergaderingen",
+  "Klassenoverzichten",
+  "Resultaatanalyses",
+  "Personeelsgesprekken",
+  "Verlof en vervanging",
+  "Jaarplanning",
+  "Oudercommunicatie",
+  "Zorg en begeleiding",
+].map((naam) => mapItem(naam, "Teamleider", ["Onderwijsteam"]));
+
+const teamleiderBestanden: ExtraBestand[] = [
+  ["Resultatenanalyse bovenbouw.xlsx", "Resultaatanalyses"],
+  ["Verslag teamvergadering 7 juli.docx", "Teamvergaderingen"],
+  ["Bezettingsplan week 28.pdf", "Verlof en vervanging"],
+  ["Overzicht zorgsignalen V4.pdf", "Zorg en begeleiding"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: "720 KB",
+  datum: "Vandaag",
+  versie: "v2",
+  gedeeldMet: ["Onderwijsteam"],
+}));
+
+const directieMappen = [
+  "Strategisch beleid",
+  "Bestuur en toezicht",
+  "Financiën en begroting",
+  "Personeel en formatie",
+  "Inspectie en kwaliteitszorg",
+  "AVG en veiligheid",
+  "Managementrapportages",
+  "Contracten en leveranciers",
+  "Vergaderstukken",
+  "Jaarverslagen",
+].map((naam) => mapItem(naam, "Directie", ["Directie"]));
+
+const directieBestanden: ExtraBestand[] = [
+  ["Meerjarenplan 2026-2030.pdf", "Strategisch beleid"],
+  ["Begroting schooljaar 2026-2027.xlsx", "Financiën en begroting"],
+  ["Formatieplan definitief.docx", "Personeel en formatie"],
+  ["Kwaliteitsrapport inspectie.pdf", "Inspectie en kwaliteitszorg"],
+  ["AVG-audit kwartaal 2.pdf", "AVG en veiligheid"],
+].map(([naam, vak]) => ({
+  naam,
+  vak,
+  grootte: "1.2 MB",
+  datum: "Vandaag",
+  versie: "v3",
+  gedeeldMet: ["Directie"],
+}));
+
+function Bestanden() {
+  const { role } = useRole();
+  const [filter, setFilter] = useState<string>("Alles");
+  const [shareFile, setShareFile] = useState<string | null>(null);
+  const [extraShares, setExtraShares] = useState<Record<string, string[]>>({});
+  const [extraBestanden, setExtraBestanden] = useState<ExtraBestand[]>([]);
+
+  const rolItems: ExtraBestand[] =
+    role === "docent"
+      ? [...docentMappen, ...docentBestanden]
+      : role === "leerling"
+        ? [...leerlingMappen, ...documenten]
+        : role === "teamleider"
+          ? [...teamleiderMappen, ...teamleiderBestanden]
+          : role === "directie"
+            ? [...directieMappen, ...directieBestanden]
+            : documenten;
+  const zichtbaar = [...extraBestanden, ...rolItems].filter(
+    (d) => filter === "Alles" || d.vak === filter || filter === "Alles",
+  );
+
+  const addShare = (file: string, target: string) => {
+    setExtraShares((s) => ({ ...s, [file]: [...(s[file] ?? []), target] }));
+  };
+  const removeShare = (file: string, target: string) => {
+    setExtraShares((s) => ({ ...s, [file]: (s[file] ?? []).filter((t) => t !== target) }));
+  };
+
+  return (
+    <AppShell
+      title="Bestanden"
+      subtitle={
+        role === "docent"
+          ? "Lesmateriaal, klassen en beoordeling overzichtelijk geordend"
+          : role === "leerling"
+            ? "Jouw persoonlijke opslag en gedeelde schoolbestanden"
+            : role === "teamleider"
+              ? "Afdelingsdocumenten, analyses en teamdossiers"
+              : role === "directie"
+                ? "Strategische, bestuurlijke en schoolbrede directiedocumenten"
+                : "Gedeelde schoolbestanden"
+      }
+    >
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">
+          <Upload className="h-4 w-4" /> Uploaden
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const sizeKB = file.size / 1024;
+                const grootte =
+                  sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${Math.round(sizeKB)} KB`;
+                setExtraBestanden((prev) => [
+                  {
+                    naam: file.name,
+                    vak: "Algemeen",
+                    grootte,
+                    datum: "Zojuist",
+                    versie: "v1",
+                    gedeeldMet: [],
+                  },
+                  ...prev,
+                ]);
+                toast.success(`"${file.name}" toegevoegd`);
+              }
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <button
+          onClick={() => {
+            const naam = `Nieuwe map ${extraBestanden.filter((b) => b.isMap).length + 1}`;
+            setExtraBestanden((prev) => [
+              {
+                naam,
+                vak: "Algemeen",
+                grootte: "—",
+                datum: "Zojuist",
+                versie: "—",
+                gedeeldMet: [],
+                isMap: true,
+              },
+              ...prev,
+            ]);
+            toast.success(`Map "${naam}" aangemaakt`);
+          }}
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold hover:bg-muted"
+        >
+          <FolderPlus className="h-4 w-4" /> Nieuwe map
+        </button>
+        <div className="ml-auto flex flex-wrap gap-2 text-xs">
+          {filters.map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilter(t)}
+              className={`rounded-full px-3 py-1 transition-colors ${filter === t ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Card title={`Bestanden ${filter !== "Alles" ? `— ${filter}` : ""}`}>
+        {zichtbaar.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+            Geen bestanden in categorie "{filter}".
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2 text-left">Naam</th>
+                  <th className="px-4 py-2 text-left">Vak</th>
+                  <th className="px-4 py-2 text-left">Gedeeld met</th>
+                  <th className="px-4 py-2 text-left">Versie</th>
+                  <th className="px-4 py-2 text-left">Grootte</th>
+                  <th className="px-4 py-2 text-left">Datum</th>
+                  <th className="px-4 py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {zichtbaar.map((d) => {
+                  const shared = [...d.gedeeldMet, ...(extraShares[d.naam] ?? [])];
+                  return (
+                    <tr key={d.naam} className="border-t border-border hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
+                            {(d as ExtraBestand).isMap ? (
+                              <Folder className="h-4 w-4" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                          </div>
+                          <span className="font-medium">{d.naam}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.vak}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {shared.slice(0, 2).map((s) => (
+                            <span
+                              key={s}
+                              className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                            >
+                              <Users className="h-2.5 w-2.5" /> {s}
+                            </span>
+                          ))}
+                          {shared.length > 2 && (
+                            <span className="text-[10px] text-muted-foreground">
+                              +{shared.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                          {d.versie}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.grootte}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.datum}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => setShareFile(d.naam)}
+                            className="rounded-md p-1.5 hover:bg-muted"
+                            aria-label="Delen"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => toast.success(`"${d.naam}" wordt gedownload`)}
+                            className="rounded-md p-1.5 hover:bg-muted"
+                            aria-label="Download"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              toast(`Opties voor "${d.naam}"`, {
+                                description:
+                                  "Verplaatsen, hernoemen en versiebeheer komen binnenkort.",
+                              })
+                            }
+                            className="rounded-md p-1.5 hover:bg-muted"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      {shareFile && (
+        <ShareModal
+          file={shareFile}
+          origineel={rolItems.find((d) => d.naam === shareFile)?.gedeeldMet ?? []}
+          extras={extraShares[shareFile] ?? []}
+          onAdd={(t) => addShare(shareFile, t)}
+          onRemove={(t) => removeShare(shareFile, t)}
+          onClose={() => setShareFile(null)}
+        />
+      )}
+    </AppShell>
+  );
+}
+
+const suggesties = [
+  "Klas V4A",
+  "Klas V4B",
+  "Klas V5A",
+  "Klas H4A",
+  "Sectie Wiskunde",
+  "Sectie Nederlands",
+  "M. Jansen",
+  "L. de Boer",
+  "S. Green",
+  "K. Visser",
+  "Bovenbouw",
+  "Onderbouw",
+  "Iedereen",
+];
+
+function ShareModal({
+  file,
+  origineel,
+  extras,
+  onAdd,
+  onRemove,
+  onClose,
+}: {
+  file: string;
+  origineel: string[];
+  extras: string[];
+  onAdd: (target: string) => void;
+  onRemove: (target: string) => void;
+  onClose: () => void;
+}) {
+  const [q, setQ] = useState("");
+  const shared = [...origineel, ...extras];
+  const filtered = suggesties.filter(
+    (s) => s.toLowerCase().includes(q.toLowerCase()) && !shared.includes(s),
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border p-4">
+          <div>
+            <div className="text-xs font-medium text-muted-foreground">Delen</div>
+            <div className="truncate text-sm font-semibold">{file}</div>
+          </div>
+          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="p-4">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Zoek een persoon, klas of groep..."
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            autoFocus
+          />
+          <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-border">
+            {filtered.length === 0 ? (
+              <div className="p-4 text-center text-xs text-muted-foreground">Geen suggesties</div>
+            ) : (
+              filtered.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    onAdd(s);
+                    setQ("");
+                  }}
+                  className="flex w-full items-center gap-2 border-b border-border px-3 py-2 text-left text-sm last:border-b-0 hover:bg-muted"
+                >
+                  <Users className="h-4 w-4 text-muted-foreground" /> {s}
+                </button>
+              ))
+            )}
+          </div>
+
+          <div className="mt-4">
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Al gedeeld met · klik om te verwijderen
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {shared.length === 0 && (
+                <span className="text-xs text-muted-foreground">Nog niemand</span>
+              )}
+              {shared.map((s) => {
+                const isExtra = extras.includes(s);
+                return (
+                  <button
+                    key={s}
+                    onClick={() => isExtra && onRemove(s)}
+                    disabled={!isExtra}
+                    title={isExtra ? "Klik om te verwijderen" : "Standaard – niet te verwijderen"}
+                    className={`group inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors ${isExtra ? "bg-primary/10 text-primary hover:bg-destructive/15 hover:text-destructive" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
+                  >
+                    <Users className="h-3 w-3" /> {s}
+                    {isExtra && <X className="h-3 w-3 opacity-60 group-hover:opacity-100" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-border p-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+          >
+            Klaar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

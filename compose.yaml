@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_MARKETING_ORIGIN: ${VITE_MARKETING_ORIGIN:-https://schoolpulse.nl}
+        VITE_MARKETING_WWW_ORIGIN: ${VITE_MARKETING_WWW_ORIGIN:-https://www.schoolpulse.nl}
+        VITE_APP_ORIGIN: ${VITE_APP_ORIGIN:-https://app.schoolpulse.nl}
+        VITE_ADMIN_ORIGIN: ${VITE_ADMIN_ORIGIN:-https://admin.schoolpulse.nl}
+        VITE_DEMO_ORIGIN: ${VITE_DEMO_ORIGIN:-https://demo.schoolpulse.nl}
+        VITE_TEST_ORIGIN: ${VITE_TEST_ORIGIN:-https://test.schoolpulse.nl}
+        VITE_API_ORIGIN: ${VITE_API_ORIGIN:-https://api.schoolpulse.nl}
+        VITE_DOCS_ORIGIN: ${VITE_DOCS_ORIGIN:-https://docs.schoolpulse.nl}
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
