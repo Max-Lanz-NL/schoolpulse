@@ -26,7 +26,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import logo from "@/assets/schoolpulse-logo.png";
+import { ProductionDesktopNavigation } from "@/components/production/ProductionDesktopNavigation";
+import { ProductionMobileNavigation } from "@/components/production/ProductionMobileNavigation";
+import { getEffectiveAccess } from "@/domains/identity/services/access-service";
+import {
+  getProfilePreferences,
+  saveProfilePreferences,
+  updateProfileName,
+} from "@/domains/identity/services/profile-service";
+import { productionModules } from "@/domains/shared/production-modules";
 
 type ProductionRole = "platform_admin" | "school_admin" | "teacher" | "student" | "parent";
 
@@ -380,7 +388,7 @@ export function ProductionApp({
 
   const openSettings = async () => {
     const [{ data: preferences }, { data: factors }] = await Promise.all([
-      supabase.from("profile_preferences").select("*").eq("profile_id", profile.id).maybeSingle(),
+      getProfilePreferences(supabase, profile.id),
       supabase.auth.mfa.listFactors(),
     ]);
     setSettingsName(String(preferences?.display_name ?? profile.full_name ?? ""));
@@ -395,18 +403,14 @@ export function ProductionApp({
 
   const saveSettings = async () => {
     const [{ error: profileError }, { error: preferencesError }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .update({ full_name: settingsName.trim() || null })
-        .eq("id", profile.id),
-      supabase.from("profile_preferences").upsert({
+      updateProfileName(supabase, profile.id, settingsName.trim() || null),
+      saveProfilePreferences(supabase, {
         profile_id: profile.id,
         school_id: profile.school_id,
         display_name: settingsName.trim() || null,
         notification_email: emailNotifications,
         notification_in_app: inAppNotifications,
         notification_digest: notificationDigest,
-        updated_at: new Date().toISOString(),
       }),
     ]);
     if (profileError || preferencesError) {
@@ -453,16 +457,15 @@ export function ProductionApp({
 
   const loadAccess = useCallback(async () => {
     setAccessLoading(true);
-    const [{ data: permissionData, error: permissionError }, { data: rankData }] =
-      await Promise.all([supabase.rpc("effective_permissions"), supabase.rpc("effective_rank")]);
-    if (permissionError) {
+    const access = await getEffectiveAccess(supabase);
+    if (access.error) {
       setError(
         "Je rollen en rechten konden niet worden geladen. Controleer of de permissiemigratie is uitgevoerd.",
       );
       setEffectivePermissions([]);
     } else {
-      setEffectivePermissions((permissionData ?? []) as EffectivePermission[]);
-      setEffectiveRank(Number(rankData ?? 0));
+      setEffectivePermissions(access.permissions);
+      setEffectiveRank(access.rank);
     }
     setAccessLoading(false);
   }, [supabase]);
@@ -1641,7 +1644,12 @@ export function ProductionApp({
     return can(`${category}.${action}`) || can(`${category}.manage`);
   };
 
-  const visibleModules = modules.filter((module) => can(module.permission));
+  const navigationModules = productionModules.filter(
+    (module) => module.navigation !== "hidden" && can(module.permission),
+  );
+  const visibleModules = modules.filter((module) =>
+    navigationModules.some((navigationModule) => navigationModule.path === module.path),
+  );
   const canCreate = canPerform(activeModule.entity, "create");
   const canUpdate = canPerform(activeModule.entity, "update");
   const canDelete = canPerform(activeModule.entity, "delete");
@@ -1685,31 +1693,9 @@ export function ProductionApp({
 
   return (
     <div className="min-h-screen bg-muted/30 text-foreground">
+      <ProductionMobileNavigation modules={navigationModules} pathname={pathname} />
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-sidebar text-sidebar-foreground md:flex">
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
-          <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
-          <div>
-            <div className="text-sm font-bold text-white">Schoolpulse</div>
-            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">
-              Productieomgeving
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3 pt-5">
-          {visibleModules.map((module) => {
-            const Icon = module.icon;
-            const active = pathname === module.path;
-            return (
-              <Link
-                key={module.path}
-                to={module.path}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent"}`}
-              >
-                <Icon className="h-4 w-4" /> {module.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <ProductionDesktopNavigation modules={visibleModules} pathname={pathname} />
         <div className="border-t border-sidebar-border p-4">
           <div className="truncate text-sm font-semibold text-white">
             {profile.full_name || profile.email}
@@ -1764,7 +1750,7 @@ export function ProductionApp({
           </div>
         </header>
 
-        <main className="p-4 md:p-8">
+        <main className="p-4 pb-24 md:p-8">
           {activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />
           ) : activeModule.entity === "dashboard" ? (
