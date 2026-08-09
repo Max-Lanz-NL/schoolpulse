@@ -16,3 +16,31 @@ export type EffectivePermission = {
   scope: PermissionScope;
   source_roles: string[];
 };
+
+export type AssignedRole = {
+  id: string;
+  name: string;
+  rank: number;
+  color: string;
+  is_primary: boolean;
+};
+
+export type ProfilePreferences = {
+  profile_id: string;
+  school_id: string | null;
+  display_name: string | null;
+  notification_email: boolean;
+  notification_in_app: boolean;
+  notification_digest: string;
+};
+
+export type IdentityContext = {
+  userId: string;
+  profile: ProductionProfile;
+  schoolId: string | null;
+  roles: AssignedRole[];
+  primaryRole: AssignedRole | null;
+  permissions: EffectivePermission[];
+  rank: number;
+  preferences: ProfilePreferences | null;
+};
