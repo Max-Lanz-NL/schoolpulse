@@ -18,16 +18,24 @@ Bijgewerkt op 9 augustus 2026. Dit document is de centrale werklijst. Afgeronde 
 - [x] Productielogin op `app.schoolpulse.nl` opent correct.
 - [x] Demo getest als leerling, docent, ouder, teamleider en directie.
 - [x] Alle 56 zichtbare rol/module-combinaties openen zonder 404 of zichtbare foutmelding.
+- [x] Supabase-productieproject hersteld van `INACTIVE` naar `ACTIVE_HEALTHY`.
+- [x] Bevestigd dat alle 21 productiemigraties zijn toegepast.
+- [x] Productie-inlog en rolherkenning getest als platformbeheerder, directeur, teamleider, docent, mentor, ouder en leerling.
+- [x] Tijdelijke QA-accounts en koppelingen na de productietest volledig verwijderd; de oorspronkelijke testschool en vijf testaccounts zijn behouden.
 - [ ] Voeg een aparte mentorrol toe aan de demorollen, of leg vast dat mentor via de docentrol wordt gedemonstreerd.
-- [ ] Achterhaal of herstel representatieve productie-testaccounts; inloggegevens staan bewust niet in de repository.
-- [ ] Test productie als platformbeheerder, directie, teamleider, docent, mentor, ouder en leerling.
-- [ ] Controleer per productieaccount dat uitsluitend de juiste modules, schoolgegevens en gekoppelde personen zichtbaar zijn.
+- [ ] Herstel de foutmelding na accountaanmaak: het account wordt aangemaakt, maar de browser meldt `Failed to send a request to the Edge Function`. Voeg CORS-headers toe aan alle Edge Function-responses en voorkom dubbel klikken.
+- [ ] Sluit 36 `SECURITY DEFINER`-functies af voor de anonieme rol en controleer welke functies uitsluitend voor ingelogde gebruikers of platformbeheer bedoeld zijn.
+- [ ] Zet voor acht databasefuncties een vaste `search_path` om manipulatie via het zoekschema te voorkomen.
+- [ ] Schakel Supabase-bescherming tegen gelekte wachtwoorden in.
+- [ ] Stel via een veilige wachtwoordreset opnieuw bruikbare wachtwoorden in voor de vijf oorspronkelijke testaccounts; wachtwoorden staan bewust niet in de repository.
+- [ ] Controleer met gevulde onderwijsrecords per productieaccount dat uitsluitend de juiste modules, schoolgegevens en gekoppelde personen zichtbaar zijn.
 
 ## Eerstvolgende prioriteiten
 
-- [ ] Controleer welke van de 21 Supabase-migraties al op productie zijn uitgevoerd en pas uitsluitend ontbrekende migraties toe. De leescontrole op 9 augustus 2026 bereikte Supabase, maar liep tweemaal vast op een externe timeout bij het tijdelijke database-account; er is niets toegepast.
+- [x] Controleer welke van de 21 Supabase-migraties al op productie zijn uitgevoerd: alle 21 staan op productie.
 - [ ] Test de belangrijkste workflows met echte testgegevens: rooster, berichten, absentie, cijfers, opdrachten en ouder-kindkoppelingen.
 - [ ] Controleer RLS-beveiliging zodat gebruikers alleen gegevens van hun eigen school en toegestane rol kunnen zien.
+- [ ] Optimaliseer de Supabase-waarschuwingen: 69 niet-geïndexeerde foreign keys, 109 RLS-initplanmeldingen en 57 dubbele permissieve policies. Beoordeel 38 ongebruikte indexen pas na representatieve productiebelasting.
 - [ ] Test aanmaken, wijzigen, verwijderen, publiceren en exporteren met de juiste rollen.
 - [ ] Test lege statussen, foutmeldingen, verlopen sessies en trage verbindingen.
 
