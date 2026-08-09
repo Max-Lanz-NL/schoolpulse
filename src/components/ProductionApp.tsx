@@ -19,6 +19,7 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
+  Settings,
   ShieldQuestion,
   Trash2,
   Users,
@@ -353,6 +354,16 @@ export function ProductionApp({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [replyConversationId, setReplyConversationId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsName, setSettingsName] = useState(profile.full_name ?? "");
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [inAppNotifications, setInAppNotifications] = useState(true);
+  const [notificationDigest, setNotificationDigest] = useState("direct");
+  const [mfaFactors, setMfaFactors] = useState<
+    Array<{ id: string; friendly_name?: string; status: string }>
+  >([]);
+  const [mfaEnrollment, setMfaEnrollment] = useState<{ id: string; qr_code: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
   const [effectivePermissions, setEffectivePermissions] = useState<EffectivePermission[]>([]);
   const [effectiveRank, setEffectiveRank] = useState(0);
   const [accessLoading, setAccessLoading] = useState(true);
@@ -366,6 +377,79 @@ export function ProductionApp({
       profile.role === "platform_admin" || permissionMap.has(permissionKey),
     [permissionMap, profile.role],
   );
+
+  const openSettings = async () => {
+    const [{ data: preferences }, { data: factors }] = await Promise.all([
+      supabase.from("profile_preferences").select("*").eq("profile_id", profile.id).maybeSingle(),
+      supabase.auth.mfa.listFactors(),
+    ]);
+    setSettingsName(String(preferences?.display_name ?? profile.full_name ?? ""));
+    setEmailNotifications(preferences?.notification_email ?? true);
+    setInAppNotifications(preferences?.notification_in_app ?? true);
+    setNotificationDigest(String(preferences?.notification_digest ?? "direct"));
+    setMfaFactors(
+      (factors?.totp ?? []) as Array<{ id: string; friendly_name?: string; status: string }>,
+    );
+    setSettingsOpen(true);
+  };
+
+  const saveSettings = async () => {
+    const [{ error: profileError }, { error: preferencesError }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .update({ full_name: settingsName.trim() || null })
+        .eq("id", profile.id),
+      supabase.from("profile_preferences").upsert({
+        profile_id: profile.id,
+        school_id: profile.school_id,
+        display_name: settingsName.trim() || null,
+        notification_email: emailNotifications,
+        notification_in_app: inAppNotifications,
+        notification_digest: notificationDigest,
+        updated_at: new Date().toISOString(),
+      }),
+    ]);
+    if (profileError || preferencesError) {
+      toast.error("Instellingen konden niet worden opgeslagen", {
+        description: profileError?.message ?? preferencesError?.message,
+      });
+      return;
+    }
+    toast.success("Profiel en meldingsvoorkeuren opgeslagen");
+  };
+
+  const startMfaEnrollment = async () => {
+    const { data, error: enrollError } = await supabase.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: "SchoolPulse authenticator",
+    });
+    if (enrollError)
+      return toast.error("2FA kon niet worden gestart", { description: enrollError.message });
+    setMfaEnrollment({ id: data.id, qr_code: data.totp.qr_code });
+  };
+
+  const verifyMfaEnrollment = async () => {
+    if (!mfaEnrollment) return;
+    const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+      factorId: mfaEnrollment.id,
+    });
+    if (challengeError)
+      return toast.error("2FA-controle kon niet starten", { description: challengeError.message });
+    const { error: verifyError } = await supabase.auth.mfa.verify({
+      factorId: mfaEnrollment.id,
+      challengeId: challenge.id,
+      code: mfaCode.trim(),
+    });
+    if (verifyError)
+      return toast.error("De code is niet juist", { description: verifyError.message });
+    setMfaEnrollment(null);
+    setMfaCode("");
+    const { data } = await supabase.auth.mfa.listFactors();
+    setMfaFactors(
+      (data?.totp ?? []) as Array<{ id: string; friendly_name?: string; status: string }>,
+    );
+    toast.success("Tweestapsverificatie is ingeschakeld");
+  };
 
   const loadAccess = useCallback(async () => {
     setAccessLoading(true);
@@ -1131,21 +1215,6 @@ export function ProductionApp({
         toast.error("Bestandsregistratie is mislukt", { description: assetError.message });
         return;
       }
-      const previousDocument = editingId
-        ? records.find((record) => record.id === editingId)
-        : undefined;
-      if (previousDocument?.metadata?.storagePath) {
-        const previousBucket = String(previousDocument.metadata.bucket ?? "school-files");
-        await supabase.storage
-          .from(previousBucket)
-          .remove([String(previousDocument.metadata.storagePath)]);
-        if (previousDocument.metadata.fileAssetId) {
-          await supabase
-            .from("file_assets")
-            .delete()
-            .eq("id", String(previousDocument.metadata.fileAssetId));
-        }
-      }
       documentMetadata = {
         fileAssetId: fileAsset.id,
         storagePath,
@@ -1253,6 +1322,28 @@ export function ProductionApp({
     );
     setSaving(false);
     if (!saved) return;
+    if (activeModule.entity === "document" && documentMetadata?.fileAssetId) {
+      const documentRecordId = editingId ?? nextRecord.id;
+      const { data: versionNumber, error: versionNumberError } = await supabase.rpc(
+        "next_document_version",
+        { _document_record_id: documentRecordId },
+      );
+      const { error: versionError } = versionNumberError
+        ? { error: versionNumberError }
+        : await supabase.from("document_versions").insert({
+            school_id: profile.school_id,
+            document_record_id: documentRecordId,
+            file_asset_id: String(documentMetadata.fileAssetId),
+            version_number: Number(versionNumber ?? 1),
+            change_note: editingId ? "Nieuwe bestandsversie" : "Eerste versie",
+            created_by: profile.id,
+          });
+      if (versionError) {
+        toast.warning("Document opgeslagen, maar de versiehistorie kon niet worden bijgewerkt", {
+          description: versionError.message,
+        });
+      }
+    }
     resetEditor();
     toast.success(editingId ? "Wijzigingen opgeslagen" : "Toegevoegd", {
       description: "De wijziging is gedeeld met bevoegde gebruikers van deze school.",
@@ -1654,6 +1745,14 @@ export function ProductionApp({
               aria-label="Vernieuwen"
             >
               <RefreshCw className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => void openSettings()}
+              className="rounded-lg border border-border p-2 hover:bg-muted"
+              aria-label="Profiel en beveiliging"
+              title="Profiel en beveiliging"
+            >
+              <Settings className="h-4 w-4" />
             </button>
             <Bell className="h-4 w-4 text-muted-foreground" />
             <button
@@ -2685,6 +2784,120 @@ export function ProductionApp({
           ) : null}
         </main>
       </div>
+      {settingsOpen ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+          onClick={() => setSettingsOpen(false)}
+        >
+          <section
+            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Profiel en beveiliging</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Beheer je naam, meldingen en tweestapsverificatie.
+                </p>
+              </div>
+              <button
+                className="rounded-lg border border-border px-3 py-1.5 text-sm"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Sluiten
+              </button>
+            </div>
+            <div className="mt-6 space-y-5">
+              <label className="block text-sm font-semibold">
+                Weergavenaam
+                <input
+                  value={settingsName}
+                  onChange={(event) => setSettingsName(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                />
+              </label>
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">Notificaties</h3>
+                <label className="mt-3 flex items-center gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={inAppNotifications}
+                    onChange={(event) => setInAppNotifications(event.target.checked)}
+                  />{" "}
+                  Meldingen in SchoolPulse
+                </label>
+                <label className="mt-2 flex items-center gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={emailNotifications}
+                    onChange={(event) => setEmailNotifications(event.target.checked)}
+                  />{" "}
+                  Meldingen per e-mail
+                </label>
+                <label className="mt-3 block text-sm">
+                  Frequentie
+                  <select
+                    value={notificationDigest}
+                    onChange={(event) => setNotificationDigest(event.target.value)}
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                  >
+                    <option value="direct">Direct</option>
+                    <option value="daily">Dagelijks overzicht</option>
+                    <option value="weekly">Wekelijks overzicht</option>
+                    <option value="off">Uit</option>
+                  </select>
+                </label>
+              </div>
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">Tweestapsverificatie (2FA)</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {mfaFactors.some((factor) => factor.status === "verified")
+                    ? "Actief op dit account."
+                    : "Nog niet ingesteld. Gebruik een authenticator-app."}
+                </p>
+                {!mfaEnrollment ? (
+                  <button
+                    onClick={() => void startMfaEnrollment()}
+                    className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold"
+                  >
+                    Authenticator toevoegen
+                  </button>
+                ) : (
+                  <div className="mt-4 space-y-3">
+                    <img
+                      src={mfaEnrollment.qr_code}
+                      alt="QR-code voor authenticator"
+                      className="h-44 w-44 rounded-lg bg-white p-2"
+                    />
+                    <input
+                      value={mfaCode}
+                      onChange={(event) =>
+                        setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
+                      inputMode="numeric"
+                      placeholder="6-cijferige code"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                    />
+                    <button
+                      onClick={() => void verifyMfaEnrollment()}
+                      disabled={mfaCode.length !== 6}
+                      className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                    >
+                      Controleren en inschakelen
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => void saveSettings()}
+                className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+              >
+                Instellingen opslaan
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

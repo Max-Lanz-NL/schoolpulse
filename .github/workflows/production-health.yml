@@ -1,0 +1,24 @@
+name: Productiecontrole
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Controleer publieke omgevingen
+        shell: bash
+        run: |
+          set -euo pipefail
+          for url in https://schoolpulse.nl https://app.schoolpulse.nl https://admin.schoolpulse.nl; do
+            status="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' --max-time 20 "$url")"
+            test "$status" -ge 200 -a "$status" -lt 400 || { echo "$url gaf HTTP $status"; exit 1; }
+          done
+
