@@ -30,6 +30,7 @@ import { ProductionDesktopNavigation } from "@/components/production/ProductionD
 import { ProductionMobileNavigation } from "@/components/production/ProductionMobileNavigation";
 import { Phase1Directory } from "@/components/production/Phase1Directory";
 import { TimetableWorkspace } from "@/components/production/TimetableWorkspace";
+import { AttendanceWorkspace } from "@/components/production/AttendanceWorkspace";
 import { getEffectiveAccess } from "@/domains/identity/services/access-service";
 import {
   getProfilePreferences,
@@ -1796,6 +1797,17 @@ export function ProductionApp({
               canDelete={can("schedule.delete") || can("schedule.manage")}
               canSubstitute={can("substitutions.create") || can("substitutions.manage")}
             />
+          ) : ["attendance", "absence"].includes(activeModule.entity) ? (
+            <AttendanceWorkspace
+              profile={profile}
+              supabase={supabase}
+              canRecord={
+                can("attendance.create") || can("attendance.update") || can("attendance.manage")
+              }
+              canReviewAbsence={
+                can("absences.update") || can("absences.approve") || can("absences.manage")
+              }
+            />
           ) : activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />
           ) : activeModule.entity === "dashboard" ? (
@@ -1828,6 +1840,8 @@ export function ProductionApp({
             "school_structure",
             "user_management",
             "schedule",
+            "attendance",
+            "absence",
             "permission_requests",
           ].includes(activeModule.entity) ? (
             <section className="rounded-2xl border border-border bg-card shadow-sm">

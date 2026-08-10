@@ -46,4 +46,3 @@ Een automatische database-export kan pas veilig worden aangezet nadat een versle
 - Een toegepaste testimport is volledig teruggedraaid en aantallen zijn voor en na gecontroleerd.
 - 2FA is minimaal voor beheerders ingeschakeld; herstel of een tweede factor is buiten het primaire apparaat veilig geregeld.
 - De monitoringtest is groen en een hersteloefening is vastgelegd.
-

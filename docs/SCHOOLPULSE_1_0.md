@@ -38,7 +38,7 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 | School     | READY FOR TEST | Typed service/query layer and production overview; existing typed admin writes    |
 | People     | READY FOR TEST | Typed pupils, staff, enrolments, guardians and teaching assignments               |
 | Timetable  | READY FOR TEST | Typed week views, authorised maintenance, cancellations and manual substitutions  |
-| Attendance | NOT STARTED    | Schema exists; typed production flow pending                                      |
+| Attendance | DONE           | Typed lesson registration, own-data view and absence processing accepted on staging |
 | Results    | NOT STARTED    | Typed reads/writes partly exist; separation and tests pending                     |
 | Learning   | NOT STARTED    | Assignments/files partly typed; submissions/version UI pending                    |
 | Dashboard  | NOT STARTED    | Current counts are transition records, not domain aggregation                     |
@@ -100,7 +100,7 @@ Implemented: typed domain services and hooks, production directories, explicit D
 
 Typed timetable/substitution queries and writes, role-specific views, changes/cancellations and conflict feedback. No automatic planning.
 
-### Phase 3 — Attendance
+### Phase 3 — Attendance — DONE
 
 Teacher lesson registration, administrative absence processing and permitted own-data views.
 

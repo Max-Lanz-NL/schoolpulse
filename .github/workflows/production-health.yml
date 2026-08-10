@@ -21,4 +21,3 @@ jobs:
             status="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' --max-time 20 "$url")"
             test "$status" -ge 200 -a "$status" -lt 400 || { echo "$url gaf HTTP $status"; exit 1; }
           done
-
