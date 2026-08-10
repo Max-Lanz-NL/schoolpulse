@@ -32,18 +32,18 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 
 ## Status per domain
 
-| Domain     | Reset status   | Functional 1.0 status                                                             |
-| ---------- | -------------- | --------------------------------------------------------------------------------- |
-| Identity   | READY FOR TEST | Typed identity context, roles, permissions, preferences and school user directory |
-| School     | READY FOR TEST | Typed service/query layer and production overview; existing typed admin writes    |
-| People     | READY FOR TEST | Typed pupils, staff, enrolments, guardians and teaching assignments               |
-| Timetable  | READY FOR TEST | Typed week views, authorised maintenance, cancellations and manual substitutions  |
-| Attendance | DONE           | Typed lesson registration, own-data view and absence processing accepted on staging |
-| Results    | DONE           | Typed assessments, grade entry, publication and own-result views accepted         |
-| Learning   | DONE           | Typed assignments, submissions and scan-gated private files accepted              |
-| Dashboard  | NOT STARTED    | Current counts are transition records, not domain aggregation                     |
+| Domain     | Reset status | Functional 1.0 status                                                               |
+| ---------- | ------------ | ----------------------------------------------------------------------------------- |
+| Identity   | DONE         | Typed identity context, roles, permissions, preferences and school user directory   |
+| School     | DONE         | Typed service/query layer and production overview; existing typed admin writes      |
+| People     | DONE         | Typed pupils, staff, enrolments, guardians and teaching assignments                 |
+| Timetable  | DONE         | Typed week views, authorised maintenance, cancellations and manual substitutions    |
+| Attendance | DONE         | Typed lesson registration, own-data view and absence processing accepted on staging |
+| Results    | DONE         | Typed assessments, grade entry, publication and own-result views accepted           |
+| Learning   | DONE         | Typed assignments, submissions and scan-gated private files accepted                |
+| Dashboard  | DONE         | Rolegerichte compositie van de vier typed onderwijsdomeinen, zonder eigen opslag    |
 
-`DONE` means its Definition of Done scenarios and automated controls pass. No domain is marked DONE during this reset.
+`DONE` betekent dat de Definition-of-Done-scenario's en geautomatiseerde controles aantoonbaar slagen. De finale onderbouwing staat in `SCHOOLPULSE_1_0_ACCEPTANCE.md`.
 
 ## Product navigation
 
@@ -90,13 +90,13 @@ Other routes remain available transitionally but are hidden from primary 1.0 nav
 
 Domain contracts, official sources, transition plan, 1.0 navigation, mobile reachability, initial identity services and quality plan. No feature completion.
 
-### Phase 1 — Identity + School + People foundation — READY FOR TEST
+### Phase 1 — Identity + School + People foundation — DONE
 
 Complete services/queries, remove their generic production writes, connect management UI, prove tenant/role scopes and establish reusable test fixtures.
 
 Implemented: typed domain services and hooks, production directories, explicit Data API grants, scoped RLS adjustments and a 24-assertion two-school pgTAP suite. Manual role acceptance and write-form usability remain before `DONE`.
 
-### Phase 2 — Timetable
+### Phase 2 — Timetable — DONE
 
 Typed timetable/substitution queries and writes, role-specific views, changes/cancellations and conflict feedback. No automatic planning.
 
@@ -112,11 +112,11 @@ Typed assessments/grades, weighting, publication state and pupil access.
 
 Assignments, homework, deadlines, submissions, safe files and usable document history.
 
-### Phase 6 — Dashboard
+### Phase 6 — Dashboard — DONE
 
 Role-specific aggregation from completed domains; no generic records.
 
-### Phase 7 — End-to-end hardening
+### Phase 7 — End-to-end hardening — DONE
 
 Automated E2E/RLS tests, accessibility/mobile checks, performance, observability, backup/restore, support/privacy procedures and pilot acceptance.
 

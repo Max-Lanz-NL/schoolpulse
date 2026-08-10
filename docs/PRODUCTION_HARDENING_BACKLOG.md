@@ -1,0 +1,19 @@
+# SchoolPulse 1.0 — productie-hardeningbacklog
+
+SchoolPulse 1.0 is functioneel geaccepteerd op staging. De onderstaande operationele punten zijn geen functionele P0 voor de stagingacceptatie, maar moeten vóór aansluiting van een echte school zijn afgerond en afgetekend.
+
+| Prioriteit | Punt                                | Huidige bescherming                                                                               | Nog vereist vóór echte productie                                                                                                                  |
+| ---------- | ----------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P0         | Verplichte AAL2/MFA voor beheerders | TOTP-inschrijving en AAL2-verificatie werken                                                      | AAL2 na iedere nieuwe beheerderslogin afdwingen, herstelprocedure testen en uitzonderingen verbieden of formeel beheren                           |
+| P0         | Back-up en restore-test             | Dump-, retentie- en kwartaalprocedure staat in `OPERATIONS.md`                                    | Versleutelde opslag en verantwoordelijken aanwijzen; volledige database- én Storage-restore in een aparte omgeving uitvoeren en bewijs vastleggen |
+| P0         | Malware scanning uploads            | Private bucket, signed URLs en `scan_status=pending`; pending bestanden worden niet breed gedeeld | Scanner koppelen, clean/infected/quarantine-flow testen en pas daarna bestandsinlevering breed vrijgeven                                          |
+| P1         | Monitoring en error reporting       | Zes-uurlijkse bereikbaarheid, Supabase-logs en vendor-neutraal `schoolpulse:error`-event          | Error sink, alerts, eigenaar, responstijden en proefalarm inrichten; persoonsgegevens uit events uitsluiten                                       |
+| P1         | Privacy/AVG-procedures              | Incident-, datalek- en betrokkenenproces is gedocumenteerd                                        | Verwerkingsregister, bewaartermijnen, DPIA/verwerkersafspraken, privacyverantwoordelijke en oefening formeel laten aftekenen                      |
+| P1         | Supporttoegang                      | Supportkanalen en verbod op secrets/dossiers zijn gedocumenteerd                                  | Persoonsgebonden, tijdgebonden supporttoegang met auditlog en intrekkingsproces invoeren; geen gedeelde beheeraccounts                            |
+| P1         | Account- en sessielevenscyclus      | Login, refresh, logout, protected routes, blokkeren/verwijderen en roltoegang bestaan             | Joiner/mover/leaver-procedure, periodieke review, sessieduur, noodintrekking en bewaarplicht bij verwijdering formeel testen                      |
+| P1         | Staging → productie-rollout         | Migrations zijn portable en staging is reproduceerbaar                                            | Productieproject aanmaken, secrets scheiden, preflight/dump/rollback/runbook oefenen, vier-ogen-goedkeuring en go/no-go vastleggen                |
+| P1         | Gelekte-wachtwoordcontrole          | Wachtwoordauthenticatie en MFA-mogelijkheid zijn aanwezig                                         | Supabase leaked-password protection activeren of gelijkwaardige bescherming contractueel/technisch regelen                                        |
+
+## Vrijgavebesluit
+
+Een echte school mag pas worden aangesloten wanneer alle P0-punten aantoonbaar zijn afgerond en een aangewezen eigenaar de P1-restpunten heeft geaccepteerd met datum en deadline. Testdata blijven volledig fictief totdat die vrijgave is gegeven.
