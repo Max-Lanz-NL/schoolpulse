@@ -17,7 +17,10 @@ export function DemoGate({ children }: { children: ReactNode }) {
   }, []);
 
   const isProductionAppHost =
-    mounted && typeof window !== "undefined" && window.location.hostname === "app.schoolpulse.nl";
+    mounted &&
+    typeof window !== "undefined" &&
+    (window.location.hostname === "app.schoolpulse.nl" ||
+      import.meta.env.VITE_FORCE_PRODUCTION_APP === "true");
 
   if (!mounted) {
     return (

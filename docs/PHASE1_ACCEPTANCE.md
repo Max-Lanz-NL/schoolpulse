@@ -1,109 +1,162 @@
 # SchoolPulse 1.0 — Fase 1A acceptatierapport
 
-Datum: 9 augustus 2026  
+Datum: 10 augustus 2026  
 Status: **BLOCKED**  
-Scope: staging deployment en acceptatie van Fase 1 (Identity + School + People)
+Scope: uitsluitend stagingacceptatie van Fase 1 (Identity + School + People)  
+Stagingproject: `schoolpulse-staging` (`ggucscfzakfvlfwyiuot`)  
+Beschermd oud project: `edaotduwzyvkszcstxsa` — niet gebruikt
 
-## Besluit
+## A. Besluit
 
-De staging-deployment is bewust niet gestart. Het gekoppelde Supabase-project `schoolpulse Database` (`edaotduwzyvkszcstxsa`) is het enige actieve SchoolPulse-project en is niet aantoonbaar als staging ingericht. De enige andere zichtbare omgeving, `supabase-citron-dog`, is inactief, hoort bij een andere beheerde organisatie en heeft geen vastgestelde functie. Geen van beide mag zonder expliciete classificatie als veilige staging worden gebruikt.
+De stagingbasis, echte Auth-logins, tenantisolatie, getypeerde tabellen, rolbeperkingen, sessies, TOTP en responsieve werking zijn grotendeels bewezen. Fase 1A kan nog niet naar DONE omdat:
 
-Daarnaast wijkt de online migratiegeschiedenis af van de lokale repository. Een push kan daardoor bestaande data of schema's onbedoeld beïnvloeden. Conform de veiligheidsregel zijn geen online migraties, testaccounts, testdata, deployments of instellingen gewijzigd.
+1. de verplichte herhaling van de lokale RLS-suite niet kon starten doordat Docker Desktop niet actief is;
+2. de productie-UI voor schoolstructuur alleen een leesoverzicht bevat en geen CRUD-formulieren aanbiedt;
+3. TOTP werkt, maar AAL2 wordt na een nieuwe login niet door de applicatie afgedwongen.
 
-## Omgevingsmatrix
+## B. Omgevingscontrole
 
-| Omgeving                 | Status                          | Bewijs                                                              | Gebruikt voor deze acceptatie                         |
-| ------------------------ | ------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------- |
-| Lokaal                   | Beschikbaar                     | Lokale Supabase-configuratie en migrations                          | Ja, voor reeds uitgevoerde geautomatiseerde controles |
-| Staging                  | Niet beschikbaar / niet bewezen | Geen apart project, hostingconfiguratie of staging-secrets gevonden | Nee                                                   |
-| Productie of gedeeld     | Beschermd                       | Gekoppeld actief project `schoolpulse Database`                     | Alleen read-only geïnspecteerd                        |
-| Onbekend beheerd project | Inactief                        | `supabase-citron-dog`, andere beheerde organisatie                  | Nee                                                   |
+- Actieve en gebruikte projectref: `ggucscfzakfvlfwyiuot`.
+- Projectnaam: `schoolpulse-staging`.
+- Status tijdens acceptatie: `ACTIVE_HEALTHY`.
+- Voor elke databasewrite is de projectidentiteit opnieuw gecontroleerd.
+- Het oude project `edaotduwzyvkszcstxsa` is niet gelezen of gewijzigd.
+- Er is geen publieke staginghost vastgesteld. De frontend is lokaal tegen staging getest met `VITE_FORCE_PRODUCTION_APP=true`.
 
-## Migratiestatus
+## C. Migraties en schema
 
-De lokale en online migraties komen overeen tot en met `20260809162126`. Daarna is sprake van divergentie.
+- Staging bevat 28 migrations, chronologisch toegepast tot en met `20260809202000_harden_function_execute_privileges`.
+- Alle 52 publieke basistabellen hebben RLS.
+- Anonieme tabeltoegang is ingetrokken.
+- Data API-toegang en functie-executierechten zijn eerder gehard en gecontroleerd.
+- De acceptatiedata gebruikt uitsluitend officiële, getypeerde tabellen.
 
-Online aanwezig maar lokaal ontbrekend:
+## D. Fictieve acceptatiedata
 
-- `20260809163904`
-- `20260809164245`
-- `20260809165136`
-- `20260809165425`
+Twee volledig fictieve scholen zijn geladen:
 
-Lokaal aanwezig maar online ontbrekend:
+- SchoolPulse Testcollege A
+- SchoolPulse Testcollege B
 
-- `20260809180724` — Fase 1 identity/school/people security
-- `20260809190000`
-- `20260809193000`
-- `20260809194500`
-- `20260809201000`
+Per school aanwezig: 1 schooladmin, 1 docent, 2 leerlingen, huidig schooljaar, periode, opleiding, 2 vakken, klas, lesgroep, locatie, 2 lokalen, personeelsrecords, leerlingrecords, inschrijvingen en vak-/groepstoewijzingen.
 
-Resultaat: **niet gepusht**. Eerst moet worden vastgesteld waar de online-only migraties vandaan komen en moet een schone staging-database vanaf de lokale migratieketen kunnen worden opgebouwd.
+Eindtelling: 8 Auth-users, 2 scholen, 8 profielen, 4 leerlingen, 4 personeelsleden, 4 vakken, 2 klassen, 2 lesgroepen en 4 lokalen. `app_records` bleef 0.
 
-## Acceptatiematrix
+## E. Auth-accounts en login
 
-`PASS` betekent lokaal aantoonbaar geslaagd. `BLOCKED` betekent dat de vereiste live staging-acceptatie niet veilig kon worden uitgevoerd.
+Alle acht stagingaccounts zijn echte, bevestigde Supabase Auth-accounts met tijdelijke wachtwoorden buiten Git. Bewezen echte logins:
 
-| Controle                                            | Admin   | Docent  | Leerling | Desktop | Mobiel  | Status  |
-| --------------------------------------------------- | ------- | ------- | -------- | ------- | ------- | ------- |
-| Volledige lokale migratie-reset                     | n.v.t.  | n.v.t.  | n.v.t.   | n.v.t.  | n.v.t.  | PASS    |
-| Geautomatiseerde RLS-suite (24/24)                  | PASS    | PASS    | PASS     | n.v.t.  | n.v.t.  | PASS    |
-| Inloggen met acceptatieaccounts                     | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
-| Juiste school, rol en modules                       | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
-| Schoolstructuur lezen en wijzigen                   | BLOCKED | BLOCKED | n.v.t.   | BLOCKED | BLOCKED | BLOCKED |
-| Leerlingen lezen en wijzigen                        | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
-| Personeel lezen en wijzigen                         | BLOCKED | BLOCKED | n.v.t.   | BLOCKED | BLOCKED | BLOCKED |
-| Gebruikers- en rechtenbeheer                        | BLOCKED | n.v.t.  | n.v.t.   | BLOCKED | BLOCKED | BLOCKED |
-| School A kan School B niet benaderen via API        | BLOCKED | BLOCKED | BLOCKED  | n.v.t.  | n.v.t.  | BLOCKED |
-| Uitloggen en sessiebeëindiging                      | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
-| Account verwijderen en sessies opnieuw gebruiken    | BLOCKED | n.v.t.  | n.v.t.   | BLOCKED | BLOCKED | BLOCKED |
-| TOTP-MFA inschrijven en verifiëren                  | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
-| Navigatie en formulieren op gangbare schermformaten | BLOCKED | BLOCKED | BLOCKED  | BLOCKED | BLOCKED | BLOCKED |
+- schooladmin A en B;
+- docent A en B;
+- leerling A1 en B1.
 
-Samenvatting: **2 PASS, 0 FAIL, 11 BLOCKED**. De blokkades zijn geen functionele goedkeuring; de live acceptatie moet volledig opnieuw worden uitgevoerd zodra veilige staging bestaat.
+De overige leerlingaccounts zijn op dezelfde manier aangemaakt en gekoppeld. Profiel, school, legacyrol en officiële roltoewijzing zijn gecontroleerd.
 
-## Reeds geleverd lokaal bewijs
+## F. Schooladmin A
 
-- Een volledige lokale database-reset met de lokale migratieketen slaagde.
-- De pgTAP/RLS-testset slaagde met 24 van 24 tests.
-- De lokale security advisor meldde geen bevindingen.
-- Typecontrole, lint, build en portability-controle slaagden tijdens Fase 1.
-- De Fase 1-migratie staat lokaal in `supabase/migrations/20260809180724_phase1_identity_school_people_security.sql`.
+PASS:
 
-Dit bewijs ondersteunt de status **READY FOR TEST** van de lokale Fase 1-code, maar vervangt geen staging-acceptatie.
+- echte login en profiel-/schoolcontext;
+- zicht op uitsluitend de 4 accounts van School A;
+- officiële leerlingen-, personeels- en rechtenweergaven;
+- Data API CRUD op `subjects`, `school_classes`, `teaching_groups` en `rooms`, inclusief update en verwijdering van tijdelijke records;
+- alle tijdelijke CRUD-records zijn na de test verwijderd.
 
-## Accountverwijdering en sessies
+BLOCKED:
 
-De beheerfunctie verwijdert een gebruiker via Supabase Admin Auth (`deleteUser`). De referentiële gevolgen zijn lokaal in schema en tests behandeld, maar het gedrag van reeds uitgegeven access- en refresh-tokens is niet in een live stagingomgeving bewezen. Daarom mag niet worden aangenomen dat alle bestaande sessies onmiddellijk onbruikbaar zijn. De acceptatietest moet na verwijdering zowel een bestaand access-token, refreshpoging als een nieuw loginverzoek controleren.
+- dezelfde schoolstructuur-CRUD is niet via zichtbare productieformulieren uit te voeren; de pagina toont alleen tellingen.
 
-## MFA-status en uitrolplan
+## G. Docent A
 
-De applicatie bevat TOTP-inschrijving, challenge en verificatie. Er is nog geen bewezen stagingtest en geen aantoonbare algemene AAL2-afdwinging voor gevoelige beheertaken. MFA mag daarom nog niet als afgedwongen beveiligingslaag worden gecommuniceerd.
+PASS:
 
-Veilige uitrolvolgorde:
+- echte login met docentrol;
+- alleen docentmodules in navigatie;
+- alleen toegewezen leerlingen, vakken en groepen via Data API;
+- geen toegang tot gebruikersbeheer;
+- inserts in schoolstructuur worden door RLS geweigerd;
+- updates op adminprofielen of School B leveren nul gewijzigde rijen op.
 
-1. Test inschrijven, herstellen en verwijderen van een TOTP-factor op staging.
-2. Test AAL1- en AAL2-sessies per rol en op gevoelige beheerroutes.
-3. Introduceer eerst een inschrijfperiode en herstelprocedure voor beheerders.
-4. Dwing daarna AAL2 af voor platform- en schoolbeheer, inclusief databasebeleid waar nodig.
-5. Breid pas na support- en herstelervaring uit naar overige rollen.
+## H. Leerling A1
 
-## Open risico's en blokkades
+PASS:
 
-1. Er is geen aantoonbaar gescheiden staging-Supabase-project.
-2. Een afzonderlijke staging-hostingomgeving en bijbehorende secrets zijn niet vastgesteld.
-3. De lokale en online migratiegeschiedenis divergeren.
-4. Er zijn geen veilige, fictieve stagingaccounts voor twee scholen.
-5. Live tenantisolatie, CRUD, logout, accountverwijdering, MFA en mobiele werking zijn niet bewezen.
-6. Back-up en restore kunnen pas worden getest nadat de stagingomgeving is aangewezen.
+- echte login en eigen identiteit;
+- alleen leerlingmodules in navigatie;
+- alleen eigen profiel, leerlingrecord, inschrijving en groepslidmaatschap;
+- geen toegang tot de leerlingenbeheerpagina;
+- inserts in schoolstructuur worden door RLS geweigerd;
+- updates op adminprofielen of School B leveren nul gewijzigde rijen op.
 
-## Vereiste vervolgstappen
+## I. Tenantisolatie School A/B
 
-1. Maak een apart Supabase-project `schoolpulse-staging` aan, zonder productiegegevens.
-2. Maak een afzonderlijke staging/preview-hostingomgeving en koppel alleen de staging-secrets.
-3. Leg eigenaar, projectreferentie en URL's vast in een niet-geheime omgevingsregistratie.
-4. Bouw staging vanaf nul op met de lokale migratieketen; los eventuele migratiefouten op zonder productie te wijzigen.
-5. Maak een back-up/restore-proef en laad daarna uitsluitend fictieve gegevens voor twee scholen.
-6. Voer de volledige matrix hierboven opnieuw uit en voeg screenshots/logs zonder persoonsgegevens als bewijs toe.
+Voor admin A, docent A en leerling A1 zijn bekende School-B-ID's opgevraagd voor scholen, profielen, vakken, klassen, lesgroepen, lokalen en leerlingrecords. Iedere combinatie leverde 0 rijen op, zonder dat School-B-data uitlekte. Cross-school updates leverden eveneens 0 gewijzigde rijen op.
 
-Pas na een volledig geslaagde matrix kan Fase 1A naar **DONE**. Tot die tijd is Fase 2 niet veilig om te starten.
+Conclusie: tenantisolatie voor de geteste Fase 1-tabellen is live via de publieke Data API bewezen.
+
+## J. Getypeerde tabellen
+
+De app leest School A uit `profiles`, `student_records`, `staff_records`, `school_years`, `school_periods`, `education_programmes`, `subjects`, `school_classes`, `teaching_groups`, `rooms`, `student_enrolments`, `teacher_subject_assignments`, `teacher_group_assignments` en `student_group_memberships`.
+
+`app_records` bevatte voor, tijdens en na de acceptatie 0 rijen.
+
+## K. Schermformaten
+
+De productie-UI is in de in-app browser getest op:
+
+- 390 × 844: mobiel menu aanwezig, geen horizontale overflow;
+- 768 × 1024: dashboard bruikbaar, geen horizontale overflow;
+- 1440 × 900: desktopdashboard bruikbaar, geen horizontale overflow.
+
+De tijdelijke viewportoverride is na de test teruggezet.
+
+## L. Sessies, logout en accountverwijdering
+
+PASS:
+
+- actieve sessie vastgesteld;
+- refresh-tokenflow geslaagd;
+- logout geslaagd en lokale sessie daarna afwezig;
+- verboden routes tonen een duidelijke pagina “Geen toegang tot dit onderdeel”;
+- een extra fictief verwijderaccount is aangemaakt en daarna verwijderd;
+- zowel de Auth-user als het gekoppelde profiel waren daarna afwezig;
+- de vaste acht acceptatieaccounts bleven behouden.
+
+## M. TOTP en AAL
+
+PASS:
+
+- TOTP-factor voor schooladmin A ingeschreven;
+- challenge en codeverificatie geslaagd;
+- factorstatus `verified`;
+- sessie ging van AAL1 naar AAL2.
+
+Na uitloggen en opnieuw inloggen was `currentLevel=aal1` en `nextLevel=aal2`. De applicatie liet de wachtwoordlogin toe zonder verplichte tweede challenge.
+
+**AAL2 enforced: NO.**
+
+## N. Geautomatiseerde kwaliteit
+
+| Controle | Resultaat |
+| --- | --- |
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS |
+| `npm run build` | PASS |
+| `npm run portability:check` | PASS |
+| `npm run test:rls` | BLOCKED — lokale Postgres niet bereikbaar |
+| Lokale Supabase-start | BLOCKED — Docker Desktop niet actief |
+
+De RLS-suite was in de voorafgaande hardeningrun 35/35 groen, maar de expliciet gevraagde herhaling in deze acceptatieronde is niet voltooid en telt daarom niet als nieuwe PASS.
+
+## O. Eindstatus en vervolg
+
+Eindstatus: **BLOCKED**
+
+Fase 2 (rooster) veilig starten: **NO**.
+
+Benodigd voor herbeoordeling:
+
+1. Docker Desktop starten en `npm run test:rls` opnieuw 35/35 laten slagen.
+2. Zichtbare CRUD-formulieren voor vakken, klassen, lesgroepen en lokalen toevoegen of de acceptatie-eis expliciet beperken tot Data API CRUD.
+3. AAL2 afdwingen voor ten minste schooladmin- en platformadminflows en herlogin testen.
+4. Daarna deze volledige matrix opnieuw beoordelen; Fase 2 niet automatisch starten.
