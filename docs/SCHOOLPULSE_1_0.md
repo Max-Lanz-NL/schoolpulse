@@ -39,7 +39,7 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 | People     | READY FOR TEST | Typed pupils, staff, enrolments, guardians and teaching assignments               |
 | Timetable  | READY FOR TEST | Typed week views, authorised maintenance, cancellations and manual substitutions  |
 | Attendance | DONE           | Typed lesson registration, own-data view and absence processing accepted on staging |
-| Results    | NOT STARTED    | Typed reads/writes partly exist; separation and tests pending                     |
+| Results    | DONE           | Typed assessments, grade entry, publication and own-result views accepted         |
 | Learning   | NOT STARTED    | Assignments/files partly typed; submissions/version UI pending                    |
 | Dashboard  | NOT STARTED    | Current counts are transition records, not domain aggregation                     |
 
@@ -104,7 +104,7 @@ Typed timetable/substitution queries and writes, role-specific views, changes/ca
 
 Teacher lesson registration, administrative absence processing and permitted own-data views.
 
-### Phase 4 — Results
+### Phase 4 — Results — DONE
 
 Typed assessments/grades, weighting, publication state and pupil access.
 
