@@ -1784,6 +1784,7 @@ export function ProductionApp({
               }
               profile={profile}
               supabase={supabase}
+              canManageSchoolStructure={can("school_settings.manage") || can("classes.manage")}
             />
           ) : activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />

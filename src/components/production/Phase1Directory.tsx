@@ -6,15 +6,18 @@ import { listSchoolIdentities } from "@/domains/identity/services/identity-servi
 import { usePeopleDirectory } from "@/domains/people/queries/use-people-directory";
 import { useSchoolStructure } from "@/domains/school/queries/use-school-structure";
 import { readableDomainError } from "@/domains/shared/domain-error";
+import { SchoolStructureManager } from "@/components/production/SchoolStructureManager";
 
 export function Phase1Directory({
   entity,
   profile,
   supabase,
+  canManageSchoolStructure = false,
 }: {
   entity: "student" | "staff" | "school_structure" | "user_management";
   profile: ProductionProfile;
   supabase: SupabaseClient;
+  canManageSchoolStructure?: boolean;
 }) {
   const people = usePeopleDirectory(supabase, profile.school_id);
   const structure = useSchoolStructure(supabase, profile.school_id);
@@ -38,6 +41,9 @@ export function Phase1Directory({
         error={structure.error}
         data={structure.data}
         onReload={structure.reload}
+        supabase={supabase}
+        schoolId={profile.school_id}
+        canManage={canManageSchoolStructure}
       />
     );
   if (entity === "user_management")
@@ -140,13 +146,19 @@ function SchoolStructureView({
   error,
   data,
   onReload,
+  supabase,
+  schoolId,
+  canManage,
 }: {
   loading: boolean;
   error: string | null;
   data: ReturnType<typeof useSchoolStructure>["data"];
   onReload: () => Promise<void>;
+  supabase: SupabaseClient;
+  schoolId: string | null;
+  canManage: boolean;
 }) {
-  if (loading) return <LoadingState />;
+  if (loading && !data) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={onReload} />;
   if (!data) return <EmptyState label="schoolstructuur" />;
   const groups = [
@@ -181,6 +193,15 @@ function SchoolStructureView({
           </div>
         ))}
       </div>
+      {schoolId ? (
+        <SchoolStructureManager
+          supabase={supabase}
+          schoolId={schoolId}
+          structure={data}
+          canManage={canManage}
+          onReload={onReload}
+        />
+      ) : null}
     </div>
   );
 }

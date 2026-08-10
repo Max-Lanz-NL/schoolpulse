@@ -1,162 +1,98 @@
-# SchoolPulse 1.0 — Fase 1A acceptatierapport
+# SchoolPulse 1.0 — Fase 1 eindrapport
 
-Datum: 10 augustus 2026  
-Status: **BLOCKED**  
-Scope: uitsluitend stagingacceptatie van Fase 1 (Identity + School + People)  
-Stagingproject: `schoolpulse-staging` (`ggucscfzakfvlfwyiuot`)  
-Beschermd oud project: `edaotduwzyvkszcstxsa` — niet gebruikt
+Datum: 10 augustus 2026
 
-## A. Besluit
+Staging: `schoolpulse-staging` (`ggucscfzakfvlfwyiuot`)
 
-De stagingbasis, echte Auth-logins, tenantisolatie, getypeerde tabellen, rolbeperkingen, sessies, TOTP en responsieve werking zijn grotendeels bewezen. Fase 1A kan nog niet naar DONE omdat:
+Oud project: `edaotduwzyvkszcstxsa` — niet gebruikt
 
-1. de verplichte herhaling van de lokale RLS-suite niet kon starten doordat Docker Desktop niet actief is;
-2. de productie-UI voor schoolstructuur alleen een leesoverzicht bevat en geen CRUD-formulieren aanbiedt;
-3. TOTP werkt, maar AAL2 wordt na een nieuwe login niet door de applicatie afgedwongen.
+Status: **DONE**
 
-## B. Omgevingscontrole
+## A. CRUD
 
-- Actieve en gebruikte projectref: `ggucscfzakfvlfwyiuot`.
-- Projectnaam: `schoolpulse-staging`.
-- Status tijdens acceptatie: `ACTIVE_HEALTHY`.
-- Voor elke databasewrite is de projectidentiteit opnieuw gecontroleerd.
-- Het oude project `edaotduwzyvkszcstxsa` is niet gelezen of gewijzigd.
-- Er is geen publieke staginghost vastgesteld. De frontend is lokaal tegen staging getest met `VITE_FORCE_PRODUCTION_APP=true`.
+De productie-interface bevat nu zichtbare create/read/update/delete-bediening voor:
 
-## C. Migraties en schema
+- schooljaren;
+- periodes;
+- opleidingen;
+- vakken;
+- klassen;
+- lesgroepen;
+- lokalen.
 
-- Staging bevat 28 migrations, chronologisch toegepast tot en met `20260809202000_harden_function_execute_privileges`.
-- Alle 52 publieke basistabellen hebben RLS.
-- Anonieme tabeltoegang is ingetrokken.
-- Data API-toegang en functie-executierechten zijn eerder gehard en gecontroleerd.
-- De acceptatiedata gebruikt uitsluitend officiële, getypeerde tabellen.
+De formulieren gebruiken uitsluitend de bestaande typed School-service. Ze bieden loading- en savingstatus, succesfeedback, veldvalidatie, verwijderbevestiging en veilige foutmeldingen. Een relationeel gebruikt schooljaar kon niet worden verwijderd en gaf correct de melding dat het onderdeel nog door andere schoolgegevens wordt gebruikt. Er zijn geen cascade deletes toegevoegd.
 
-## D. Fictieve acceptatiedata
+## B. Permissions
 
-Twee volledig fictieve scholen zijn geladen:
+- `school_admin`: create, update en delete op eigen schoolstructuur bewezen via de zichtbare UI.
+- `teacher`: geen beheerroute en writes door RLS geweigerd.
+- `student`: geen beheerroute en writes door RLS geweigerd.
+- cross-school: admin, docent en leerling van School A wijzigden 0 rijen bij een bekende School-B-ID.
 
-- SchoolPulse Testcollege A
-- SchoolPulse Testcollege B
+De UI toont beheerknoppen alleen bij `school_settings.manage` of `classes.manage`. RLS blijft beslissend.
 
-Per school aanwezig: 1 schooladmin, 1 docent, 2 leerlingen, huidig schooljaar, periode, opleiding, 2 vakken, klas, lesgroep, locatie, 2 lokalen, personeelsrecords, leerlingrecords, inschrijvingen en vak-/groepstoewijzingen.
+## C. Typed tables
 
-Eindtelling: 8 Auth-users, 2 scholen, 8 profielen, 4 leerlingen, 4 personeelsleden, 4 vakken, 2 klassen, 2 lesgroepen en 4 lokalen. `app_records` bleef 0.
+De UI heeft tijdens acceptatie geschreven naar:
 
-## E. Auth-accounts en login
+- `school_years`;
+- `school_periods`;
+- `education_programmes`;
+- `subjects`;
+- `school_classes`;
+- `teaching_groups`;
+- `rooms`.
 
-Alle acht stagingaccounts zijn echte, bevestigde Supabase Auth-accounts met tijdelijke wachtwoorden buiten Git. Bewezen echte logins:
+Alle tijdelijke CRUD-records zijn na de test verwijderd. De oorspronkelijke fictieve School-A- en School-B-baseline bleef intact.
 
-- schooladmin A en B;
-- docent A en B;
-- leerling A1 en B1.
+## D. app_records
 
-De overige leerlingaccounts zijn op dezelfde manier aangemaakt en gekoppeld. Profiel, school, legacyrol en officiële roltoewijzing zijn gecontroleerd.
+Na alle CRUD-tests bevat `app_records` exact **0** rijen. Geen schoolstructuurflow schrijft naar `app_records`.
 
-## F. Schooladmin A
+## E. Mobiel
 
-PASS:
+Gecontroleerde viewports:
 
-- echte login en profiel-/schoolcontext;
-- zicht op uitsluitend de 4 accounts van School A;
-- officiële leerlingen-, personeels- en rechtenweergaven;
-- Data API CRUD op `subjects`, `school_classes`, `teaching_groups` en `rooms`, inclusief update en verwijdering van tijdelijke records;
-- alle tijdelijke CRUD-records zijn na de test verwijderd.
+- 390 × 844: formulierdialog past binnen het scherm en geen horizontale overflow;
+- 768 × 1024: beheerinterface bruikbaar en geen horizontale overflow;
+- 1440 × 900: desktopinterface bruikbaar en geen horizontale overflow.
 
-BLOCKED:
+## F. RLS
 
-- dezelfde schoolstructuur-CRUD is niet via zichtbare productieformulieren uit te voeren; de pagina toont alleen tellingen.
+Exact resultaat van `npm run test:rls`:
 
-## G. Docent A
+```text
+All tests successful.
+Files=1, Tests=35
+Result: PASS
+```
 
-PASS:
+Het script gebruikt vastgepind Supabase CLI `2.113.0`, omdat CLI `2.109.0` na een inhoudelijke PASS ten onrechte exitcode 1 gaf door een PostHog-afsluittimeout.
 
-- echte login met docentrol;
-- alleen docentmodules in navigatie;
-- alleen toegewezen leerlingen, vakken en groepen via Data API;
-- geen toegang tot gebruikersbeheer;
-- inserts in schoolstructuur worden door RLS geweigerd;
-- updates op adminprofielen of School B leveren nul gewijzigde rijen op.
-
-## H. Leerling A1
-
-PASS:
-
-- echte login en eigen identiteit;
-- alleen leerlingmodules in navigatie;
-- alleen eigen profiel, leerlingrecord, inschrijving en groepslidmaatschap;
-- geen toegang tot de leerlingenbeheerpagina;
-- inserts in schoolstructuur worden door RLS geweigerd;
-- updates op adminprofielen of School B leveren nul gewijzigde rijen op.
-
-## I. Tenantisolatie School A/B
-
-Voor admin A, docent A en leerling A1 zijn bekende School-B-ID's opgevraagd voor scholen, profielen, vakken, klassen, lesgroepen, lokalen en leerlingrecords. Iedere combinatie leverde 0 rijen op, zonder dat School-B-data uitlekte. Cross-school updates leverden eveneens 0 gewijzigde rijen op.
-
-Conclusie: tenantisolatie voor de geteste Fase 1-tabellen is live via de publieke Data API bewezen.
-
-## J. Getypeerde tabellen
-
-De app leest School A uit `profiles`, `student_records`, `staff_records`, `school_years`, `school_periods`, `education_programmes`, `subjects`, `school_classes`, `teaching_groups`, `rooms`, `student_enrolments`, `teacher_subject_assignments`, `teacher_group_assignments` en `student_group_memberships`.
-
-`app_records` bevatte voor, tijdens en na de acceptatie 0 rijen.
-
-## K. Schermformaten
-
-De productie-UI is in de in-app browser getest op:
-
-- 390 × 844: mobiel menu aanwezig, geen horizontale overflow;
-- 768 × 1024: dashboard bruikbaar, geen horizontale overflow;
-- 1440 × 900: desktopdashboard bruikbaar, geen horizontale overflow.
-
-De tijdelijke viewportoverride is na de test teruggezet.
-
-## L. Sessies, logout en accountverwijdering
-
-PASS:
-
-- actieve sessie vastgesteld;
-- refresh-tokenflow geslaagd;
-- logout geslaagd en lokale sessie daarna afwezig;
-- verboden routes tonen een duidelijke pagina “Geen toegang tot dit onderdeel”;
-- een extra fictief verwijderaccount is aangemaakt en daarna verwijderd;
-- zowel de Auth-user als het gekoppelde profiel waren daarna afwezig;
-- de vaste acht acceptatieaccounts bleven behouden.
-
-## M. TOTP en AAL
-
-PASS:
-
-- TOTP-factor voor schooladmin A ingeschreven;
-- challenge en codeverificatie geslaagd;
-- factorstatus `verified`;
-- sessie ging van AAL1 naar AAL2.
-
-Na uitloggen en opnieuw inloggen was `currentLevel=aal1` en `nextLevel=aal2`. De applicatie liet de wachtwoordlogin toe zonder verplichte tweede challenge.
-
-**AAL2 enforced: NO.**
-
-## N. Geautomatiseerde kwaliteit
+## G. Quality
 
 | Controle | Resultaat |
 | --- | --- |
-| `npm run typecheck` | PASS |
-| `npm run lint` | PASS |
-| `npm run build` | PASS |
-| `npm run portability:check` | PASS |
-| `npm run test:rls` | BLOCKED — lokale Postgres niet bereikbaar |
-| Lokale Supabase-start | BLOCKED — Docker Desktop niet actief |
+| Typecheck | PASS |
+| Lint | PASS |
+| Build | PASS |
+| Portabiliteitscontrole | PASS |
+| RLS 35/35 | PASS |
 
-De RLS-suite was in de voorafgaande hardeningrun 35/35 groen, maar de expliciet gevraagde herhaling in deze acceptatieronde is niet voltooid en telt daarom niet als nieuwe PASS.
+## H. MFA
 
-## O. Eindstatus en vervolg
+`school_admin AAL2 enforcement = NOT YET REQUIRED AFTER NEW LOGIN`
 
-Eindstatus: **BLOCKED**
+TOTP-inschrijving en AAL2-verificatie werken. Verplichte AAL2 na een nieuwe login blijft een productie-hardeningpunt vóór echte schoolgebruikers, maar blokkeert Fase 2 volgens de vastgestelde acceptatieregel niet.
 
-Fase 2 (rooster) veilig starten: **NO**.
+## I. Fase 1 status
 
-Benodigd voor herbeoordeling:
+**DONE**
 
-1. Docker Desktop starten en `npm run test:rls` opnieuw 35/35 laten slagen.
-2. Zichtbare CRUD-formulieren voor vakken, klassen, lesgroepen en lokalen toevoegen of de acceptatie-eis expliciet beperken tot Data API CRUD.
-3. AAL2 afdwingen voor ten minste schooladmin- en platformadminflows en herlogin testen.
-4. Daarna deze volledige matrix opnieuw beoordelen; Fase 2 niet automatisch starten.
+Er bestaat geen nieuwe Fase 1-blocker. Alle Definition-of-Done-punten zijn aantoonbaar behaald.
+
+## J. Fase 2
+
+Kan Fase 2 — Timetable nu veilig starten? **YES**
+
+Fase 2 is niet automatisch gestart.
