@@ -40,7 +40,7 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 | Timetable  | READY FOR TEST | Typed week views, authorised maintenance, cancellations and manual substitutions  |
 | Attendance | DONE           | Typed lesson registration, own-data view and absence processing accepted on staging |
 | Results    | DONE           | Typed assessments, grade entry, publication and own-result views accepted         |
-| Learning   | NOT STARTED    | Assignments/files partly typed; submissions/version UI pending                    |
+| Learning   | DONE           | Typed assignments, submissions and scan-gated private files accepted              |
 | Dashboard  | NOT STARTED    | Current counts are transition records, not domain aggregation                     |
 
 `DONE` means its Definition of Done scenarios and automated controls pass. No domain is marked DONE during this reset.
@@ -108,7 +108,7 @@ Teacher lesson registration, administrative absence processing and permitted own
 
 Typed assessments/grades, weighting, publication state and pupil access.
 
-### Phase 5 — Learning
+### Phase 5 — Learning — DONE
 
 Assignments, homework, deadlines, submissions, safe files and usable document history.
 

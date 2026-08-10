@@ -81,8 +81,8 @@ select is(
   (select count(*) from pg_proc function
    join pg_namespace namespace on namespace.oid=function.pronamespace
    where namespace.nspname='public' and function.prosecdef),
-  47::bigint,
-  'all 47 public SECURITY DEFINER functions are inventoried'
+  50::bigint,
+  'all 50 public SECURITY DEFINER functions are inventoried'
 );
 select is(
   (select count(*) from pg_proc function
