@@ -37,7 +37,7 @@ Detailed contracts live under `src/domains/*/CONTRACT.md`. The legacy mapping is
 | Identity   | READY FOR TEST | Typed identity context, roles, permissions, preferences and school user directory |
 | School     | READY FOR TEST | Typed service/query layer and production overview; existing typed admin writes    |
 | People     | READY FOR TEST | Typed pupils, staff, enrolments, guardians and teaching assignments               |
-| Timetable  | NOT STARTED    | Schema exists; production still uses transition records                           |
+| Timetable  | READY FOR TEST | Typed week views, authorised maintenance, cancellations and manual substitutions  |
 | Attendance | NOT STARTED    | Schema exists; typed production flow pending                                      |
 | Results    | NOT STARTED    | Typed reads/writes partly exist; separation and tests pending                     |
 | Learning   | NOT STARTED    | Assignments/files partly typed; submissions/version UI pending                    |

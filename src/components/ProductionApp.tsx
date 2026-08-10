@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { ProductionDesktopNavigation } from "@/components/production/ProductionDesktopNavigation";
 import { ProductionMobileNavigation } from "@/components/production/ProductionMobileNavigation";
 import { Phase1Directory } from "@/components/production/Phase1Directory";
+import { TimetableWorkspace } from "@/components/production/TimetableWorkspace";
 import { getEffectiveAccess } from "@/domains/identity/services/access-service";
 import {
   getProfilePreferences,
@@ -1786,6 +1787,15 @@ export function ProductionApp({
               supabase={supabase}
               canManageSchoolStructure={can("school_settings.manage") || can("classes.manage")}
             />
+          ) : activeModule.entity === "schedule" ? (
+            <TimetableWorkspace
+              profile={profile}
+              supabase={supabase}
+              canCreate={can("schedule.create") || can("schedule.manage")}
+              canUpdate={can("schedule.update") || can("schedule.manage")}
+              canDelete={can("schedule.delete") || can("schedule.manage")}
+              canSubstitute={can("substitutions.create") || can("substitutions.manage")}
+            />
           ) : activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />
           ) : activeModule.entity === "dashboard" ? (
@@ -1817,6 +1827,7 @@ export function ProductionApp({
             "staff",
             "school_structure",
             "user_management",
+            "schedule",
             "permission_requests",
           ].includes(activeModule.entity) ? (
             <section className="rounded-2xl border border-border bg-card shadow-sm">
