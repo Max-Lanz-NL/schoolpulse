@@ -33,6 +33,7 @@ import { TimetableWorkspace } from "@/components/production/TimetableWorkspace";
 import { AttendanceWorkspace } from "@/components/production/AttendanceWorkspace";
 import { ResultsWorkspace } from "@/components/production/ResultsWorkspace";
 import { LearningWorkspace } from "@/components/production/LearningWorkspace";
+import { DashboardWorkspace } from "@/components/production/DashboardWorkspace";
 import { getEffectiveAccess } from "@/domains/identity/services/access-service";
 import {
   getProfilePreferences,
@@ -1749,7 +1750,7 @@ export function ProductionApp({
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-lg font-semibold capitalize">{activeModule.label}</h1>
             <p className="truncate text-xs text-muted-foreground">
-              {profile.school_name || "Schoolpulse productie"} · lege werkomgeving
+              {profile.school_name || "Schoolpulse productie"} · beveiligde schoolomgeving
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -1829,27 +1830,7 @@ export function ProductionApp({
           ) : activeModule.entity === "permission_requests" ? (
             <PermissionRequestWizard profile={profile} supabase={supabase} />
           ) : activeModule.entity === "dashboard" ? (
-            <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {visibleModules
-                .filter(
-                  (module) =>
-                    module.entity !== "dashboard" && module.entity !== "permission_requests",
-                )
-                .slice(0, 4)
-                .map((module) => (
-                  <Link
-                    key={module.path}
-                    to={module.path}
-                    className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary"
-                  >
-                    <div className="text-xs font-medium text-muted-foreground">{module.label}</div>
-                    <div className="mt-2 text-3xl font-bold">
-                      {records.filter((record) => record.entity_type === module.entity).length}
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">actuele items</div>
-                  </Link>
-                ))}
-            </div>
+            <DashboardWorkspace profile={profile} supabase={supabase} />
           ) : null}
 
           {![
@@ -1864,6 +1845,7 @@ export function ProductionApp({
             "grade",
             "assignment",
             "permission_requests",
+            "dashboard",
           ].includes(activeModule.entity) ? (
             <section className="rounded-2xl border border-border bg-card shadow-sm">
               <div className="flex items-center justify-between border-b border-border p-4 md:p-5">
