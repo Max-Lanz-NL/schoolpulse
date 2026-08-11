@@ -1,0 +1,3 @@
+email,full_name,student_number,class_code,start_date,status
+leerling.001@example.test,Leerling Voorbeeld 001,LL-001,1A,2026-08-01,active
+leerling.002@example.test,Leerling Voorbeeld 002,LL-002,1B,2026-08-01,active

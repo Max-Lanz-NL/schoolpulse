@@ -1,0 +1,3 @@
+email,full_name,employee_number,job_title,department,start_date,is_active
+docent.ada@example.test,Ada Voorbeeld,MED-001,Docent,Wiskunde,2026-08-01,true
+docent.ben@example.test,Ben Voorbeeld,MED-002,Docent,Nederlands,2026-08-01,true
