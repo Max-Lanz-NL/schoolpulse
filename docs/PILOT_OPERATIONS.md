@@ -77,10 +77,10 @@ Uploads blijven private en starten als `scan_status=pending`. Alleen de eigenaar
 ## Monitoring, health en logging
 
 - `/healthz` is liveness: alleen `{status, service}`, zonder configuratie.
-- Readiness van database en Auth is nog niet als afzonderlijke veilige endpoint geïmplementeerd.
+- `/readyz` controleert fail-closed de Data API en Auth en geeft alleen `healthy`, `degraded` of `unhealthy` met technische dependencylabels; configuratie en foutdetails worden niet vrijgegeven.
 - GitHub Actions controleert iedere zes uur publieke webbereikbaarheid.
 - Frontendfouten geven het geminimaliseerde `schoolpulse:error`-event; serverfouten gaan naar runtime stderr; Supabase Auth/API/Postgres/Storage-logs staan in Supabase.
-- Er is nog geen actieve centrale error sink met alertontvangers en bewaartermijn. Dit is P0 voor pilotvrijgave.
+- Er is nog geen actieve centrale error sink met alertontvangers, bewaartermijn en bewezen proefalarm. Dit blijft P0 voor pilotvrijgave; zie `MONITORING_AND_ALERTING.md`.
 - Logs bevatten geen wachtwoorden, tokens, TOTP-codes, opdrachtinhoud of leerlingnamen. Gebruik alleen ticket-, school- en technische record-ID's wanneer noodzakelijk.
 
 ## Omgevings- en secretsscheiding

@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "portability:check": "node scripts/check-portability.mjs",
-    "test:rls": "npx --yes supabase@2.113.0 test db --local supabase/tests"
+    "test:rls": "npx --yes supabase@2.113.0 test db --local supabase/tests",
+    "test:readiness": "node --test scripts/readiness.test.mjs"
   },
   "engines": {
     "node": ">=22 <25"

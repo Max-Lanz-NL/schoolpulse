@@ -3,6 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { handleDomainRouting } from "./lib/domain-routing";
 import { renderErrorPage } from "./lib/error-page";
+import { readinessResponse } from "./lib/readiness";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -48,6 +49,9 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      if (new URL(request.url).pathname === "/readyz") {
+        return await readinessResponse();
+      }
       const domainResponse = handleDomainRouting(request);
       if (domainResponse) return domainResponse;
 
