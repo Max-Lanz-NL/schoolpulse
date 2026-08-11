@@ -132,3 +132,31 @@ opnieuw gecontroleerd voordat writes hervatten.
 
 Een echte externe versleutelde backupbestemming, sleutelhouder en contractuele
 retentie zijn nog **EXTERNAL ACTION REQUIRED** vóór operationele pilotvrijgave.
+
+## Incident- en supportreadiness
+
+| Niveau | Voorbeelden                                                                             | Eerste actie                                                                        | Eigenaar                        |
+| ------ | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------- |
+| P0     | datalek, tenantisolatiefout, ongeautoriseerde adminaccess, ernstige dataverliesdreiging | writes/toegang begrenzen, bewijs veiligstellen en privacycontact direct inschakelen | incident owner + privacycontact |
+| P1     | app grotendeels down, Auth of database onbruikbaar                                      | status bevestigen, release/dependency isoleren en rollback/restorebesluit nemen     | technisch verantwoordelijke     |
+| P2     | beperkte niet-kritieke functie stuk                                                     | ticket prioriteren, workaround beoordelen en reguliere fix plannen                  | support owner                   |
+
+Per incident worden detectiebron, starttijd, actor/eigenaar, containment,
+communicatie, herstelbesluit en audittrail vastgelegd. P0 vereist directe
+schoolmelding via het aangewezen schoolcontact, beoordeling van wettelijke
+datalektermijnen en een postmortem. P1 krijgt statusupdates op afgesproken
+intervallen. P2 volgt de reguliere support-SLA. Na herstel worden oorzaak,
+impact, tijdlijn, bewijs, verbeteractie en eigenaar/deadline gereviewd.
+
+Support gebruikt uitsluitend een persoonlijke account, één concrete reden, één
+specifieke school, expliciete toestemming en een vooraf vastgelegde start- en
+eindtijd. Rechten zijn minimaal, acties worden geaudit en automatisch/handmatig
+ingetrokken. Gedeelde accounts, brede permanente toegang en ongeautoriseerde
+exports zijn verboden.
+
+Pilotstop: blokkeer betrokken accounts, trek sessies in, stop nieuwe writes waar
+nodig, bewaar bewijs, informeer school/privacycontact, bied gecontroleerde export
+aan en voer behoud/verwijdering alleen volgens vastgelegd besluit uit.
+
+**Bestandsuploads zijn voor de eerste pilot uitgeschakeld.** Ze blijven uit tot
+`Malware Scanning = DONE` en de centrale gate na acceptatie bewust wordt aangezet.
