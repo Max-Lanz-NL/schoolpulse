@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "portability:check": "node scripts/check-portability.mjs",
     "test:rls": "npx --yes supabase@2.113.0 test db --local supabase/tests",
-    "test:readiness": "node --test scripts/readiness.test.mjs scripts/monitoring.test.mjs"
+    "test:readiness": "node --test scripts/readiness.test.mjs scripts/monitoring.test.mjs",
+    "test:mfa-recovery": "node --test scripts/mfa-recovery-policy.test.mjs"
   },
   "engines": {
     "node": ">=22 <25"

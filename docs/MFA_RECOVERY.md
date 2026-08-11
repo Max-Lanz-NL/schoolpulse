@@ -4,42 +4,61 @@
 
 **Omgeving:** staging `ggucscfzakfvlfwyiuot`
 
-**Status:** BLOCKED
+**Status:** READY FOR STAGING E2E
 
-## Bewezen bescherming
+## Geïmplementeerde herstelroute
 
-- `platform_admin` en `school_admin` worden door de bestaande app- en adminpoort
-  pas bij AAL2 toegelaten.
-- Staging bevat één verified fictieve TOTP-factor en actieve fictieve sessies.
-- De RLS-suite bewijst dat een geblokkeerd account met een eerder uitgegeven JWT
-  onmiddellijk schoolcontext, permissions en schooldata verliest.
-- Supabase documenteert dat admin `deleteFactor` een verified factor verwijdert
-  en alle actieve sessies van die gebruiker uitlogt. Een gewone gebruiker mag
-  zichzelf alleen via de normale AAL2-beveiligde unenrollflow beheren.
+De bestaande server-side functie `admin-manage-user` ondersteunt nu de actie
+`recover_mfa`. De functie gebruikt uitsluitend de Supabase Auth Admin API om een
+verified factor te verwijderen. De functie is op 11 augustus 2026 succesvol naar
+staging gepubliceerd.
 
-## Waarom recovery nog niet DONE is
+De herstelroute dwingt af:
 
-Staging bevat momenteel geen fictief `platform_admin`-profiel en er bestaat geen
-server-side recoverycommand dat tegelijk actor-AAL2, tweede-beheerderprincipe,
-rolhiërarchie, reden, audit en de Supabase Admin MFA-operatie afdwingt. Directe
-SQL-wijziging van `auth.mfa_factors` of `auth.sessions` is bewust niet gebruikt:
-dat omzeilt de ondersteunde Auth API en zou geen geldig recoverybewijs zijn.
+- de uitvoerende beheerder heeft een geldig, door Supabase geverifieerd access token;
+- de JWT meldt op het moment van de aanvraag `aal2`;
+- actor en target zijn verschillende accounts;
+- alleen een tweede `platform_admin` mag een `platform_admin` herstellen;
+- een `school_admin` mag alleen een andere `school_admin` uit dezelfde school herstellen;
+- docent, leerling, ouder, AAL1 en cross-school aanvragen worden geweigerd;
+- alleen een bestaande verified factor kan worden verwijderd;
+- een concrete reden van 10–500 tekens is verplicht;
+- aanvraag, actor, target, factor, schoolcontext, reden en eindstatus worden in
+  `admin_audit_logs` vastgelegd;
+- `auth.admin.mfa.deleteFactor` verwijdert de factor en trekt volgens de
+  ondersteunde Supabase Auth-route de actieve sessies van het targetaccount in.
 
-Daarom zijn verlies-telefoon → factorverwijdering → nieuwe enrollment → opnieuw
-AAL2 en directe oude-tokenchecks voor zowel platform- als schooladmin nog niet
-end-to-end bewezen.
+Directe SQL-wijzigingen van `auth.mfa_factors` of `auth.sessions` zijn bewust niet
+gebruikt.
 
-## Vereist voor afronding
+## Automatisch bewijs
 
-1. Maak twee afzonderlijke fictieve platformadmins en twee schooladmins via de
-   ondersteunde Auth Admin API.
-2. Implementeer een server-only recoveryactie met service-role credentials.
-3. Eis actor AAL2, actor ≠ target en platformadmin voor platformadmin-targets;
-   schooladmin mag alleen een andere beheerder binnen de eigen school herstellen.
-4. Gebruik `auth.admin.mfa.deleteFactor`; verifieer dat alle target-sessies zijn
-   ingetrokken en leg actor, target, school/context, timestamp en reden vast.
-5. Bewijs oude access- én refreshtokenweigering, nieuwe TOTP-enrollment, AAL2 en
-   herstelde beheerroute. Herhaal block en delete met directe API-calls.
+`npm run test:mfa-recovery` bevat zeven beleidsgevallen en slaagt voor:
 
-Student, docent, target zelf op AAL1 en cross-school schooladmin moeten in alle
-gevallen server-side worden geweigerd.
+- tweede AAL2-platformbeheerder toegestaan;
+- AAL1 geweigerd;
+- zelfherstel geweigerd;
+- tweede beheerder binnen dezelfde school toegestaan;
+- cross-school geweigerd;
+- schoolbeheerder naar platformbeheerder geweigerd;
+- docent en leerling geweigerd.
+
+Typecheck en lint slagen en de Edge Function is door de staging-deploymentbundler
+gevalideerd.
+
+## Nog vereist voor DONE
+
+Staging bevat nog geen twee afzonderlijke fictieve platformbeheerders. Maak vóór
+een echte pilot twee platformbeheerders en twee schoolbeheerders aan via de
+ondersteunde Auth Admin-route en schrijf voor ieder een afzonderlijke TOTP-factor
+in. Voer daarna in staging uit:
+
+1. verlies-telefoon-scenario door een tweede AAL2-beheerder;
+2. controle dat oude access- én refreshtokens niet meer werken;
+3. nieuwe TOTP-enrollment en opnieuw AAL2;
+4. controle van de beheerroute na herstel;
+5. auditcontrole voor request en completed/failed;
+6. negatieve live tests voor self, AAL1, docent/leerling en cross-school.
+
+Tot dit live bewijs is uitgevoerd, is MFA-recovery niet `DONE` en blijft het een
+pilotblokkade. Er zijn geen echte persoonsgegevens nodig voor deze test.

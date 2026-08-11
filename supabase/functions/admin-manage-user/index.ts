@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
+import { canRecoverMfa } from "../_shared/mfa-recovery-policy.ts";
 
 type Role = "platform_admin" | "school_admin" | "teacher" | "student" | "parent";
 
@@ -45,13 +46,21 @@ type ResetPasswordAction = {
   user_id: string;
 };
 
+type RecoverMfaAction = {
+  action: "recover_mfa";
+  user_id: string;
+  factor_id: string;
+  reason: string;
+};
+
 type ActionBody =
   | CreateUserAction
   | UpdateUserAction
   | DeleteUserAction
   | InviteUserAction
   | SetUserBlockedAction
-  | ResetPasswordAction;
+  | ResetPasswordAction
+  | RecoverMfaAction;
 
 const allowedRoles = new Set<Role>([
   "platform_admin",
@@ -115,6 +124,13 @@ Deno.serve(async (req) => {
   }
 
   const requesterId = authData.user.id;
+  const tokenPayload = (() => {
+    try {
+      return JSON.parse(atob(token.split(".")[1] ?? "")) as { aal?: string };
+    } catch {
+      return {} as { aal?: string };
+    }
+  })();
   const { data: requesterProfile, error: requesterError } = await adminClient
     .from("profiles")
     .select("role,school_id,school_name")
@@ -147,6 +163,69 @@ Deno.serve(async (req) => {
       target?.role !== "school_admin"
     );
   };
+
+  if (body.action === "recover_mfa") {
+    const reason = body.reason.trim();
+    if (reason.length < 10 || reason.length > 500) {
+      return json({ error: "Recovery reason must be between 10 and 500 characters" }, 400);
+    }
+    const { data: target, error: targetError } = await adminClient
+      .from("profiles")
+      .select("id,role,school_id")
+      .eq("id", body.user_id)
+      .maybeSingle();
+    if (targetError || !target) return json({ error: "Target account not found" }, 404);
+    if (
+      !canRecoverMfa(
+        {
+          id: requesterId,
+          role: requesterProfile.role,
+          school_id: requesterProfile.school_id,
+          aal: tokenPayload.aal ?? "aal1",
+        },
+        target,
+      )
+    ) {
+      return json({ error: "Forbidden" }, 403);
+    }
+
+    const { data: factorData, error: factorsError } = await adminClient.auth.admin.mfa.listFactors({
+      userId: body.user_id,
+    });
+    const factor = factorData?.factors?.find(
+      (candidate) => candidate.id === body.factor_id && candidate.status === "verified",
+    );
+    if (factorsError || !factor) return json({ error: "Verified factor not found" }, 404);
+
+    const { data: audit, error: auditStartError } = await adminClient
+      .from("admin_audit_logs")
+      .insert({
+        table_name: "auth.mfa_factors",
+        action: "MFA_RECOVERY_REQUESTED",
+        record_id: body.user_id,
+        actor_id: requesterId,
+        details: {
+          target_id: body.user_id,
+          factor_id: body.factor_id,
+          school_id: target.school_id,
+          reason,
+        },
+      })
+      .select("id")
+      .single();
+    if (auditStartError || !audit) return json({ error: "Unable to audit recovery request" }, 500);
+
+    const { error: deleteFactorError } = await adminClient.auth.admin.mfa.deleteFactor({
+      id: body.factor_id,
+      userId: body.user_id,
+    });
+    await adminClient
+      .from("admin_audit_logs")
+      .update({ action: deleteFactorError ? "MFA_RECOVERY_FAILED" : "MFA_RECOVERY_COMPLETED" })
+      .eq("id", audit.id);
+    if (deleteFactorError) return json({ error: "Unable to recover MFA" }, 400);
+    return json({ ok: true, sessions_revoked: true });
+  }
 
   if (body.action === "invite_user") {
     if (!requesterProfile?.school_id) return json({ error: "Requester has no school" }, 400);
