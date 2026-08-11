@@ -4,6 +4,7 @@ import { consumeLastCapturedError } from "./lib/error-capture";
 import { handleDomainRouting } from "./lib/domain-routing";
 import { renderErrorPage } from "./lib/error-page";
 import { readinessResponse } from "./lib/readiness";
+import { reportOperationalEvent } from "./lib/monitoring";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -50,7 +51,9 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       if (new URL(request.url).pathname === "/readyz") {
-        return await readinessResponse();
+        const response = await readinessResponse();
+        if (!response.ok) void reportOperationalEvent("readiness_failure");
+        return response;
       }
       const domainResponse = handleDomainRouting(request);
       if (domainResponse) return domainResponse;
@@ -60,6 +63,7 @@ export default {
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);
+      void reportOperationalEvent("server_runtime_error");
       return new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },

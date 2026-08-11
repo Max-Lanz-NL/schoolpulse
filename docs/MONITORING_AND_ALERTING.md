@@ -2,15 +2,15 @@
 
 **Datum:** 11 augustus 2026
 
-**Status:** BLOCKED
+**Status:** EXTERNAL BLOCKER
 
 ## Uitkomst
 
-Liveness en dependency-readiness zijn technisch beschikbaar, maar er is geen
+Liveness, dependency-readiness en een server-side provideradapter zijn technisch beschikbaar, maar er is geen
 echte centrale monitoringdienst, DSN/API-token, alert route of ontvanger
 geconfigureerd. Frontend- en serverfouten komen daardoor nog niet samen in een
 extern beheerde sink en een proefalarm kan niet eerlijk worden bewezen. Volgens
-de pilotstopregel is Fase A daarom BLOCKED en mogen volgende fases niet starten.
+Fase A blijft daarom een EXTERNAL BLOCKER. Onafhankelijke fases gaan volgens run v2 wel door.
 
 ## Endpoints
 
@@ -55,8 +55,11 @@ bereiken.
 Server-only configuratienamen zijn voorbereid in `.env.example`:
 
 - `SCHOOLPULSE_MONITORING_PROVIDER`
-- `SCHOOLPULSE_MONITORING_DSN`
+- `SCHOOLPULSE_MONITORING_ENDPOINT`
+- `SCHOOLPULSE_MONITORING_TOKEN`
 - `SCHOOLPULSE_MONITORING_ALERT_ROUTE`
+- `SCHOOLPULSE_ENVIRONMENT`
+- `SCHOOLPULSE_RELEASE`
 
 Deze mogen nooit `VITE_` krijgen. Voor status DONE zijn nog vereist: provider en
 account kiezen, credentials veilig in staging/production secretstores zetten,
