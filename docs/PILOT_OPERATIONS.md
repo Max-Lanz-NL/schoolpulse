@@ -108,3 +108,27 @@ Rollback bij een mislukte technische release gebruikt eerst hostingrollback. Dat
 5. Leg enrolments, group memberships en teacher assignments vast.
 6. Laat één beheerder, docent en leerling de tenantisolatie-smoke test uitvoeren.
 7. Activeer bestanden niet zolang malware scanning niet operationeel is.
+
+## Backup operations
+
+De technische database- en Storage-restores blijven **PASS/DONE**. Operationeel
+geldt voor de eerste pilot:
+
+| Onderdeel      | Eigenaar                        | Frequentie                           | Retentie                                          | Hersteltest                          |
+| -------------- | ------------------------------- | ------------------------------------ | ------------------------------------------------- | ------------------------------------ |
+| Databasebackup | technisch verantwoordelijke     | dagelijks; extra vóór iedere release | 30 dagen dagelijks, 12 maanden maandultimo        | per kwartaal en vóór pilotstart      |
+| Storagebackup  | technisch verantwoordelijke     | dagelijks wanneer objecten bestaan   | gelijk aan database en logisch gekoppeld manifest | per kwartaal; uploads blijven nu uit |
+| Restorebesluit | incident owner + privacycontact | per incident                         | besluit en bewijs 7 jaar in auditdossier          | tabletop per kwartaal                |
+
+Backups moeten buiten de primaire runtimeomgeving versleuteld worden opgeslagen,
+met afzonderlijk sleutelbeheer, least-privilege toegang en logging van create,
+read, restore en delete. Alleen de backup- en restore-eigenaar krijgen toegang;
+noodtoegang vereist vier ogen en een incident-/change-ID.
+
+Herstelprioriteit: Auth/configuratie en tenantisolatie → kernschoolstructuur →
+rooster/attendance/results/learning → overige operationele gegevens → Storage.
+Na restore worden counts, foreign keys, schoolisolatie, hashes en applicatiesmoke
+opnieuw gecontroleerd voordat writes hervatten.
+
+Een echte externe versleutelde backupbestemming, sleutelhouder en contractuele
+retentie zijn nog **EXTERNAL ACTION REQUIRED** vóór operationele pilotvrijgave.
