@@ -68,7 +68,7 @@ Bij een mogelijk datalek: toegang beperken, geen bewijs verwijderen, tijdlijn en
 - Kwartaalrestore in een geïsoleerd project: Auth-materiaal nooit via onbeveiligde dump kopiëren; gebruik beheerde restore/snapshot of gesanitiseerde testidentiteiten.
 - Controleer na restore aantallen en foreign keys voor people, rooster, attendance, grades, assignments, submissions en bestanden; leg duur en checksums vast.
 
-De production-dry-run heeft de genegeerde public-data-export van fictieve stagingdata na een volledig lege lokale schema-opbouw succesvol hersteld. Door migrations beheerde globale catalogi worden niet als applicatiedata teruggezet. Aantallen, school-IDs, foreign keys en tenantrelaties zijn gelijk gecontroleerd. Database-restore is bewezen; Storage-objectrestore blijft een afzonderlijke P0.
+De production-dry-run heeft de genegeerde public-data-export van fictieve stagingdata na een volledig lege lokale schema-opbouw succesvol hersteld. Door migrations beheerde globale catalogi worden niet als applicatiedata teruggezet. Aantallen, school-IDs, foreign keys en tenantrelaties zijn gelijk gecontroleerd. De afzonderlijke Storage-oefening heeft 6/6 objecten na echt verlies met gelijke grootte en SHA-256 hersteld. De technische restore is bewezen; de versleutelde externe productiebackupbestemming en verantwoordelijkheden moeten nog operationeel worden ingericht.
 
 ## Uploadquarantaine
 
@@ -85,11 +85,11 @@ Uploads blijven private en starten als `scan_status=pending`. Alleen de eigenaar
 
 ## Omgevings- en secretsscheiding
 
-| Omgeving   | Supabase                                  | Hosting/Vercel                           | Data                                |
-| ---------- | ----------------------------------------- | ---------------------------------------- | ----------------------------------- |
-| Local      | lokale Supabase stack                     | lokale `.env`, nooit committen           | fictieve tests, resetbaar           |
-| Staging    | `ggucscfzakfvlfwyiuot`                    | Preview/Staging-variabelen               | uitsluitend fictieve acceptatiedata |
-| Production | `gqemqvovdrujonlffhen`                    | uitsluitend Vercel Production-variabelen | schema aanwezig; data pas na go/no-go |
+| Omgeving   | Supabase               | Hosting/Vercel                           | Data                                  |
+| ---------- | ---------------------- | ---------------------------------------- | ------------------------------------- |
+| Local      | lokale Supabase stack  | lokale `.env`, nooit committen           | fictieve tests, resetbaar             |
+| Staging    | `ggucscfzakfvlfwyiuot` | Preview/Staging-variabelen               | uitsluitend fictieve acceptatiedata   |
+| Production | `gqemqvovdrujonlffhen` | uitsluitend Vercel Production-variabelen | schema aanwezig; data pas na go/no-go |
 
 Per omgeving bestaan eigen `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, Auth redirects en origins. `VITE_*` is altijd browserpubliek. Databasewachtwoord, service role, signing secrets en monitoringtokens bestaan uitsluitend in de server-/platformsecretstore. Preview krijgt nooit production secrets; production krijgt nooit stagingrefs. Het oude project `edaotduwzyvkszcstxsa` is geen baseline en wordt niet gebruikt.
 

@@ -8,25 +8,25 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 
 ## Acceptatiematrix
 
-| Onderdeel              | Status             | Bewijs / blocker                                                                                                                                                   |
-| ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Auth                   | PASS               | Login, refresh, logout en protected route eerder geaccepteerd; beheerpoort gebruikt actuele Auth-sessie                                                            |
-| MFA/AAL2               | PASS               | `platform_admin` en `school_admin` worden vóór app/admin verplicht naar AAL2 geleid; live schooladmin met bestaande factor stopte aantoonbaar op verificatiescherm |
-| MFA recovery           | BLOCKED            | Procedure is vastgelegd, maar factorreset + sessie-intrekking door tweede platformbeheerder is nog niet end-to-end geoefend                                        |
-| Account lifecycle      | PASS               | Auth-ban is gekoppeld aan `profiles.is_blocked`; bestaande fictieve sessie verloor live toegang; 6 nieuwe databaseassertions slagen                                |
-| Password reset/change  | BLOCKED            | Resetflow bestaat, maar leaked-password protection en volledige reset/change-acceptatie zijn niet aantoonbaar geconfigureerd                                       |
-| Database backup        | PASS               | Genegeerde, lokale public-data-export van uitsluitend fictieve stagingdata is gemaakt; geen Auth-secrets gekopieerd                                                |
-| Database restore       | PASS               | Fictieve staging-applicatiedata is na een schone rebuild met 38 migrations in een aparte lokale database hersteld; aantallen, IDs, FK's en tenantrelaties kloppen  |
-| Storage backup/restore | BLOCKED            | Aparte procedure en manifest/checksum-eis zijn vastgelegd; objectverlies en herstel zijn nog niet met een echte backupbestemming bewezen                           |
-| Malware protection     | BLOCKED            | Pending uploads zijn fail-closed en niet breed zichtbaar; echte scanner en clean/infected-uitvoering ontbreken                                                     |
-| Monitoring             | BLOCKED            | Liveness en zes-uurlijkse uptimecontrole bestaan; centrale error sink, alerts en readiness ontbreken                                                               |
-| Audit logging          | PASS               | Profiel/account-, rol- en schoolstructuurmutaties hebben beschermde audittriggers; eindgebruikers kunnen auditlogs niet wijzigen                                   |
-| Privacy/AVG-basis      | PASS               | Rollen, categorieën, voorlopige termijnen, vertrek/contracteinde, inzage/export en datalekprocedure zijn vastgelegd                                                |
-| Supporttoegang         | PASS (procedureel) | Persoonsgebonden, schoolgebonden, gemotiveerd venster van maximaal vier uur met toestemming en auditcontrole; nog geen automatische JIT-flow                       |
-| Environment separation | PASS (ontwerp)     | Local/staging/new-production, variabelen en secrets zijn expliciet gescheiden; oud project uitgesloten                                                             |
+| Onderdeel              | Status             | Bewijs / blocker                                                                                                                                                                     |
+| ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth                   | PASS               | Login, refresh, logout en protected route eerder geaccepteerd; beheerpoort gebruikt actuele Auth-sessie                                                                              |
+| MFA/AAL2               | PASS               | `platform_admin` en `school_admin` worden vóór app/admin verplicht naar AAL2 geleid; live schooladmin met bestaande factor stopte aantoonbaar op verificatiescherm                   |
+| MFA recovery           | BLOCKED            | Procedure is vastgelegd, maar factorreset + sessie-intrekking door tweede platformbeheerder is nog niet end-to-end geoefend                                                          |
+| Account lifecycle      | PASS               | Auth-ban is gekoppeld aan `profiles.is_blocked`; bestaande fictieve sessie verloor live toegang; 6 nieuwe databaseassertions slagen                                                  |
+| Password reset/change  | BLOCKED            | Resetflow bestaat, maar leaked-password protection en volledige reset/change-acceptatie zijn niet aantoonbaar geconfigureerd                                                         |
+| Database backup        | PASS               | Genegeerde, lokale public-data-export van uitsluitend fictieve stagingdata is gemaakt; geen Auth-secrets gekopieerd                                                                  |
+| Database restore       | PASS               | Fictieve staging-applicatiedata is na een schone rebuild met 38 migrations in een aparte lokale database hersteld; aantallen, IDs, FK's en tenantrelaties kloppen                    |
+| Storage backup/restore | PASS (technisch)   | 6 fictieve stagingobjecten zijn geback-upt, echt verwijderd en naar hetzelfde pad hersteld; 6/6 SHA-256 en grootte gelijk, tenantisolatie voor/na geslaagd                           |
+| Malware protection     | BLOCKED            | Pending uploads zijn fail-closed en niet breed zichtbaar; echte scanner en clean/infected-uitvoering ontbreken                                                                       |
+| Monitoring             | BLOCKED            | Liveness en zes-uurlijkse uptimecontrole bestaan; centrale error sink, alerts en readiness ontbreken                                                                                 |
+| Audit logging          | PASS               | Profiel/account-, rol- en schoolstructuurmutaties hebben beschermde audittriggers; eindgebruikers kunnen auditlogs niet wijzigen                                                     |
+| Privacy/AVG-basis      | PASS               | Rollen, categorieën, voorlopige termijnen, vertrek/contracteinde, inzage/export en datalekprocedure zijn vastgelegd                                                                  |
+| Supporttoegang         | PASS (procedureel) | Persoonsgebonden, schoolgebonden, gemotiveerd venster van maximaal vier uur met toestemming en auditcontrole; nog geen automatische JIT-flow                                         |
+| Environment separation | PASS (ontwerp)     | Local/staging/new-production, variabelen en secrets zijn expliciet gescheiden; oud project uitgesloten                                                                               |
 | Staging → production   | PASS (database)    | Nieuw productionproject `gqemqvovdrujonlffhen` is vanaf nul opgebouwd; echte Auth/Data-API smoke, tenantisolatie en volledige cleanup slagen; hostingomschakeling blijft bewust open |
-| Pilot onboarding       | PASS               | Typed handmatige/importvolgorde en rol-smoke-test staan in `PILOT_OPERATIONS.md`                                                                                   |
-| Pilot rollback         | PASS (procedureel) | Blokkeren, sessie-intrekking, export, retentie, tenantgoedkeuring en backupafloop zijn beschreven                                                                  |
+| Pilot onboarding       | PASS               | Typed handmatige/importvolgorde en rol-smoke-test staan in `PILOT_OPERATIONS.md`                                                                                                     |
+| Pilot rollback         | PASS (procedureel) | Blokkeren, sessie-intrekking, export, retentie, tenantgoedkeuring en backupafloop zijn beschreven                                                                                    |
 
 ## Technische wijzigingen
 
@@ -54,11 +54,11 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 
 ## Open security/functionele P0
 
-1. Storage-objectbackup en herstel met checksum bewijzen.
-2. Echte malware-scanner aansluiten en clean/infected/quarantine end-to-end testen.
-3. Centrale productie-observability met eigenaar, alerts, proefalarm en veilige retentie activeren.
-4. MFA recovery en sessie-intrekking end-to-end oefenen.
-5. Leaked-password protection activeren en reset/change testen.
+1. Echte malware-scanner aansluiten en clean/infected/quarantine end-to-end testen.
+2. Centrale productie-observability met eigenaar, alerts, proefalarm en veilige retentie activeren.
+3. MFA recovery en sessie-intrekking end-to-end oefenen.
+4. Leaked-password protection activeren en reset/change testen.
+5. Versleutelde externe database-/Storage-backupbestemming en verantwoordelijken operationeel inrichten.
 6. Vercel Production/Preview en production Auth-URL's gecontroleerd configureren en hostingrollback oefenen.
 
 ## Besluit
