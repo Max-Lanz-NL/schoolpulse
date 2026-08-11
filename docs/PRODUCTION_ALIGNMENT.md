@@ -2,7 +2,7 @@
 
 **Datum:** 11 augustus 2026
 
-**Status:** BLOCKED — production write approval required
+**Status:** EXTERNAL RELEASE APPROVAL REQUIRED
 
 ## Preflight
 
@@ -23,15 +23,18 @@ de expliciet gecontroleerde productionref wees uitsluitend
 `20260811135445_pilot_file_upload_gate.sql` aan. Er is geen repair, oude
 migrationwijziging, testdata of handmatige schemahack gebruikt.
 
-De daadwerkelijke productionwrite is door de production-releasebeveiliging
-geweigerd. Deze beveiliging is niet omzeild. Production blijft daardoor op 38 en
+De daadwerkelijke productionwrite is op 11 augustus 2026 opnieuw via de officiële
+Supabase-migratieroute geprobeerd en door de production-releasebeveiliging
+geweigerd omdat expliciete hergoedkeuring voor deze write ontbreekt. Deze
+beveiliging is niet omzeild. Production blijft daardoor op 38 en
 `runtime_feature_flags` bestaat daar nog niet. De server-side uploadgate is op
 production dus nog niet bewezen, ook al staat de code- en migrationbaseline
 fail-closed klaar.
 
 ## Vereiste actie
 
-Een bevoegde release-eigenaar moet een afzonderlijk productionwritevenster
-goedkeuren. Herhaal daarna exact: cleanlinesspreflight → `db push --dry-run` →
+Een bevoegde release-eigenaar moet na kennisname van het risico een afzonderlijk
+productionwritevenster expliciet goedkeuren. Herhaal daarna exact:
+cleanlinesspreflight → `db push --dry-run` →
 alleen migration 39 → flag `false` controleren → Storage/file_assets bypass
 read-only bewijzen → Security Advisor → migrationpariteit → cleanliness.
