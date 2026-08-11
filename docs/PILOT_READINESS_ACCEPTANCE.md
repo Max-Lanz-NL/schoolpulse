@@ -16,7 +16,7 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 | Account lifecycle      | PASS               | Auth-ban is gekoppeld aan `profiles.is_blocked`; bestaande fictieve sessie verloor live toegang; 6 nieuwe databaseassertions slagen                                |
 | Password reset/change  | BLOCKED            | Resetflow bestaat, maar leaked-password protection en volledige reset/change-acceptatie zijn niet aantoonbaar geconfigureerd                                       |
 | Database backup        | PASS               | Genegeerde, lokale public-data-export van uitsluitend fictieve stagingdata is gemaakt; geen Auth-secrets gekopieerd                                                |
-| Database restore       | BLOCKED            | Schone lokale schema-opbouw met 37 migrations is bewezen, maar volledige stagingdatarestore in een aparte veilige restoreomgeving niet                             |
+| Database restore       | PASS               | Fictieve staging-applicatiedata is na een schone rebuild met 38 migrations in een aparte lokale database hersteld; aantallen, IDs, FK's en tenantrelaties kloppen  |
 | Storage backup/restore | BLOCKED            | Aparte procedure en manifest/checksum-eis zijn vastgelegd; objectverlies en herstel zijn nog niet met een echte backupbestemming bewezen                           |
 | Malware protection     | BLOCKED            | Pending uploads zijn fail-closed en niet breed zichtbaar; echte scanner en clean/infected-uitvoering ontbreken                                                     |
 | Monitoring             | BLOCKED            | Liveness en zes-uurlijkse uptimecontrole bestaan; centrale error sink, alerts en readiness ontbreken                                                               |
@@ -24,7 +24,7 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 | Privacy/AVG-basis      | PASS               | Rollen, categorieën, voorlopige termijnen, vertrek/contracteinde, inzage/export en datalekprocedure zijn vastgelegd                                                |
 | Supporttoegang         | PASS (procedureel) | Persoonsgebonden, schoolgebonden, gemotiveerd venster van maximaal vier uur met toestemming en auditcontrole; nog geen automatische JIT-flow                       |
 | Environment separation | PASS (ontwerp)     | Local/staging/new-production, variabelen en secrets zijn expliciet gescheiden; oud project uitgesloten                                                             |
-| Staging → production   | BLOCKED            | Lokale clean rebuild slaagt; geen nieuw extern production-like project/app-koppeling en rollbackrestore bewezen                                                    |
+| Staging → production   | PASS (database)    | Nieuw productionproject `gqemqvovdrujonlffhen` is vanaf nul opgebouwd; echte Auth/Data-API smoke, tenantisolatie en volledige cleanup slagen; hostingomschakeling blijft bewust open |
 | Pilot onboarding       | PASS               | Typed handmatige/importvolgorde en rol-smoke-test staan in `PILOT_OPERATIONS.md`                                                                                   |
 | Pilot rollback         | PASS (procedureel) | Blokkeren, sessie-intrekking, export, retentie, tenantgoedkeuring en backupafloop zijn beschreven                                                                  |
 
@@ -39,7 +39,10 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 
 ## Tests
 
-- Schone lokale database vanaf nul: **PASS — 37 migrations**.
+- Schone lokale database vanaf nul: **PASS — 38 migrations**.
+- Local/staging/production migrationpariteit: **PASS — 38/38/38, 0 afwijkingen**.
+- Afzonderlijke applicatiedatarestore: **PASS — 2 scholen, 10 profielen en alle kerndomeinaantallen exact gelijk; 0 orphans/cross-school-relaties**.
+- Externe production-database dry run: **PASS — production na afloop weer 0 gebruikers, 0 scholen en 0 kernrecords**.
 - RLS/security: **PASS — 6 bestanden, 97 assertions**.
 - Live bestaande-sessieblokkade op staging: **PASS**; fictief testaccount daarna hersteld.
 - Live AAL1-schooladmin vóór dashboard gestopt: **PASS**.
@@ -51,13 +54,12 @@ Het oude project `edaotduwzyvkszcstxsa` is niet gebruikt of gewijzigd.
 
 ## Open security/functionele P0
 
-1. Volledige database-restore in een afzonderlijke veilige restoreomgeving bewijzen.
-2. Storage-objectbackup en herstel met checksum bewijzen.
-3. Echte malware-scanner aansluiten en clean/infected/quarantine end-to-end testen.
-4. Centrale productie-observability met eigenaar, alerts, proefalarm en veilige retentie activeren.
-5. MFA recovery en sessie-intrekking end-to-end oefenen.
-6. Leaked-password protection activeren en reset/change testen.
-7. Schone externe production-like Supabase- en hostingdry-run uitvoeren.
+1. Storage-objectbackup en herstel met checksum bewijzen.
+2. Echte malware-scanner aansluiten en clean/infected/quarantine end-to-end testen.
+3. Centrale productie-observability met eigenaar, alerts, proefalarm en veilige retentie activeren.
+4. MFA recovery en sessie-intrekking end-to-end oefenen.
+5. Leaked-password protection activeren en reset/change testen.
+6. Vercel Production/Preview en production Auth-URL's gecontroleerd configureren en hostingrollback oefenen.
 
 ## Besluit
 

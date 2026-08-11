@@ -68,7 +68,7 @@ Bij een mogelijk datalek: toegang beperken, geen bewijs verwijderen, tijdlijn en
 - Kwartaalrestore in een geïsoleerd project: Auth-materiaal nooit via onbeveiligde dump kopiëren; gebruik beheerde restore/snapshot of gesanitiseerde testidentiteiten.
 - Controleer na restore aantallen en foreign keys voor people, rooster, attendance, grades, assignments, submissions en bestanden; leg duur en checksums vast.
 
-De huidige run heeft een genegeerde public-data-export van fictieve stagingdata gemaakt en een volledig lege lokale schema-opbouw bewezen. Een volledige database- en Storage-restore in een aparte veilige omgeving is nog niet bewezen en blijft P0.
+De production-dry-run heeft de genegeerde public-data-export van fictieve stagingdata na een volledig lege lokale schema-opbouw succesvol hersteld. Door migrations beheerde globale catalogi worden niet als applicatiedata teruggezet. Aantallen, school-IDs, foreign keys en tenantrelaties zijn gelijk gecontroleerd. Database-restore is bewezen; Storage-objectrestore blijft een afzonderlijke P0.
 
 ## Uploadquarantaine
 
@@ -89,13 +89,13 @@ Uploads blijven private en starten als `scan_status=pending`. Alleen de eigenaar
 | ---------- | ----------------------------------------- | ---------------------------------------- | ----------------------------------- |
 | Local      | lokale Supabase stack                     | lokale `.env`, nooit committen           | fictieve tests, resetbaar           |
 | Staging    | `ggucscfzakfvlfwyiuot`                    | Preview/Staging-variabelen               | uitsluitend fictieve acceptatiedata |
-| Production | nieuw schoon project, nog niet aangemaakt | uitsluitend Vercel Production-variabelen | pas na pilot-go/no-go               |
+| Production | `gqemqvovdrujonlffhen`                    | uitsluitend Vercel Production-variabelen | schema aanwezig; data pas na go/no-go |
 
 Per omgeving bestaan eigen `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, Auth redirects en origins. `VITE_*` is altijd browserpubliek. Databasewachtwoord, service role, signing secrets en monitoringtokens bestaan uitsluitend in de server-/platformsecretstore. Preview krijgt nooit production secrets; production krijgt nooit stagingrefs. Het oude project `edaotduwzyvkszcstxsa` is geen baseline en wordt niet gebruikt.
 
 ## Productie dry run en rollback
 
-De releasevolgorde is: repository tag → schone productieachtige database → alle migrations → advisors/RLS → fictieve smoke test → afzonderlijke hostingbuild → go/no-go. De lokale schone rebuild bewijst migrationportabiliteit; een extern production-like project en applicatiekoppeling zijn nog niet bewezen.
+De releasevolgorde is: repository tag → schone productiondatabase → alle migrations → advisors/RLS → fictieve smoke test → cleanup → afzonderlijke hostingbuild → go/no-go. De externe database-dry-run op `gqemqvovdrujonlffhen` en applicatie-API-koppeling zijn bewezen; Vercel Production en de production Auth-URL's zijn nog niet omgeschakeld.
 
 Rollback bij een mislukte technische release gebruikt eerst hostingrollback. Databasewijzigingen zijn voorwaarts-herstellend; vóór release bestaat een herstelbaar snapshot/dump. Bij pilotstop: alle schoolaccounts blokkeren, sessies intrekken, export aanbieden, data volgens het schoolbesluit behouden, tenant pas na goedkeuring verwijderen en backup-expiratie vastleggen.
 
