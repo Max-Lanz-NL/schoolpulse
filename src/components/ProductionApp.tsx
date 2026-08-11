@@ -41,6 +41,7 @@ import {
   updateProfileName,
 } from "@/domains/identity/services/profile-service";
 import { productionModules } from "@/domains/shared/production-modules";
+import { areFileUploadsEnabled, FILE_UPLOADS_DISABLED_MESSAGE } from "@/lib/file-upload-gate";
 
 type ProductionRole = "platform_admin" | "school_admin" | "teacher" | "student" | "parent";
 
@@ -375,6 +376,7 @@ export function ProductionApp({
   const [retentionPeriod, setRetentionPeriod] = useState("");
   const [consentRequired, setConsentRequired] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileUploadsEnabled, setFileUploadsEnabled] = useState(false);
   const [replyConversationId, setReplyConversationId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -812,6 +814,7 @@ export function ProductionApp({
   useEffect(() => {
     void loadAccess();
     void loadRecords();
+    void areFileUploadsEnabled(supabase).then(setFileUploadsEnabled);
 
     const channel = supabase.channel(`school-access-${profile.school_id ?? "platform"}`);
     channel
@@ -1202,6 +1205,13 @@ export function ProductionApp({
     }
     let documentMetadata: Record<string, string | boolean> | undefined;
     if (activeModule.entity === "document" && selectedFile) {
+      if (!(await areFileUploadsEnabled(supabase))) {
+        setFileUploadsEnabled(false);
+        setSelectedFile(null);
+        setSaving(false);
+        toast.info(FILE_UPLOADS_DISABLED_MESSAGE);
+        return;
+      }
       if (selectedFile.size > 50 * 1024 * 1024) {
         setSaving(false);
         toast.error("Bestand is groter dan 50 MB.");
@@ -2026,13 +2036,15 @@ export function ProductionApp({
                           <span className="mb-2 block font-semibold">Bestand uploaden</span>
                           <input
                             type="file"
+                            disabled={!fileUploadsEnabled}
                             onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
                             accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.png,.jpg,.jpeg,.webp"
                             className="block w-full text-xs"
                           />
                           <span className="mt-2 block text-xs text-muted-foreground">
-                            Maximaal 50 MB. Gedeelde toegang volgt pas nadat de veiligheidsscan
-                            gereed is.
+                            {fileUploadsEnabled
+                              ? "Maximaal 50 MB. Gedeelde toegang volgt pas nadat de veiligheidsscan gereed is."
+                              : FILE_UPLOADS_DISABLED_MESSAGE}
                           </span>
                         </label>
                       ) : null}

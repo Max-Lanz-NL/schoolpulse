@@ -153,8 +153,8 @@ export function LearningWorkspace({ supabase, profile, canCreate, canReview, can
               Werk inleveren
             </button>
             <p className="text-xs text-muted-foreground">
-              Bestanden worden pas met anderen gedeeld na malwarecontrole. Zolang geen scanner
-              actief is, blijft een upload in scancontrole en wordt die niet breed verspreid.
+              Bestandsuploads zijn momenteel niet beschikbaar. Je kunt je uitwerking wel als tekst
+              inleveren.
             </p>
             {own?.feedback && (
               <p className="rounded-lg bg-muted p-3 text-sm">Feedback: {own.feedback}</p>
