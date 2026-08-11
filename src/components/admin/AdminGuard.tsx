@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
+import { PrivilegedMfaGate } from "@/components/security/PrivilegedMfaGate";
 
 import {
   getAdminSupabaseClient,
@@ -109,5 +110,9 @@ export function AdminGuard({ children }: { children: (profile: Profile) => React
     );
   }
 
-  return <>{children(profile)}</>;
+  return (
+    <PrivilegedMfaGate supabase={getAdminSupabaseClient()} onSignOut={logout}>
+      {children(profile)}
+    </PrivilegedMfaGate>
+  );
 }

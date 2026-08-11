@@ -187,6 +187,16 @@ Deno.serve(async (req) => {
       ban_duration: body.blocked ? "876000h" : "none",
     });
     if (error) return json({ error: "Unable to update account status" }, 400);
+    const { error: profileError } = await adminClient
+      .from("profiles")
+      .update({ is_blocked: body.blocked })
+      .eq("id", body.user_id);
+    if (profileError) {
+      await adminClient.auth.admin.updateUserById(body.user_id, {
+        ban_duration: body.blocked ? "none" : "876000h",
+      });
+      return json({ error: "Unable to persist account status" }, 400);
+    }
     return json({ ok: true });
   }
 

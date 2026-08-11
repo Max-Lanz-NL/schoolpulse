@@ -39,3 +39,4 @@ dist-ssr
 # Local recovery material; never publish these copies.
 .codex-push/
 artifacts/cleanup-backup-20260809/
+.pilot-recovery/

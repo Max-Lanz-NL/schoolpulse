@@ -8,6 +8,7 @@ import type { Role } from "@/lib/demo-data";
 import { useRole } from "@/lib/role-context";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { ProductionApp } from "@/components/ProductionApp";
+import { PrivilegedMfaGate } from "@/components/security/PrivilegedMfaGate";
 
 export function DemoGate({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -189,7 +190,7 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
     const loadProfile = async (userId: string): Promise<ProductionProfile | null> => {
       const { data: loadedProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("id,email,full_name,role,school_name,school_id,created_at")
+        .select("id,email,full_name,role,school_name,school_id,created_at,is_blocked")
         .eq("id", userId)
         .maybeSingle();
 
@@ -200,6 +201,11 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
 
       if (!loadedProfile) {
         setError("Je account heeft nog geen Schoolpulse profiel. Vraag toegang bij je beheerder.");
+        return null;
+      }
+
+      if (loadedProfile.is_blocked) {
+        setError("Dit account is geblokkeerd. Neem contact op met je beheerder.");
         return null;
       }
 
@@ -341,7 +347,14 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
   }
 
   if (isLoggedIn && profile) {
-    return <ProductionApp profile={profile} supabase={supabase!} onSignOut={signOut} />;
+    const app = <ProductionApp profile={profile} supabase={supabase!} onSignOut={signOut} />;
+    return ["platform_admin", "school_admin"].includes(profile.role) ? (
+      <PrivilegedMfaGate supabase={supabase!} onSignOut={signOut}>
+        {app}
+      </PrivilegedMfaGate>
+    ) : (
+      app
+    );
   }
 
   return (
