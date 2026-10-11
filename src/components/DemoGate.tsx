@@ -37,9 +37,9 @@ export function DemoGate({ children }: { children: ReactNode }) {
     );
   }
 
-  // Temporary access is limited to the app routes and local demo fixtures, never Supabase data.
+  // Keep the test-account login on the real app flow, not the public demo fixtures.
   if (isEmailOnlyTestMode) {
-    return <DemoAccessGate requireEmailOnly>{children}</DemoAccessGate>;
+    return <ProductionAppGate emailOnlyTestMode>{children}</ProductionAppGate>;
   }
 
   if (isProductionAppHost) return <ProductionAppGate>{children}</ProductionAppGate>;
@@ -47,36 +47,17 @@ export function DemoGate({ children }: { children: ReactNode }) {
   return <DemoAccessGate>{children}</DemoAccessGate>;
 }
 
-function DemoAccessGate({
-  children,
-  requireEmailOnly = false,
-}: {
-  children: ReactNode;
-  requireEmailOnly?: boolean;
-}) {
+function DemoAccessGate({ children }: { children: ReactNode }) {
   const { demoUser, setDemoUser } = useRole();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [accessGranted, setAccessGranted] = useState(false);
 
-  if (requireEmailOnly ? accessGranted : demoUser) {
-    return (
-      <>
-        {requireEmailOnly && (
-          <div className="bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950">
-            TESTMODUS — fictieve voorbeeldgegevens; er is niet gecontroleerd of dit e-mailadres van
-            jou is.
-          </div>
-        )}
-        {children}
-      </>
-    );
-  }
+  if (demoUser) return <>{children}</>;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!requireEmailOnly && (!name.trim() || name.trim().length < 2)) {
+    if (!name.trim() || name.trim().length < 2) {
       return setError("Vul je volledige naam in.");
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -84,10 +65,9 @@ function DemoAccessGate({
     setError(null);
     const normalizedEmail = email.trim().toLowerCase();
     setDemoUser({
-      name: requireEmailOnly ? normalizedEmail.split("@")[0] : name.trim(),
+      name: name.trim(),
       email: normalizedEmail,
     });
-    setAccessGranted(true);
   };
 
   return (
@@ -98,30 +78,25 @@ function DemoAccessGate({
           <span className="text-xl font-bold tracking-tight">Schoolpulse</span>
         </Link>
         <div className="rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-elegant)]">
-          <h1 className="text-xl font-bold tracking-tight">
-            {requireEmailOnly ? "Tijdelijke testtoegang" : "Toegang tot de demo"}
-          </h1>
+          <h1 className="text-xl font-bold tracking-tight">Toegang tot de demo</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {requireEmailOnly
-              ? "Vul een e-mailadres in om de app met fictieve testgegevens te openen. Er wordt geen e-mail verstuurd en het adres wordt niet geverifieerd."
-              : "Vul je naam en e-mail in om de interactieve demo te openen. Zo weten we voor wie we onze omgeving verbeteren."}
+            Vul je naam en e-mail in om de interactieve demo te openen. Zo weten we voor wie we onze
+            omgeving verbeteren.
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
-            {!requireEmailOnly && (
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-foreground">
-                  Volledige naam
-                </label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Bijv. Anna Bakker"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  autoFocus
-                />
-              </div>
-            )}
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-foreground">
+                Volledige naam
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Bijv. Anna Bakker"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                autoFocus
+              />
+            </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-foreground">
                 E-mailadres
@@ -130,9 +105,8 @@ function DemoAccessGate({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={requireEmailOnly ? "test@schoolpulse.nl" : "naam@school.nl"}
+                placeholder="naam@school.nl"
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                autoFocus={requireEmailOnly}
               />
             </div>
             {error && (
@@ -145,7 +119,7 @@ function DemoAccessGate({
               type="submit"
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90"
             >
-              {requireEmailOnly ? "Open testapp" : "Open demo"}
+              Open demo
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
@@ -199,7 +173,13 @@ function toDemoRole(role: ProductionRole): Role {
   return roleMap[role];
 }
 
-function ProductionAppGate({ children }: { children: ReactNode }) {
+function ProductionAppGate({
+  children,
+  emailOnlyTestMode = false,
+}: {
+  children: ReactNode;
+  emailOnlyTestMode?: boolean;
+}) {
   const { setRole } = useRole();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -393,12 +373,22 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
 
   if (isLoggedIn && profile) {
     const app = <ProductionApp profile={profile} supabase={supabase!} onSignOut={signOut} />;
-    return ["platform_admin", "school_admin"].includes(profile.role) ? (
+    const gatedApp = ["platform_admin", "school_admin"].includes(profile.role) ? (
       <PrivilegedMfaGate supabase={supabase!} onSignOut={signOut}>
         {app}
       </PrivilegedMfaGate>
     ) : (
       app
+    );
+    return (
+      <>
+        {emailOnlyTestMode && (
+          <div className="bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950">
+            TESTMODUS — ingelogd met bestaand account via de bevestigingslink per e-mail.
+          </div>
+        )}
+        {gatedApp}
+      </>
     );
   }
 
@@ -410,10 +400,13 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
           <span className="text-xl font-bold tracking-tight">Schoolpulse Login</span>
         </div>
         <div className="rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-elegant)]">
-          <h1 className="text-xl font-bold tracking-tight">Inloggen met schoolaccount</h1>
+          <h1 className="text-xl font-bold tracking-tight">
+            {emailOnlyTestMode ? "Testinloggen met e-mailadres" : "Inloggen met schoolaccount"}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Vul je e-mailadres in. We sturen je een eenmalige inloglink; een wachtwoord is niet
-            nodig.
+            {emailOnlyTestMode
+              ? "Vul het e-mailadres in dat in het adminpaneel staat. Je krijgt een eenmalige bevestigingslink; een wachtwoord is niet nodig."
+              : "Vul je e-mailadres in. We sturen je een eenmalige inloglink; een wachtwoord is niet nodig."}
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
@@ -425,7 +418,7 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="naam@school.nl"
+                placeholder={emailOnlyTestMode ? "test@schoolpulse.nl" : "naam@school.nl"}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 autoFocus
                 autoComplete="username"
