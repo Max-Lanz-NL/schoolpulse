@@ -22,6 +22,11 @@ export function DemoGate({ children }: { children: ReactNode }) {
     typeof window !== "undefined" &&
     (window.location.hostname === "app.schoolpulse.nl" ||
       import.meta.env.VITE_FORCE_PRODUCTION_APP === "true");
+  const isEmailOnlyTestMode =
+    mounted &&
+    typeof window !== "undefined" &&
+    window.location.hostname === "app.schoolpulse.nl" &&
+    import.meta.env.VITE_EMAIL_ONLY_TEST_MODE !== "false";
 
   if (!mounted) {
     return (
@@ -31,26 +36,57 @@ export function DemoGate({ children }: { children: ReactNode }) {
     );
   }
 
+  // Temporary: test identities use local demo fixtures. Disable before real users/data or Azure SSO.
+  if (isEmailOnlyTestMode) {
+    return <DemoAccessGate requireEmailOnly>{children}</DemoAccessGate>;
+  }
+
   if (isProductionAppHost) return <ProductionAppGate>{children}</ProductionAppGate>;
 
   return <DemoAccessGate>{children}</DemoAccessGate>;
 }
 
-function DemoAccessGate({ children }: { children: ReactNode }) {
+function DemoAccessGate({
+  children,
+  requireEmailOnly = false,
+}: {
+  children: ReactNode;
+  requireEmailOnly?: boolean;
+}) {
   const { demoUser, setDemoUser } = useRole();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [accessGranted, setAccessGranted] = useState(false);
 
-  if (demoUser) return <>{children}</>;
+  if (requireEmailOnly ? accessGranted : demoUser) {
+    return (
+      <>
+        {requireEmailOnly && (
+          <div className="bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950">
+            TESTMODUS — fictieve voorbeeldgegevens; er is niet gecontroleerd of dit e-mailadres van
+            jou is.
+          </div>
+        )}
+        {children}
+      </>
+    );
+  }
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || name.trim().length < 2) return setError("Vul je volledige naam in.");
+    if (!requireEmailOnly && (!name.trim() || name.trim().length < 2)) {
+      return setError("Vul je volledige naam in.");
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return setError("Vul een geldig e-mailadres in.");
     setError(null);
-    setDemoUser({ name: name.trim(), email: email.trim() });
+    const normalizedEmail = email.trim().toLowerCase();
+    setDemoUser({
+      name: requireEmailOnly ? normalizedEmail.split("@")[0] : name.trim(),
+      email: normalizedEmail,
+    });
+    setAccessGranted(true);
   };
 
   return (
@@ -61,25 +97,30 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
           <span className="text-xl font-bold tracking-tight">Schoolpulse</span>
         </Link>
         <div className="rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-elegant)]">
-          <h1 className="text-xl font-bold tracking-tight">Toegang tot de demo</h1>
+          <h1 className="text-xl font-bold tracking-tight">
+            {requireEmailOnly ? "Tijdelijke testtoegang" : "Toegang tot de demo"}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Vul je naam en e-mail in om de interactieve demo te openen. Zo weten we voor wie we onze
-            omgeving verbeteren.
+            {requireEmailOnly
+              ? "Vul een e-mailadres in om de app met fictieve testgegevens te openen. Er wordt geen e-mail verstuurd en het adres wordt niet geverifieerd."
+              : "Vul je naam en e-mail in om de interactieve demo te openen. Zo weten we voor wie we onze omgeving verbeteren."}
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-foreground">
-                Volledige naam
-              </label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Bijv. Anna Bakker"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                autoFocus
-              />
-            </div>
+            {!requireEmailOnly && (
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-foreground">
+                  Volledige naam
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Bijv. Anna Bakker"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  autoFocus
+                />
+              </div>
+            )}
             <div>
               <label className="mb-1 block text-xs font-semibold text-foreground">
                 E-mailadres
@@ -88,8 +129,9 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="naam@school.nl"
+                placeholder={requireEmailOnly ? "test@schoolpulse.nl" : "naam@school.nl"}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                autoFocus={requireEmailOnly}
               />
             </div>
             {error && (
@@ -102,7 +144,8 @@ function DemoAccessGate({ children }: { children: ReactNode }) {
               type="submit"
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90"
             >
-              Open demo <ArrowRight className="h-4 w-4" />
+              {requireEmailOnly ? "Open testapp" : "Open demo"}
+              <ArrowRight className="h-4 w-4" />
             </button>
           </form>
 
