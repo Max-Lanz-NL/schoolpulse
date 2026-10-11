@@ -26,6 +26,7 @@ export function DemoGate({ children }: { children: ReactNode }) {
     mounted &&
     typeof window !== "undefined" &&
     window.location.hostname === "app.schoolpulse.nl" &&
+    (window.location.pathname === "/app" || window.location.pathname.startsWith("/app/")) &&
     import.meta.env.VITE_EMAIL_ONLY_TEST_MODE !== "false";
 
   if (!mounted) {
@@ -36,7 +37,7 @@ export function DemoGate({ children }: { children: ReactNode }) {
     );
   }
 
-  // Temporary: test identities use local demo fixtures. Disable before real users/data or Azure SSO.
+  // Temporary access is limited to the app routes and local demo fixtures, never Supabase data.
   if (isEmailOnlyTestMode) {
     return <DemoAccessGate requireEmailOnly>{children}</DemoAccessGate>;
   }
