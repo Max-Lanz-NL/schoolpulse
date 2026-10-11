@@ -14,13 +14,16 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  Moon,
   Pencil,
   Plus,
   RefreshCw,
   RotateCcw,
   Search,
   Settings,
+  Sun,
   ShieldQuestion,
+  Type,
   Trash2,
   Users,
 } from "lucide-react";
@@ -328,6 +331,8 @@ export function ProductionApp({
   const [records, setRecords] = useState<AppRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [navigationSearch, setNavigationSearch] = useState("");
+  const [navigationSearchOpen, setNavigationSearchOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -380,6 +385,14 @@ export function ProductionApp({
   const [replyConversationId, setReplyConversationId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => typeof window !== "undefined" && window.localStorage.getItem("sp-theme") === "dark",
+  );
+  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
+    if (typeof window === "undefined") return "base";
+    const saved = window.localStorage.getItem("sp-fontsize");
+    return saved === "sm" || saved === "lg" ? saved : "base";
+  });
   const [settingsName, setSettingsName] = useState(profile.full_name ?? "");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [inAppNotifications, setInAppNotifications] = useState(true);
@@ -402,6 +415,17 @@ export function ProductionApp({
       profile.role === "platform_admin" || permissionMap.has(permissionKey),
     [permissionMap, profile.role],
   );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    window.localStorage.setItem("sp-theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
+  useEffect(() => {
+    const sizes = { sm: "14px", base: "16px", lg: "18px" };
+    document.documentElement.style.fontSize = sizes[fontSize];
+    window.localStorage.setItem("sp-fontsize", fontSize);
+  }, [fontSize]);
 
   const openSettings = async () => {
     const [{ data: preferences }, { data: factors }] = await Promise.all([
@@ -1683,12 +1707,25 @@ export function ProductionApp({
     return can(`${category}.${action}`) || can(`${category}.manage`);
   };
 
-  const navigationModules = productionModules.filter(
-    (module) => module.navigation !== "hidden" && can(module.permission),
-  );
-  const visibleModules = modules.filter((module) =>
-    navigationModules.some((navigationModule) => navigationModule.path === module.path),
-  );
+  // Surface every production route the signed-in user is allowed to use.
+  // The demo has a broader menu; production still gates each item by its real permission.
+  const navigationModules = productionModules.filter((module) => can(module.permission));
+  const visibleModules = modules
+    .filter((module) =>
+      navigationModules.some((navigationModule) => navigationModule.path === module.path),
+    )
+    .map((module) => ({
+      ...module,
+      section: navigationModules.find((navigationModule) => navigationModule.path === module.path)
+        ?.navigation,
+    }));
+  const matchingModules = visibleModules
+    .filter((module) =>
+      module.label
+        .toLocaleLowerCase("nl-NL")
+        .includes(navigationSearch.trim().toLocaleLowerCase("nl-NL")),
+    )
+    .slice(0, 6);
   const canCreate = canPerform(activeModule.entity, "create");
   const canUpdate = canPerform(activeModule.entity, "update");
   const canDelete = canPerform(activeModule.entity, "delete");
@@ -1735,7 +1772,7 @@ export function ProductionApp({
       <ProductionMobileNavigation modules={navigationModules} pathname={pathname} />
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-sidebar text-sidebar-foreground md:flex">
         <ProductionDesktopNavigation modules={visibleModules} pathname={pathname} />
-        <div className="border-t border-sidebar-border p-4">
+        <div className="mt-auto border-t border-sidebar-border p-4">
           <div className="truncate text-sm font-semibold text-white">
             {profile.full_name || profile.email}
           </div>
@@ -1756,30 +1793,70 @@ export function ProductionApp({
       </aside>
 
       <div className="min-h-screen md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center border-b border-border bg-background/95 px-4 backdrop-blur md:px-8">
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-lg font-semibold capitalize">{activeModule.label}</h1>
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur md:px-8">
+          <div className="min-w-0 flex-1 pl-10 md:pl-0">
+            <h1 className="truncate text-lg font-semibold">{activeModule.label}</h1>
             <p className="truncate text-xs text-muted-foreground">
-              {profile.school_name || "Schoolpulse productie"} · beveiligde schoolomgeving
+              {profile.school_name || "Schoolpulse"} · {profile.full_name || profile.email}
             </p>
+          </div>
+          <div className="relative hidden min-w-48 max-w-72 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm lg:flex">
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              value={navigationSearch}
+              onChange={(event) => setNavigationSearch(event.target.value)}
+              onFocus={() => setNavigationSearchOpen(true)}
+              onBlur={() => window.setTimeout(() => setNavigationSearchOpen(false), 150)}
+              placeholder="Zoek onderdeel..."
+              aria-label="Zoek een onderdeel"
+              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+            />
+            {navigationSearchOpen && navigationSearch.trim() ? (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg">
+                {matchingModules.length ? (
+                  matchingModules.map((module) => (
+                    <Link
+                      key={module.path}
+                      to={module.path}
+                      onClick={() => setNavigationSearch("")}
+                      className="block rounded-lg px-3 py-2 text-sm hover:bg-muted"
+                    >
+                      {module.label}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">
+                    Geen onderdeel gevonden.
+                  </p>
+                )}
+              </div>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => void loadRecords()}
-              className="rounded-lg border border-border p-2 hover:bg-muted"
+              className="rounded-lg border border-border p-2 transition-colors hover:bg-muted"
               aria-label="Vernieuwen"
             >
               <RefreshCw className="h-4 w-4" />
             </button>
             <button
               onClick={() => void openSettings()}
-              className="rounded-lg border border-border p-2 hover:bg-muted"
+              className="rounded-lg border border-border p-2 transition-colors hover:bg-muted"
               aria-label="Profiel en beveiliging"
               title="Profiel en beveiliging"
             >
               <Settings className="h-4 w-4" />
             </button>
-            <Bell className="h-4 w-4 text-muted-foreground" />
+            {navigationModules.some((module) => module.entity === "notification") ? (
+              <Link
+                to="/app/notificaties"
+                className="rounded-lg border border-border p-2 transition-colors hover:bg-muted"
+                aria-label="Meldingen"
+              >
+                <Bell className="h-4 w-4 text-muted-foreground" />
+              </Link>
+            ) : null}
             <button
               onClick={() => void onSignOut()}
               className="rounded-lg border border-border px-3 py-2 text-xs font-semibold md:hidden"
@@ -2914,6 +2991,31 @@ export function ProductionApp({
                     <option value="off">Uit</option>
                   </select>
                 </label>
+              </div>
+              <div className="rounded-xl border border-border p-4">
+                <h3 className="font-semibold">Weergave</h3>
+                <button
+                  onClick={() => setDarkMode((value) => !value)}
+                  className="mt-3 flex w-full items-center gap-2 rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-muted"
+                >
+                  {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {darkMode ? "Lichte modus" : "Donkere modus"}
+                </button>
+                <div className="mt-3 flex items-center gap-2 text-sm">
+                  <Type className="h-4 w-4 text-muted-foreground" />
+                  <span className="flex-1">Tekstgrootte</span>
+                  {(["sm", "base", "lg"] as const).map((size, index) => (
+                    <button
+                      key={size}
+                      onClick={() => setFontSize(size)}
+                      aria-label={["Kleinere tekst", "Standaard tekst", "Grotere tekst"][index]}
+                      aria-pressed={fontSize === size}
+                      className={`rounded px-2 py-1 text-xs font-semibold ${fontSize === size ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                    >
+                      {["A−", "A", "A+"][index]}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="rounded-xl border border-border p-4">
                 <h3 className="font-semibold">Tweestapsverificatie (2FA)</h3>

@@ -63,19 +63,37 @@ export function ProductionMobileNavigation({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="space-y-1">
-              {modules.map((module) => {
+            <nav className="space-y-1 overflow-y-auto" aria-label="Productienavigatie">
+              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Modules
+              </div>
+              {modules.map((module, index) => {
                 const Icon = icons[module.icon];
+                const previous = modules[index - 1];
+                const sectionLabel =
+                  index > 0 && previous?.navigation !== module.navigation
+                    ? module.navigation === "management"
+                      ? "Beheer"
+                      : module.navigation === "hidden"
+                        ? "Overige onderdelen"
+                        : null
+                    : null;
                 return (
-                  <Link
-                    key={module.path}
-                    to={module.path}
-                    onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium ${pathname === module.path ? "bg-sidebar-primary text-sidebar-primary-foreground" : "hover:bg-sidebar-accent"}`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {module.label}
-                  </Link>
+                  <div key={module.path}>
+                    {sectionLabel ? (
+                      <div className="mb-2 mt-4 border-t border-sidebar-border px-3 pt-4 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                        {sectionLabel}
+                      </div>
+                    ) : null}
+                    <Link
+                      to={module.path}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium ${pathname === module.path ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {module.label}
+                    </Link>
+                  </div>
                 );
               })}
             </nav>

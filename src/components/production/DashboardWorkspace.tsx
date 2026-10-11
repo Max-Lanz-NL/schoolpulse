@@ -89,14 +89,13 @@ export function DashboardWorkspace({ supabase, profile }: Props) {
   const upcomingLessons = data.lessons
     .filter((lesson) => new Date(lesson.ends_at).getTime() >= now)
     .slice(0, 4);
-  const openAssignments = data.assignments
-    .filter(
-      (assignment) =>
-        assignment.status === "published" &&
-        (!assignment.due_at || new Date(assignment.due_at).getTime() >= now),
-    )
-    .slice(0, 4);
-  const recentGrades = data.grades.filter((grade) => grade.status !== "draft").slice(0, 4);
+  const openAssignments = data.assignments.filter(
+    (assignment) =>
+      assignment.status === "published" &&
+      (!assignment.due_at || new Date(assignment.due_at).getTime() >= now),
+  );
+  const publishedGrades = data.grades.filter((grade) => grade.status !== "draft");
+  const recentGrades = publishedGrades.slice(0, 4);
   const ownAttendance = data.attendance.filter(
     (record) => profile.role !== "student" || record.student_profile_id === profile.id,
   );
@@ -110,27 +109,69 @@ export function DashboardWorkspace({ supabase, profile }: Props) {
       !data.attendance.some((record) => record.timetable_entry_id === lesson.id),
   );
   const isStudent = profile.role === "student";
+  const isSchoolLeadership = ["platform_admin", "school_admin"].includes(profile.role);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const weekDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(todayStart);
+    date.setDate(date.getDate() - (6 - index));
+    const key = date.toLocaleDateString("nl-NL");
+    const records = data.attendance.filter(
+      (record) =>
+        record.lesson && new Date(record.lesson.starts_at).toLocaleDateString("nl-NL") === key,
+    );
+    const present = records.filter((record) =>
+      ["present", "late", "remote"].includes(record.status),
+    ).length;
+    const total = records.length;
+    return {
+      label: new Intl.DateTimeFormat("nl-NL", { weekday: "short" }).format(date),
+      present: total ? Math.round((present / total) * 100) : 0,
+      total,
+    };
+  });
+  const attendanceMax = Math.max(100, ...weekDays.map((day) => day.present));
+  const gradesBySubject = Array.from(
+    publishedGrades
+      .reduce((summary, grade) => {
+        const name = grade.assessment?.subject?.name ?? "Overige vakken";
+        const value = grade.grade ?? (grade.score !== null ? Number(grade.score) : null);
+        if (value === null || !Number.isFinite(value)) return summary;
+        const current = summary.get(name) ?? { total: 0, count: 0 };
+        current.total += value;
+        current.count += 1;
+        summary.set(name, current);
+        return summary;
+      }, new Map<string, { total: number; count: number }>())
+      .entries(),
+  )
+    .map(([name, values]) => ({ name, average: values.total / values.count, count: values.count }))
+    .sort((a, b) => a.name.localeCompare(b.name, "nl-NL"));
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-primary p-5 text-primary-foreground md:p-6">
-        <p className="text-sm opacity-80">
-          {new Intl.DateTimeFormat("nl-NL", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-          }).format(new Date())}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold">
-          Welkom{profile.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
-        </h1>
-        <p className="mt-1 text-sm opacity-85">
-          {isStudent
-            ? "Dit staat er voor jou klaar."
-            : profile.role === "teacher"
-              ? "Dit vraagt vandaag je aandacht."
-              : "Actueel overzicht van je school."}
-        </p>
+      <div className="relative overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm md:p-6">
+        <div className="relative z-10">
+          <p className="text-sm capitalize opacity-80">
+            {new Intl.DateTimeFormat("nl-NL", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            }).format(new Date())}
+          </p>
+          <h1 className="mt-1 text-2xl font-bold">
+            Welkom{profile.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
+          </h1>
+          <p className="mt-1 text-sm opacity-85">
+            {isStudent
+              ? "Dit staat er voor jou klaar."
+              : profile.role === "teacher"
+                ? "Dit vraagt vandaag je aandacht."
+                : "Actueel overzicht van je school."}
+          </p>
+        </div>
+        <div className="pointer-events-none absolute -right-8 -top-20 h-56 w-56 rounded-full border-[28px] border-primary-foreground/10" />
+        <div className="pointer-events-none absolute -bottom-28 right-24 h-48 w-48 rounded-full bg-primary-foreground/5" />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -143,8 +184,8 @@ export function DashboardWorkspace({ supabase, profile }: Props) {
           },
           {
             Icon: BarChart3,
-            value: recentGrades.length,
-            label: isStudent ? "recente cijfers" : "zichtbare cijfers",
+            value: publishedGrades.length,
+            label: isStudent ? "gepubliceerde cijfers" : "zichtbare cijfers",
           },
           {
             Icon: CheckCircle2,
@@ -154,13 +195,94 @@ export function DashboardWorkspace({ supabase, profile }: Props) {
             label: isStudent ? "verzuimmeldingen" : "open acties",
           },
         ].map(({ Icon, value, label }) => (
-          <div key={label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-            <Icon className="h-5 w-5 text-primary" />
-            <div className="mt-3 text-2xl font-bold">{value}</div>
+          <div
+            key={label}
+            className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="mt-3 text-2xl font-bold tracking-tight">{value}</div>
             <div className="text-xs text-muted-foreground">{label}</div>
           </div>
         ))}
       </div>
+
+      {isSchoolLeadership ? (
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Panel
+            title="Aanwezigheid · afgelopen 7 dagen"
+            icon={CheckCircle2}
+            link="/app/aanwezigheid"
+          >
+            {weekDays.some((day) => day.total > 0) ? (
+              <div className="flex h-44 items-end justify-between gap-3 px-2 pt-2">
+                {weekDays.map((day) => (
+                  <div
+                    key={day.label}
+                    className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2"
+                    title={`${day.total} registraties`}
+                  >
+                    {day.total ? (
+                      <span className="text-[10px] font-semibold text-muted-foreground">
+                        {day.present}%
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">—</span>
+                    )}
+                    <div className="flex h-28 w-full items-end rounded-t-md bg-muted/50">
+                      <div
+                        className="w-full rounded-t-md bg-primary transition-all"
+                        style={{
+                          height: `${day.total ? Math.max(6, (day.present / attendanceMax) * 100) : 0}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] capitalize text-muted-foreground">
+                      {day.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Empty>Er zijn nog geen aanwezigheidsregistraties voor deze week.</Empty>
+            )}
+          </Panel>
+
+          <Panel title="Cijfergemiddelde per vak" icon={BarChart3} link="/app/cijfers">
+            {gradesBySubject.length ? (
+              <div className="space-y-3">
+                {gradesBySubject.slice(0, 6).map((subject) => (
+                  <div key={subject.name}>
+                    <div className="mb-1 flex items-center justify-between gap-3 text-xs">
+                      <span className="truncate font-medium">{subject.name}</span>
+                      <span className="shrink-0 font-semibold">
+                        {subject.average.toLocaleString("nl-NL", {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        })}{" "}
+                        <span className="font-normal text-muted-foreground">
+                          · {subject.count} {subject.count === 1 ? "cijfer" : "cijfers"}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{
+                          width: `${Math.min(100, Math.max(0, (subject.average / 10) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Empty>Er zijn nog geen gepubliceerde cijfers om te tonen.</Empty>
+            )}
+          </Panel>
+        </div>
+      ) : null}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel
