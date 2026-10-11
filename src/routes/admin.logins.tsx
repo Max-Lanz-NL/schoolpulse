@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Clock3, RefreshCw, X } from "lucide-react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortToggle, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import { getAdminSupabaseClient, getReadableAdminError, type Profile } from "@/lib/admin-client";
 
 export const Route = createFileRoute("/admin/logins")({
@@ -20,6 +22,7 @@ type LoginRequest = {
   created_at: string;
   expires_at: string;
 };
+type LoginSortKey = "name" | "email" | "role" | "school" | "created";
 
 function AdminLoginsPage() {
   const [requests, setRequests] = useState<LoginRequest[]>([]);
@@ -27,6 +30,27 @@ function AdminLoginsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<LoginSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const sortedRequests = useMemo(() => {
+    if (!sortKey) return requests;
+    const values: Record<LoginSortKey, (request: LoginRequest) => string> = {
+      name: (request) => request.full_name || request.email,
+      email: (request) => request.email,
+      role: (request) => request.role,
+      school: (request) => request.school_name ?? "",
+      created: (request) => request.created_at,
+    };
+    return sortByValue(requests, values[sortKey], sortDirection);
+  }, [requests, sortDirection, sortKey]);
+  const handleSort = (key: LoginSortKey) => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -132,7 +156,44 @@ function AdminLoginsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {requests.map((request) => (
+                <div className="flex flex-wrap gap-2" aria-label="Loginverzoeken sorteren">
+                  <SortToggle
+                    label="Naam"
+                    sortKey="name"
+                    activeKey={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortToggle
+                    label="E-mail"
+                    sortKey="email"
+                    activeKey={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortToggle
+                    label="Rol"
+                    sortKey="role"
+                    activeKey={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortToggle
+                    label="School"
+                    sortKey="school"
+                    activeKey={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortToggle
+                    label="Aangemaakt"
+                    sortKey="created"
+                    activeKey={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                </div>
+                {sortedRequests.map((request) => (
                   <article
                     key={request.id}
                     className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-4"

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortToggle, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import {
   createRelationRecord,
   deleteRelationRecord,
@@ -23,6 +25,7 @@ import {
 export const Route = createFileRoute("/admin/relations")({ component: AdminRelationsPage });
 
 type RelationRecord = SchoolRelations[SchoolRelationKind][number];
+type RelationSortKey = "name" | "details";
 type FormValue = string | boolean;
 type FormState = Record<string, FormValue>;
 type Field = {
@@ -105,6 +108,8 @@ function AdminRelationsPage() {
   const [structure, setStructure] = useState<SchoolStructure>(emptyStructure);
   const [relations, setRelations] = useState<SchoolRelations>(emptyRelations);
   const [kind, setKind] = useState<SchoolRelationKind>("students");
+  const [sortKey, setSortKey] = useState<RelationSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [editor, setEditor] = useState<{ id: string | null; values: FormState } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -504,6 +509,23 @@ function AdminRelationsPage() {
   };
 
   const rows = relations[kind] as RelationRecord[];
+  const sortedRows = sortKey
+    ? sortByValue(
+        rows,
+        (record) => {
+          const text = rowText(record);
+          return sortKey === "name" ? text.title : text.detail;
+        },
+        sortDirection,
+      )
+    : rows;
+  const handleSort = (key: RelationSortKey) => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
   const prerequisitesMissing =
     schoolProfiles.length === 0 ||
     ((kind === "enrolments" || kind === "guardians" || kind === "studentGroups") &&
@@ -585,6 +607,25 @@ function AdminRelationsPage() {
                   Nieuwe {currentTab.singular}
                 </button>
               </div>
+              <div
+                className="mt-4 flex flex-wrap gap-2"
+                aria-label={`${currentTab.label} sorteren`}
+              >
+                <SortToggle
+                  label="Naam"
+                  sortKey="name"
+                  activeKey={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortToggle
+                  label="Gegevens"
+                  sortKey="details"
+                  activeKey={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </div>
               {prerequisitesMissing && (
                 <div className="mt-4 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-800">
                   Er ontbreken nog benodigde accounts of basisgegevens. Begin bij Accounts,
@@ -600,7 +641,7 @@ function AdminRelationsPage() {
                 </div>
               ) : (
                 <div className="mt-4 divide-y divide-border">
-                  {rows.map((record) => {
+                  {sortedRows.map((record) => {
                     const source = record as unknown as Record<string, unknown>;
                     const text = rowText(record);
                     return (

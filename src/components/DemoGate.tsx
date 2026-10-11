@@ -448,7 +448,7 @@ function ProductionAppGate({
       email: normalizedEmail,
       createdAt: Date.now(),
     };
-    const { error: requestError } = await supabase.functions.invoke("login-access", {
+    const { data, error: requestError } = await supabase.functions.invoke("login-access", {
       body: {
         action: "request",
         email: normalizedEmail,
@@ -460,6 +460,16 @@ function ProductionAppGate({
     if (requestError) {
       setBusy(false);
       setError("Het loginverzoek kon niet worden verstuurd. Probeer het opnieuw.");
+      return;
+    }
+
+    if (data?.request_created !== true) {
+      setBusy(false);
+      setError(
+        data?.already_pending
+          ? "Er staat al een loginverzoek open. De beheerder kan dat verzoek goedkeuren."
+          : "Dit e-mailadres is niet gekoppeld aan een actief testaccount. Laat het account eerst door een beheerder toevoegen.",
+      );
       return;
     }
 

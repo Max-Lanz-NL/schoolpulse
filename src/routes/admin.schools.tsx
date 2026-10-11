@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortableHeader, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import {
   createSchool,
   deleteSchool,
@@ -18,12 +20,16 @@ export const Route = createFileRoute("/admin/schools")({
   component: AdminSchoolsPage,
 });
 
+type SchoolSortKey = "name" | "address" | "contact" | "users" | "admins";
+
 function AdminSchoolsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [schools, setSchools] = useState<School[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [sortKey, setSortKey] = useState<SchoolSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const [createName, setCreateName] = useState("");
   const [createAddress, setCreateAddress] = useState("");
@@ -56,6 +62,25 @@ function AdminSchoolsPage() {
     });
     return admins;
   }, [profiles]);
+
+  const sortedSchools = useMemo(() => {
+    if (!sortKey) return schools;
+    const values: Record<SchoolSortKey, (school: School) => string | number> = {
+      name: (school) => school.name,
+      address: (school) => school.address ?? "",
+      contact: (school) => school.contact_email ?? "",
+      users: (school) => userCounts.get(school.id) ?? 0,
+      admins: (school) => (schoolAdmins.get(school.id) ?? []).join(", "),
+    };
+    return sortByValue(schools, values[sortKey], sortDirection);
+  }, [schools, schoolAdmins, sortDirection, sortKey, userCounts]);
+  const handleSort = (key: SchoolSortKey) => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -209,16 +234,46 @@ function AdminSchoolsPage() {
                   <table className="w-full min-w-[900px] text-left text-sm">
                     <thead className="text-xs uppercase tracking-wide text-muted-foreground">
                       <tr>
-                        <th className="px-3 py-2">Naam</th>
-                        <th className="px-3 py-2">Adres</th>
-                        <th className="px-3 py-2">Contact</th>
-                        <th className="px-3 py-2">Gebruikers</th>
-                        <th className="px-3 py-2">Schoolbeheerder(s)</th>
+                        <SortableHeader
+                          label="Naam"
+                          sortKey="name"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Adres"
+                          sortKey="address"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Contact"
+                          sortKey="contact"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Gebruikers"
+                          sortKey="users"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Schoolbeheerder(s)"
+                          sortKey="admins"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
                         <th className="px-3 py-2 text-right">Acties</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {schools.map((school) => {
+                      {sortedSchools.map((school) => {
                         const isEditing = editingId === school.id;
                         const admins = schoolAdmins.get(school.id) ?? [];
                         return (

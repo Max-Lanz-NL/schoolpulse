@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortToggle, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import {
   createStructureRecord,
   deleteStructureRecord,
@@ -19,6 +21,7 @@ import {
 export const Route = createFileRoute("/admin/structure")({ component: AdminStructurePage });
 
 type StructureRecord = SchoolStructure[SchoolStructureKind][number];
+type StructureSortKey = "name" | "details";
 type FormValue = string | boolean;
 type FormState = Record<string, FormValue>;
 type Field = {
@@ -90,6 +93,8 @@ function AdminStructurePage() {
   const [schoolId, setSchoolId] = useState("");
   const [structure, setStructure] = useState<SchoolStructure>(emptyStructure);
   const [kind, setKind] = useState<SchoolStructureKind>("years");
+  const [sortKey, setSortKey] = useState<StructureSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -373,6 +378,23 @@ function AdminStructurePage() {
       return `${yearName(item.school_year_id)}${item.grade_level ? ` · leerjaar ${String(item.grade_level)}` : ""}`;
     return `${yearName(item.school_year_id)} · ${String(item.group_type)}`;
   };
+  const sortedRows = sortKey
+    ? sortByValue(
+        rows,
+        (record) => {
+          const item = record as unknown as Record<string, unknown>;
+          return sortKey === "name" ? String(item.name ?? "") : rowDetails(record);
+        },
+        sortDirection,
+      )
+    : rows;
+  const handleSort = (key: StructureSortKey) => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   return (
     <AdminGuard>
@@ -464,6 +486,25 @@ function AdminStructurePage() {
                   Nieuwe {currentTab.singular}
                 </button>
               </div>
+              <div
+                className="mt-4 flex flex-wrap gap-2"
+                aria-label={`${currentTab.label} sorteren`}
+              >
+                <SortToggle
+                  label="Naam"
+                  sortKey="name"
+                  activeKey={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortToggle
+                  label="Gegevens"
+                  sortKey="details"
+                  activeKey={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </div>
               {(kind === "periods" || kind === "classes" || kind === "groups") &&
                 !structure.years.length && (
                   <div className="mt-4 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-800">
@@ -479,7 +520,7 @@ function AdminStructurePage() {
                 </div>
               ) : (
                 <div className="mt-4 divide-y divide-border">
-                  {rows.map((record) => {
+                  {sortedRows.map((record) => {
                     const item = record as unknown as Record<string, unknown>;
                     const inactive = item.is_active === false || item.is_archived === true;
                     return (

@@ -73,9 +73,10 @@ Deno.serve(async (req) => {
     if (profileError)
       return json({ error: "Loginverzoek kon niet worden opgeslagen." }, 500, origin);
 
-    // Keep the response the same for unknown and blocked accounts so the endpoint
-    // cannot be used to enumerate account addresses.
-    if (!profile || profile.is_blocked) return json({ ok: true }, 200, origin);
+    // This flow is restricted to the temporary test-login phase. Return a result
+    // the app can explain instead of leaving a nonexistent request polling forever.
+    if (!profile || profile.is_blocked)
+      return json({ ok: true, request_created: false }, 200, origin);
     const { data: authAccount, error: authAccountError } = await adminClient.auth.admin.getUserById(
       profile.id,
     );
@@ -84,7 +85,7 @@ Deno.serve(async (req) => {
       !authAccount.user?.email ||
       authAccount.user.email.toLowerCase() !== profile.email.toLowerCase()
     ) {
-      return json({ ok: true }, 200, origin);
+      return json({ ok: true, request_created: false }, 200, origin);
     }
 
     const cutoff = new Date(Date.now() - 60_000).toISOString();
@@ -92,12 +93,15 @@ Deno.serve(async (req) => {
       .from("login_requests")
       .select("id")
       .eq("profile_id", profile.id)
+      .eq("status", "pending")
+      .gt("expires_at", new Date().toISOString())
       .gt("created_at", cutoff)
       .limit(1)
       .maybeSingle();
     if (recentError)
       return json({ error: "Loginverzoek kon niet worden opgeslagen." }, 500, origin);
-    if (recentRequest) return json({ ok: true }, 200, origin);
+    if (recentRequest)
+      return json({ ok: true, request_created: false, already_pending: true }, 200, origin);
 
     const { error: insertError } = await adminClient.from("login_requests").insert({
       id: body.request_id,
@@ -110,7 +114,7 @@ Deno.serve(async (req) => {
     });
     if (insertError)
       return json({ error: "Loginverzoek kon niet worden opgeslagen." }, 500, origin);
-    return json({ ok: true }, 200, origin);
+    return json({ ok: true, request_created: true }, 200, origin);
   }
 
   if (body.action === "poll") {

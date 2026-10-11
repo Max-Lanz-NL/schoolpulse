@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortableHeader, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import {
   createAccount,
   deleteAccount,
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/admin/accounts")({
 });
 
 const roleOptions: AdminRole[] = ["platform_admin", "school_admin", "teacher", "student", "parent"];
+type AccountSortKey = "name" | "email" | "role" | "school" | "created";
 
 function AdminAccountsPage() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,8 @@ function AdminAccountsPage() {
   const [error, setError] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [schools, setSchools] = useState<School[]>([]);
+  const [sortKey, setSortKey] = useState<AccountSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
@@ -47,6 +52,24 @@ function AdminAccountsPage() {
     () => new Map(schools.map((school) => [school.id, school])),
     [schools],
   );
+  const sortedProfiles = useMemo(() => {
+    if (!sortKey) return profiles;
+    const values: Record<AccountSortKey, (profile: Profile) => string> = {
+      name: (profile) => profile.full_name ?? "",
+      email: (profile) => profile.email,
+      role: (profile) => profile.role,
+      school: (profile) => schoolsById.get(profile.school_id ?? "")?.name ?? "",
+      created: (profile) => profile.created_at,
+    };
+    return sortByValue(profiles, values[sortKey], sortDirection);
+  }, [profiles, schoolsById, sortDirection, sortKey]);
+  const handleSort = (key: AccountSortKey) => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -240,16 +263,46 @@ function AdminAccountsPage() {
                   <table className="w-full min-w-[900px] text-left text-sm">
                     <thead className="text-xs uppercase tracking-wide text-muted-foreground">
                       <tr>
-                        <th className="px-3 py-2">Naam</th>
-                        <th className="px-3 py-2">E-mail</th>
-                        <th className="px-3 py-2">Rol</th>
-                        <th className="px-3 py-2">School</th>
-                        <th className="px-3 py-2">Aangemaakt</th>
+                        <SortableHeader
+                          label="Naam"
+                          sortKey="name"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="E-mail"
+                          sortKey="email"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Rol"
+                          sortKey="role"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="School"
+                          sortKey="school"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          label="Aangemaakt"
+                          sortKey="created"
+                          activeKey={sortKey}
+                          direction={sortDirection}
+                          onSort={handleSort}
+                        />
                         <th className="px-3 py-2 text-right">Acties</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {profiles.map((account) => {
+                      {sortedProfiles.map((account) => {
                         const isEditing = editingId === account.id;
                         return (
                           <tr key={account.id} className="border-t border-border/70">

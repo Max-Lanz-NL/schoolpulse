@@ -17,6 +17,8 @@ import { toast } from "sonner";
 
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { SortToggle, type SortDirection } from "@/components/admin/SortableHeader";
+import { sortByValue } from "@/lib/admin-sort";
 import {
   createSchoolRoleFromTemplate,
   deleteSchoolRole,
@@ -754,6 +756,24 @@ function AssignmentsEditor({
   onReload: () => Promise<void>;
   onError: (message: string | null) => void;
 }) {
+  const [sortKey, setSortKey] = useState<"name" | "email" | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const sortedProfiles = useMemo(() => {
+    if (!sortKey) return profiles;
+    return sortByValue(
+      profiles,
+      (profile) => (sortKey === "name" ? (profile.full_name ?? profile.email) : profile.email),
+      sortDirection,
+    );
+  }, [profiles, sortDirection, sortKey]);
+  const handleSort = (key: "name" | "email") => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
+
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-semibold">Meerdere rollen per account</h2>
@@ -761,8 +781,24 @@ function AssignmentsEditor({
         Alle permissies worden automatisch gestapeld. De hoogste rang wordt de effectieve rang; de
         primaire rol bepaalt alleen de standaardweergave.
       </p>
+      <div className="mt-4 flex flex-wrap gap-2" aria-label="Accounts sorteren">
+        <SortToggle
+          label="Naam"
+          sortKey="name"
+          activeKey={sortKey}
+          direction={sortDirection}
+          onSort={handleSort}
+        />
+        <SortToggle
+          label="E-mail"
+          sortKey="email"
+          activeKey={sortKey}
+          direction={sortDirection}
+          onSort={handleSort}
+        />
+      </div>
       <div className="mt-5 space-y-3">
-        {profiles.map((profile) => (
+        {sortedProfiles.map((profile) => (
           <AssignmentRow
             key={profile.id}
             profile={profile}
@@ -913,6 +949,28 @@ function RequestsEditor({
   onReload: () => Promise<void>;
   onError: (message: string | null) => void;
 }) {
+  const [sortKey, setSortKey] = useState<"title" | "status" | "created" | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const sortedRequests = useMemo(() => {
+    if (!sortKey) return requests;
+    return sortByValue(
+      requests,
+      (request) => {
+        if (sortKey === "title") return request.title;
+        if (sortKey === "status") return request.status;
+        return request.created_at;
+      },
+      sortDirection,
+    );
+  }, [requests, sortDirection, sortKey]);
+  const handleSort = (key: "title" | "status" | "created") => {
+    if (sortKey === key) setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-border bg-card p-5">
@@ -922,7 +980,30 @@ function RequestsEditor({
           configuratiewijziging kunnen toegang aanpassen.
         </p>
       </div>
-      {requests.map((request) => (
+      <div className="flex flex-wrap gap-2" aria-label="Verzoeken sorteren">
+        <SortToggle
+          label="Titel"
+          sortKey="title"
+          activeKey={sortKey}
+          direction={sortDirection}
+          onSort={handleSort}
+        />
+        <SortToggle
+          label="Status"
+          sortKey="status"
+          activeKey={sortKey}
+          direction={sortDirection}
+          onSort={handleSort}
+        />
+        <SortToggle
+          label="Aangemaakt"
+          sortKey="created"
+          activeKey={sortKey}
+          direction={sortDirection}
+          onSort={handleSort}
+        />
+      </div>
+      {sortedRequests.map((request) => (
         <RequestCard
           key={request.id}
           request={request}

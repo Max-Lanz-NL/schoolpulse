@@ -9,7 +9,13 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
+    defaultPendingMs: 0,
+    defaultPendingMinMs: 0,
+    defaultPendingComponent: () => (
+      <div className="min-h-screen bg-muted/30" aria-label="Schoolpulse laden" aria-busy="true" />
+    ),
   });
 
   return router;
