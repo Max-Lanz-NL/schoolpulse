@@ -71,5 +71,10 @@ enabled = true
 policy = "per_worker"
 deno_version = 2
 
+# This endpoint validates admin JWTs itself for admin actions. Public request/poll
+# actions require an unguessable per-request secret and can never create a user.
+[functions.login-access]
+verify_jwt = false
+
 [analytics]
 enabled = false

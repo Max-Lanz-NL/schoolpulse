@@ -2,15 +2,15 @@
 
 Alle hostafhankelijke instellingen staan buiten de broncode. Kopieer `.env.example` naar `.env` voor lokaal gebruik en zet dezelfde waarden in het dashboard van de gekozen host.
 
-| Variabele                       | Betekenis                                       | Vereist             |
-| ------------------------------- | ----------------------------------------------- | ------------------- |
-| `VITE_SUPABASE_URL`             | Publieke URL van het Supabase-project           | Ja                  |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publieke publishable key van Supabase           | Ja                  |
-| `VITE_*_ORIGIN`                 | Publieke oorsprong van ieder Schoolpulse-domein | Voor productie      |
-| `VITE_EMAIL_ONLY_TEST_MODE`     | Tijdelijke e-mail-only testlogin op `app.schoolpulse.nl/app` | Alleen testfase |
-| `PORT`                          | Poort van de Node-server                        | Nee, standaard 3000 |
+| Variabele                       | Betekenis                                                                  | Vereist             |
+| ------------------------------- | -------------------------------------------------------------------------- | ------------------- |
+| `VITE_SUPABASE_URL`             | Publieke URL van het Supabase-project                                      | Ja                  |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Publieke publishable key van Supabase                                      | Ja                  |
+| `VITE_*_ORIGIN`                 | Publieke oorsprong van ieder Schoolpulse-domein                            | Voor productie      |
+| `VITE_EMAIL_ONLY_TEST_MODE`     | Tijdelijke login op `app.schoolpulse.nl/app` die admin-goedkeuring vereist | Alleen testfase     |
+| `PORT`                          | Poort van de Node-server                                                   | Nee, standaard 3000 |
 
-De testaccount-login geldt uitsluitend voor routes onder `app.schoolpulse.nl/app`. Daar kunnen accounts uit het adminpaneel de echte Supabase-app gebruiken zonder wachtwoord; Supabase stuurt daarvoor een eenmalige bevestigingslink naar het opgegeven e-mailadres. De link moet worden bevestigd voordat een sessie wordt aangemaakt. De openbare demo blijft ongewijzigd. De testmodus toont na inloggen een TESTMODUS-melding.
+De testaccount-login geldt uitsluitend voor routes onder `app.schoolpulse.nl/app`. Een account uit het adminpaneel kan daar een loginverzoek indienen. Een platformbeheerder keurt dit verzoek goed in **Admin → Logins**; daarna wordt de aanvrager automatisch in dezelfde browser ingelogd, zonder wachtwoord of e-mailbevestiging. Deze tijdelijke testflow gebruikt bewust geen verificatie via het opgegeven e-mailadres. Beheeracties blijven achter de bestaande adminlogin en 2FA. De openbare demo en de aparte adminlogin blijven ongewijzigd. De testmodus toont na inloggen een TESTMODUS-melding.
 
 Voor bestaande omgevingen blijft `VITE_SUPABASE_ANON_KEY` als terugwaarts compatibele fallback werken. Variabelen met `VITE_` worden tijdens de build in browsercode gezet. Plaats daarom nooit een databasewachtwoord, JWT signing key of Supabase service-role key in zo'n variabele.
 

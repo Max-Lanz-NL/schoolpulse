@@ -3,6 +3,7 @@ import {
   Building2,
   GraduationCap,
   LayoutDashboard,
+  LogIn,
   LogOut,
   Network,
   ShieldCheck,
@@ -17,6 +18,7 @@ type NavItem = {
   to:
     | "/admin/dashboard"
     | "/admin/accounts"
+    | "/admin/logins"
     | "/admin/schools"
     | "/admin/structure"
     | "/admin/relations"
@@ -28,6 +30,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/accounts", label: "Accounts", icon: Users },
+  { to: "/admin/logins", label: "Logins", icon: LogIn },
   { to: "/admin/schools", label: "Scholen", icon: Building2 },
   { to: "/admin/structure", label: "Schoolstructuur", icon: GraduationCap },
   { to: "/admin/relations", label: "Inschrijvingen & koppelingen", icon: Network },

@@ -154,6 +154,15 @@ type ProductionProfile = {
   created_at: string;
 };
 
+type LoginRequestState = {
+  id: string;
+  secretHash: string;
+  email: string;
+  createdAt: number;
+};
+
+const loginRequestStorageKey = "schoolpulse-test-login-request";
+
 const allowedProductionRoles = new Set<ProductionRole>([
   "platform_admin",
   "school_admin",
@@ -182,6 +191,8 @@ function ProductionAppGate({
 }) {
   const { setRole } = useRole();
   const [email, setEmail] = useState("");
+  const [loginRequest, setLoginRequest] = useState<LoginRequestState | null>(null);
+  const [requestLoaded, setRequestLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -202,9 +213,109 @@ function ProductionAppGate({
   }, []);
 
   useEffect(() => {
+    if (!emailOnlyTestMode) {
+      window.localStorage.removeItem(loginRequestStorageKey);
+      setRequestLoaded(true);
+      return;
+    }
+    try {
+      const rawRequest = window.localStorage.getItem(loginRequestStorageKey);
+      if (rawRequest) {
+        const parsed = JSON.parse(rawRequest) as Partial<LoginRequestState>;
+        if (
+          typeof parsed.id === "string" &&
+          typeof parsed.secretHash === "string" &&
+          /^[0-9a-f]{64}$/i.test(parsed.secretHash) &&
+          typeof parsed.email === "string" &&
+          typeof parsed.createdAt === "number"
+        ) {
+          setLoginRequest({
+            id: parsed.id,
+            secretHash: parsed.secretHash,
+            email: parsed.email,
+            createdAt: parsed.createdAt,
+          });
+          setEmail(parsed.email);
+          setNotice("Je loginverzoek is in behandeling. Een beheerder moet het eerst goedkeuren.");
+        } else {
+          window.localStorage.removeItem(loginRequestStorageKey);
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(loginRequestStorageKey);
+    }
+    setRequestLoaded(true);
+  }, [emailOnlyTestMode]);
+
+  useEffect(() => {
     if (!profile) return;
     setRole(toDemoRole(profile.role));
   }, [profile, setRole]);
+
+  useEffect(() => {
+    if (!emailOnlyTestMode || !supabase || !loginRequest || isLoggedIn) return;
+
+    let active = true;
+    let checking = false;
+    const poll = async () => {
+      if (!active || checking) return;
+      if (Date.now() - loginRequest.createdAt >= 20 * 60 * 1000) {
+        window.localStorage.removeItem(loginRequestStorageKey);
+        setLoginRequest(null);
+        setNotice(null);
+        setError("Je loginverzoek is verlopen. Dien een nieuw verzoek in.");
+        return;
+      }
+      checking = true;
+      const { data, error: pollError } = await supabase.functions.invoke("login-access", {
+        body: {
+          action: "poll",
+          request_id: loginRequest.id,
+          request_secret_hash: loginRequest.secretHash,
+        },
+      });
+      checking = false;
+      if (!active) return;
+      if (pollError) return;
+
+      if (data?.status === "approved" && typeof data.token_hash === "string") {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: data.token_hash,
+          type: "email",
+        });
+        if (!active) return;
+        if (verifyError) {
+          window.localStorage.removeItem(loginRequestStorageKey);
+          setLoginRequest(null);
+          setError("Goedgekeurd inloggen is mislukt. Dien opnieuw een verzoek in.");
+          setNotice(null);
+          return;
+        }
+        window.localStorage.removeItem(loginRequestStorageKey);
+        setLoginRequest(null);
+        setNotice(null);
+        return;
+      }
+
+      if (data?.status === "denied" || data?.status === "expired" || data?.status === "used") {
+        window.localStorage.removeItem(loginRequestStorageKey);
+        setLoginRequest(null);
+        setNotice(null);
+        setError(
+          data.status === "denied"
+            ? "Je loginverzoek is afgewezen door een beheerder."
+            : "Je loginverzoek is verlopen. Dien een nieuw verzoek in.",
+        );
+      }
+    };
+
+    void poll();
+    const timer = window.setInterval(() => void poll(), 3000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [emailOnlyTestMode, supabase, loginRequest, isLoggedIn]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -306,25 +417,56 @@ function ProductionAppGate({
     setBusy(true);
     setError(null);
     setNotice(null);
-
-    const { error: signInError } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: {
-        shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}${window.location.pathname}${window.location.search}`,
-      },
-    });
-
-    if (signInError) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!emailOnlyTestMode) {
+      const { error: signInError } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}${window.location.pathname}${window.location.search}`,
+        },
+      });
       setBusy(false);
-      setError(
-        "De inloglink kon niet worden verstuurd. Controleer je e-mailadres en probeer opnieuw.",
-      );
+      if (signInError) {
+        setError(
+          "De inloglink kon niet worden verstuurd. Controleer je e-mailadres en probeer opnieuw.",
+        );
+        return;
+      }
+      setNotice("Als dit e-mailadres bij een Schoolpulse-account hoort, ontvang je een inloglink.");
       return;
     }
 
+    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+    const digest = await crypto.subtle.digest("SHA-256", randomBytes);
+    const secretHash = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    const request = {
+      id: crypto.randomUUID(),
+      secretHash,
+      email: normalizedEmail,
+      createdAt: Date.now(),
+    };
+    const { error: requestError } = await supabase.functions.invoke("login-access", {
+      body: {
+        action: "request",
+        email: normalizedEmail,
+        request_id: request.id,
+        request_secret_hash: secretHash,
+      },
+    });
+
+    if (requestError) {
+      setBusy(false);
+      setError("Het loginverzoek kon niet worden verstuurd. Probeer het opnieuw.");
+      return;
+    }
+
+    window.localStorage.setItem(loginRequestStorageKey, JSON.stringify(request));
+    setLoginRequest(request);
     setBusy(false);
-    setNotice("Als dit e-mailadres bij een Schoolpulse-account hoort, ontvang je een inloglink.");
+    setNotice("Je verzoek is verstuurd. Een beheerder moet het eerst goedkeuren.");
   };
 
   const signOut = async () => {
@@ -384,7 +526,7 @@ function ProductionAppGate({
       <>
         {emailOnlyTestMode && (
           <div className="bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950">
-            TESTMODUS — ingelogd met bestaand account via de bevestigingslink per e-mail.
+            TESTMODUS — login goedgekeurd door een beheerder.
           </div>
         )}
         {gatedApp}
@@ -405,7 +547,7 @@ function ProductionAppGate({
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {emailOnlyTestMode
-              ? "Vul het e-mailadres in dat in het adminpaneel staat. Je krijgt een eenmalige bevestigingslink; een wachtwoord is niet nodig."
+              ? "Vul het e-mailadres in dat in het adminpaneel staat. Een beheerder moet je login eerst goedkeuren. Je hebt geen wachtwoord of e-mailbevestiging nodig."
               : "Vul je e-mailadres in. We sturen je een eenmalige inloglink; een wachtwoord is niet nodig."}
           </p>
 
@@ -418,6 +560,7 @@ function ProductionAppGate({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={Boolean(loginRequest)}
                 placeholder={emailOnlyTestMode ? "test@schoolpulse.nl" : "naam@school.nl"}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 autoFocus
@@ -440,10 +583,16 @@ function ProductionAppGate({
 
             <button
               type="submit"
-              disabled={busy || !supabase}
+              disabled={busy || !supabase || !requestLoaded || Boolean(loginRequest)}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90 disabled:opacity-60"
             >
-              {busy ? "Inloglink versturen..." : "Stuur inloglink"}{" "}
+              {busy
+                ? "Verzoek versturen..."
+                : loginRequest
+                  ? "Wachten op goedkeuring..."
+                  : emailOnlyTestMode
+                    ? "Vraag toegang aan"
+                    : "Stuur inloglink"}{" "}
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
@@ -451,8 +600,9 @@ function ProductionAppGate({
           <div className="mt-5 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-[11px] text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
             <span>
-              Gebruik het e-mailadres dat aan je officiële schoolaccount is gekoppeld. Alleen
-              bestaande accounts kunnen inloggen.
+              {emailOnlyTestMode
+                ? "Alleen bestaande testaccounts kunnen toegang aanvragen. Een beheerder keurt iedere login apart goed."
+                : "Gebruik het e-mailadres dat aan je officiële schoolaccount is gekoppeld. Alleen bestaande accounts kunnen inloggen."}
             </span>
           </div>
         </div>
