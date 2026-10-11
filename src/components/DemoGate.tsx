@@ -158,8 +158,8 @@ function toDemoRole(role: ProductionRole): Role {
 function ProductionAppGate({ children }: { children: ReactNode }) {
   const { setRole } = useRole();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -279,27 +279,28 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
       setError("Vul een geldig schoolaccount e-mailadres in.");
       return;
     }
-    if (password.length < 8) {
-      setError("Vul je wachtwoord in.");
-      return;
-    }
-
     setBusy(true);
     setError(null);
+    setNotice(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      password,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}${window.location.pathname}${window.location.search}`,
+      },
     });
 
     if (signInError) {
       setBusy(false);
-      setError("Inloggen mislukt. Controleer je schoolaccount of vraag toegang aan de beheerder.");
+      setError(
+        "De inloglink kon niet worden verstuurd. Controleer je e-mailadres en probeer opnieuw.",
+      );
       return;
     }
 
     setBusy(false);
-    setPassword("");
+    setNotice("Als dit e-mailadres bij een Schoolpulse-account hoort, ontvang je een inloglink.");
   };
 
   const signOut = async () => {
@@ -367,7 +368,8 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
         <div className="rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-elegant)]">
           <h1 className="text-xl font-bold tracking-tight">Inloggen met schoolaccount</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Alleen geregistreerde Schoolpulse accounts hebben toegang tot de productieomgeving.
+            Vul je e-mailadres in. We sturen je een eenmalige inloglink; een wachtwoord is niet
+            nodig.
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
@@ -385,17 +387,14 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
                 autoComplete="username"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-foreground">Wachtwoord</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                autoComplete="current-password"
-              />
-            </div>
+            {notice && (
+              <div
+                role="status"
+                className="rounded-lg bg-success/10 px-3 py-2 text-xs font-medium text-foreground"
+              >
+                {notice}
+              </div>
+            )}
             {error && (
               <div className="rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
                 {error}
@@ -407,15 +406,16 @@ function ProductionAppGate({ children }: { children: ReactNode }) {
               disabled={busy || !supabase}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:bg-primary/90 disabled:opacity-60"
             >
-              Inloggen <ArrowRight className="h-4 w-4" />
+              {busy ? "Inloglink versturen..." : "Stuur inloglink"}{" "}
+              <ArrowRight className="h-4 w-4" />
             </button>
           </form>
 
           <div className="mt-5 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-[11px] text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
             <span>
-              Gebruik alleen je officiële schoolaccount. Niet-geregistreerde accounts worden
-              geweigerd.
+              Gebruik het e-mailadres dat aan je officiële schoolaccount is gekoppeld. Alleen
+              bestaande accounts kunnen inloggen.
             </span>
           </div>
         </div>

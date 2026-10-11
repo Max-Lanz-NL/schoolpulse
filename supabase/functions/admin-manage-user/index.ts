@@ -224,7 +224,7 @@ Deno.serve(async (req) => {
       .update({ action: deleteFactorError ? "MFA_RECOVERY_FAILED" : "MFA_RECOVERY_COMPLETED" })
       .eq("id", audit.id);
     if (deleteFactorError) return json({ error: "Unable to recover MFA" }, 400);
-    return json({ ok: true, sessions_revoked: true });
+    return json({ ok: true, factor_deleted: true, session_revocation_verified: false });
   }
 
   if (body.action === "invite_user") {

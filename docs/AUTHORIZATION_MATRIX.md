@@ -33,5 +33,5 @@ dezelfde `school_id`; de UI is alleen presentatie en nooit de beveiligingsgrens.
 De UI- en serverrollen sluiten voor de kernmodules aan op hetzelfde
 permissionmodel. Er is geen kernactie gevonden die alleen door UI-verbergen wordt
 beveiligd. Twee trigger-only roostervalidators hadden onnodig execute-recht voor
-`authenticated`; migration `20260811144021_revoke_timetable_trigger_execute.sql`
+`authenticated`; migration `20260811144044_revoke_timetable_trigger_execute.sql`
 heeft dit op staging verwijderd en regressietests bewaken dit.
