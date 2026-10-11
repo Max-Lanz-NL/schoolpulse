@@ -9,75 +9,60 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as VoorwaardenRouteImport } from './routes/voorwaarden'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as FeaturesVoortgangRouteImport } from './routes/features/voortgang'
-import { Route as FeaturesVeiligheidRouteImport } from './routes/features/veiligheid'
-import { Route as FeaturesRoosterbeheerRouteImport } from './routes/features/roosterbeheer'
-import { Route as FeaturesOpdrachtenRouteImport } from './routes/features/opdrachten'
-import { Route as FeaturesNotificatiesRouteImport } from './routes/features/notificaties'
-import { Route as FeaturesCommunicatieRouteImport } from './routes/features/communicatie'
-import { Route as AppVervangingRouteImport } from './routes/app.vervanging'
-import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
-import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
-import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
-import { Route as AppSchoolstructuurRouteImport } from './routes/app.schoolstructuur'
-import { Route as AppRoosterRouteImport } from './routes/app.rooster'
-import { Route as AppRechtenAanvragenRouteImport } from './routes/app.rechten-aanvragen'
-import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
-import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
-import { Route as AppOuderkoppelingenRouteImport } from './routes/app.ouderkoppelingen'
-import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
-import { Route as AppNotificatiesRouteImport } from './routes/app.notificaties'
-import { Route as AppLeerlingenRouteImport } from './routes/app.leerlingen'
-import { Route as AppIntegratiesRouteImport } from './routes/app.integraties'
-import { Route as AppImportRouteImport } from './routes/app.import'
-import { Route as AppHuiswerkRouteImport } from './routes/app.huiswerk'
-import { Route as AppGesprekkenRouteImport } from './routes/app.gesprekken'
-import { Route as AppGebruikersbeheerRouteImport } from './routes/app.gebruikersbeheer'
-import { Route as AppDocumentenRouteImport } from './routes/app.documenten'
-import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
-import { Route as AppBetalingenRouteImport } from './routes/app.betalingen'
-import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
-import { Route as AppBegeleidingRouteImport } from './routes/app.begeleiding'
-import { Route as AppAvgRouteImport } from './routes/app.avg'
-import { Route as AppAgendaRouteImport } from './routes/app.agenda'
-import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
-import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
-import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
-import { Route as AdminStructureRouteImport } from './routes/admin.structure'
-import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
-import { Route as AdminRolesRouteImport } from './routes/admin.roles'
-import { Route as AdminRelationsRouteImport } from './routes/admin.relations'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as AdminDocsRouteImport } from './routes/admin.docs'
-import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminDocsRouteImport } from './routes/admin.docs'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminRelationsRouteImport } from './routes/admin.relations'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminSchoolsRouteImport } from './routes/admin.schools'
+import { Route as AdminStructureRouteImport } from './routes/admin.structure'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAanwezigheidRouteImport } from './routes/app.aanwezigheid'
+import { Route as AppAbsentieRouteImport } from './routes/app.absentie'
+import { Route as AppActiviteitenRouteImport } from './routes/app.activiteiten'
+import { Route as AppAgendaRouteImport } from './routes/app.agenda'
+import { Route as AppAvgRouteImport } from './routes/app.avg'
+import { Route as AppBegeleidingRouteImport } from './routes/app.begeleiding'
+import { Route as AppBerichtenRouteImport } from './routes/app.berichten'
+import { Route as AppBetalingenRouteImport } from './routes/app.betalingen'
+import { Route as AppCijfersRouteImport } from './routes/app.cijfers'
+import { Route as AppDocumentenRouteImport } from './routes/app.documenten'
+import { Route as AppGebruikersbeheerRouteImport } from './routes/app.gebruikersbeheer'
+import { Route as AppGesprekkenRouteImport } from './routes/app.gesprekken'
+import { Route as AppHuiswerkRouteImport } from './routes/app.huiswerk'
+import { Route as AppImportRouteImport } from './routes/app.import'
+import { Route as AppIntegratiesRouteImport } from './routes/app.integraties'
+import { Route as AppLeerlingenRouteImport } from './routes/app.leerlingen'
+import { Route as AppNotificatiesRouteImport } from './routes/app.notificaties'
+import { Route as AppOpdrachtenRouteImport } from './routes/app.opdrachten'
+import { Route as AppOuderkoppelingenRouteImport } from './routes/app.ouderkoppelingen'
+import { Route as AppPersoneelRouteImport } from './routes/app.personeel'
+import { Route as AppRapportenRouteImport } from './routes/app.rapporten'
+import { Route as AppRechtenAanvragenRouteImport } from './routes/app.rechten-aanvragen'
+import { Route as AppRoosterRouteImport } from './routes/app.rooster'
+import { Route as AppSchoolstructuurRouteImport } from './routes/app.schoolstructuur'
+import { Route as AppStudieplannerRouteImport } from './routes/app.studieplanner'
+import { Route as AppToestemmingRouteImport } from './routes/app.toestemming'
+import { Route as AppToetsenRouteImport } from './routes/app.toetsen'
+import { Route as AppVervangingRouteImport } from './routes/app.vervanging'
+import { Route as FeaturesCommunicatieRouteImport } from './routes/features/communicatie'
+import { Route as FeaturesNotificatiesRouteImport } from './routes/features/notificaties'
+import { Route as FeaturesOpdrachtenRouteImport } from './routes/features/opdrachten'
+import { Route as FeaturesRoosterbeheerRouteImport } from './routes/features/roosterbeheer'
+import { Route as FeaturesVeiligheidRouteImport } from './routes/features/veiligheid'
+import { Route as FeaturesVoortgangRouteImport } from './routes/features/voortgang'
 
-const VoorwaardenRoute = VoorwaardenRouteImport.update({
-  id: '/voorwaarden',
-  path: '/voorwaarden',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -85,219 +70,34 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoorwaardenRoute = VoorwaardenRouteImport.update({
+  id: '/voorwaarden',
+  path: '/voorwaarden',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const FeaturesVoortgangRoute = FeaturesVoortgangRouteImport.update({
-  id: '/features/voortgang',
-  path: '/features/voortgang',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesVeiligheidRoute = FeaturesVeiligheidRouteImport.update({
-  id: '/features/veiligheid',
-  path: '/features/veiligheid',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesRoosterbeheerRoute = FeaturesRoosterbeheerRouteImport.update({
-  id: '/features/roosterbeheer',
-  path: '/features/roosterbeheer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesOpdrachtenRoute = FeaturesOpdrachtenRouteImport.update({
-  id: '/features/opdrachten',
-  path: '/features/opdrachten',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesNotificatiesRoute = FeaturesNotificatiesRouteImport.update({
-  id: '/features/notificaties',
-  path: '/features/notificaties',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesCommunicatieRoute = FeaturesCommunicatieRouteImport.update({
-  id: '/features/communicatie',
-  path: '/features/communicatie',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppVervangingRoute = AppVervangingRouteImport.update({
-  id: '/vervanging',
-  path: '/vervanging',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppToetsenRoute = AppToetsenRouteImport.update({
-  id: '/toetsen',
-  path: '/toetsen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppToestemmingRoute = AppToestemmingRouteImport.update({
-  id: '/toestemming',
-  path: '/toestemming',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
-  id: '/studieplanner',
-  path: '/studieplanner',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSchoolstructuurRoute = AppSchoolstructuurRouteImport.update({
-  id: '/schoolstructuur',
-  path: '/schoolstructuur',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRoosterRoute = AppRoosterRouteImport.update({
-  id: '/rooster',
-  path: '/rooster',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRechtenAanvragenRoute = AppRechtenAanvragenRouteImport.update({
-  id: '/rechten-aanvragen',
-  path: '/rechten-aanvragen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRapportenRoute = AppRapportenRouteImport.update({
-  id: '/rapporten',
-  path: '/rapporten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPersoneelRoute = AppPersoneelRouteImport.update({
-  id: '/personeel',
-  path: '/personeel',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppOuderkoppelingenRoute = AppOuderkoppelingenRouteImport.update({
-  id: '/ouderkoppelingen',
-  path: '/ouderkoppelingen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppOpdrachtenRoute = AppOpdrachtenRouteImport.update({
-  id: '/opdrachten',
-  path: '/opdrachten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppNotificatiesRoute = AppNotificatiesRouteImport.update({
-  id: '/notificaties',
-  path: '/notificaties',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLeerlingenRoute = AppLeerlingenRouteImport.update({
-  id: '/leerlingen',
-  path: '/leerlingen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppIntegratiesRoute = AppIntegratiesRouteImport.update({
-  id: '/integraties',
-  path: '/integraties',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppImportRoute = AppImportRouteImport.update({
-  id: '/import',
-  path: '/import',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHuiswerkRoute = AppHuiswerkRouteImport.update({
-  id: '/huiswerk',
-  path: '/huiswerk',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGesprekkenRoute = AppGesprekkenRouteImport.update({
-  id: '/gesprekken',
-  path: '/gesprekken',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGebruikersbeheerRoute = AppGebruikersbeheerRouteImport.update({
-  id: '/gebruikersbeheer',
-  path: '/gebruikersbeheer',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDocumentenRoute = AppDocumentenRouteImport.update({
-  id: '/documenten',
-  path: '/documenten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppCijfersRoute = AppCijfersRouteImport.update({
-  id: '/cijfers',
-  path: '/cijfers',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBetalingenRoute = AppBetalingenRouteImport.update({
-  id: '/betalingen',
-  path: '/betalingen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBerichtenRoute = AppBerichtenRouteImport.update({
-  id: '/berichten',
-  path: '/berichten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBegeleidingRoute = AppBegeleidingRouteImport.update({
-  id: '/begeleiding',
-  path: '/begeleiding',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAvgRoute = AppAvgRouteImport.update({
-  id: '/avg',
-  path: '/avg',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAgendaRoute = AppAgendaRouteImport.update({
-  id: '/agenda',
-  path: '/agenda',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppActiviteitenRoute = AppActiviteitenRouteImport.update({
-  id: '/activiteiten',
-  path: '/activiteiten',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAbsentieRoute = AppAbsentieRouteImport.update({
-  id: '/absentie',
-  path: '/absentie',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
-  id: '/aanwezigheid',
-  path: '/aanwezigheid',
-  getParentRoute: () => AppRoute,
-} as any)
-const AdminStructureRoute = AdminStructureRouteImport.update({
-  id: '/structure',
-  path: '/structure',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
-  id: '/schools',
-  path: '/schools',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRolesRoute = AdminRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRelationsRoute = AdminRelationsRouteImport.update({
-  id: '/relations',
-  path: '/relations',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminDocsRoute = AdminDocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
+const AdminAccountsRoute = AdminAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -305,10 +105,210 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAccountsRoute = AdminAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRelationsRoute = AdminRelationsRouteImport.update({
+  id: '/relations',
+  path: '/relations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSchoolsRoute = AdminSchoolsRouteImport.update({
+  id: '/schools',
+  path: '/schools',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStructureRoute = AdminStructureRouteImport.update({
+  id: '/structure',
+  path: '/structure',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAanwezigheidRoute = AppAanwezigheidRouteImport.update({
+  id: '/aanwezigheid',
+  path: '/aanwezigheid',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAbsentieRoute = AppAbsentieRouteImport.update({
+  id: '/absentie',
+  path: '/absentie',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppActiviteitenRoute = AppActiviteitenRouteImport.update({
+  id: '/activiteiten',
+  path: '/activiteiten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAgendaRoute = AppAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAvgRoute = AppAvgRouteImport.update({
+  id: '/avg',
+  path: '/avg',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBegeleidingRoute = AppBegeleidingRouteImport.update({
+  id: '/begeleiding',
+  path: '/begeleiding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBerichtenRoute = AppBerichtenRouteImport.update({
+  id: '/berichten',
+  path: '/berichten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBetalingenRoute = AppBetalingenRouteImport.update({
+  id: '/betalingen',
+  path: '/betalingen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCijfersRoute = AppCijfersRouteImport.update({
+  id: '/cijfers',
+  path: '/cijfers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentenRoute = AppDocumentenRouteImport.update({
+  id: '/documenten',
+  path: '/documenten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGebruikersbeheerRoute = AppGebruikersbeheerRouteImport.update({
+  id: '/gebruikersbeheer',
+  path: '/gebruikersbeheer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGesprekkenRoute = AppGesprekkenRouteImport.update({
+  id: '/gesprekken',
+  path: '/gesprekken',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHuiswerkRoute = AppHuiswerkRouteImport.update({
+  id: '/huiswerk',
+  path: '/huiswerk',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImportRoute = AppImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIntegratiesRoute = AppIntegratiesRouteImport.update({
+  id: '/integraties',
+  path: '/integraties',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeerlingenRoute = AppLeerlingenRouteImport.update({
+  id: '/leerlingen',
+  path: '/leerlingen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificatiesRoute = AppNotificatiesRouteImport.update({
+  id: '/notificaties',
+  path: '/notificaties',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOpdrachtenRoute = AppOpdrachtenRouteImport.update({
+  id: '/opdrachten',
+  path: '/opdrachten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOuderkoppelingenRoute = AppOuderkoppelingenRouteImport.update({
+  id: '/ouderkoppelingen',
+  path: '/ouderkoppelingen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPersoneelRoute = AppPersoneelRouteImport.update({
+  id: '/personeel',
+  path: '/personeel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRapportenRoute = AppRapportenRouteImport.update({
+  id: '/rapporten',
+  path: '/rapporten',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRechtenAanvragenRoute = AppRechtenAanvragenRouteImport.update({
+  id: '/rechten-aanvragen',
+  path: '/rechten-aanvragen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRoosterRoute = AppRoosterRouteImport.update({
+  id: '/rooster',
+  path: '/rooster',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSchoolstructuurRoute = AppSchoolstructuurRouteImport.update({
+  id: '/schoolstructuur',
+  path: '/schoolstructuur',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudieplannerRoute = AppStudieplannerRouteImport.update({
+  id: '/studieplanner',
+  path: '/studieplanner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToestemmingRoute = AppToestemmingRouteImport.update({
+  id: '/toestemming',
+  path: '/toestemming',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToetsenRoute = AppToetsenRouteImport.update({
+  id: '/toetsen',
+  path: '/toetsen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVervangingRoute = AppVervangingRouteImport.update({
+  id: '/vervanging',
+  path: '/vervanging',
+  getParentRoute: () => AppRoute,
+} as any)
+const FeaturesCommunicatieRoute = FeaturesCommunicatieRouteImport.update({
+  id: '/features/communicatie',
+  path: '/features/communicatie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesNotificatiesRoute = FeaturesNotificatiesRouteImport.update({
+  id: '/features/notificaties',
+  path: '/features/notificaties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesOpdrachtenRoute = FeaturesOpdrachtenRouteImport.update({
+  id: '/features/opdrachten',
+  path: '/features/opdrachten',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoosterbeheerRoute = FeaturesRoosterbeheerRouteImport.update({
+  id: '/features/roosterbeheer',
+  path: '/features/roosterbeheer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesVeiligheidRoute = FeaturesVeiligheidRouteImport.update({
+  id: '/features/veiligheid',
+  path: '/features/veiligheid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesVoortgangRoute = FeaturesVoortgangRouteImport.update({
+  id: '/features/voortgang',
+  path: '/features/voortgang',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -640,32 +640,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/voorwaarden': {
-      id: '/voorwaarden'
-      path: '/voorwaarden'
-      fullPath: '/voorwaarden'
-      preLoaderRoute: typeof VoorwaardenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -675,19 +654,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voorwaarden': {
+      id: '/voorwaarden'
+      path: '/voorwaarden'
+      fullPath: '/voorwaarden'
+      preLoaderRoute: typeof VoorwaardenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
@@ -696,284 +689,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/features/voortgang': {
-      id: '/features/voortgang'
-      path: '/features/voortgang'
-      fullPath: '/features/voortgang'
-      preLoaderRoute: typeof FeaturesVoortgangRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/veiligheid': {
-      id: '/features/veiligheid'
-      path: '/features/veiligheid'
-      fullPath: '/features/veiligheid'
-      preLoaderRoute: typeof FeaturesVeiligheidRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/roosterbeheer': {
-      id: '/features/roosterbeheer'
-      path: '/features/roosterbeheer'
-      fullPath: '/features/roosterbeheer'
-      preLoaderRoute: typeof FeaturesRoosterbeheerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/opdrachten': {
-      id: '/features/opdrachten'
-      path: '/features/opdrachten'
-      fullPath: '/features/opdrachten'
-      preLoaderRoute: typeof FeaturesOpdrachtenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/notificaties': {
-      id: '/features/notificaties'
-      path: '/features/notificaties'
-      fullPath: '/features/notificaties'
-      preLoaderRoute: typeof FeaturesNotificatiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features/communicatie': {
-      id: '/features/communicatie'
-      path: '/features/communicatie'
-      fullPath: '/features/communicatie'
-      preLoaderRoute: typeof FeaturesCommunicatieRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/vervanging': {
-      id: '/app/vervanging'
-      path: '/vervanging'
-      fullPath: '/app/vervanging'
-      preLoaderRoute: typeof AppVervangingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/toetsen': {
-      id: '/app/toetsen'
-      path: '/toetsen'
-      fullPath: '/app/toetsen'
-      preLoaderRoute: typeof AppToetsenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/toestemming': {
-      id: '/app/toestemming'
-      path: '/toestemming'
-      fullPath: '/app/toestemming'
-      preLoaderRoute: typeof AppToestemmingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/studieplanner': {
-      id: '/app/studieplanner'
-      path: '/studieplanner'
-      fullPath: '/app/studieplanner'
-      preLoaderRoute: typeof AppStudieplannerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/schoolstructuur': {
-      id: '/app/schoolstructuur'
-      path: '/schoolstructuur'
-      fullPath: '/app/schoolstructuur'
-      preLoaderRoute: typeof AppSchoolstructuurRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/rooster': {
-      id: '/app/rooster'
-      path: '/rooster'
-      fullPath: '/app/rooster'
-      preLoaderRoute: typeof AppRoosterRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/rechten-aanvragen': {
-      id: '/app/rechten-aanvragen'
-      path: '/rechten-aanvragen'
-      fullPath: '/app/rechten-aanvragen'
-      preLoaderRoute: typeof AppRechtenAanvragenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/rapporten': {
-      id: '/app/rapporten'
-      path: '/rapporten'
-      fullPath: '/app/rapporten'
-      preLoaderRoute: typeof AppRapportenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/personeel': {
-      id: '/app/personeel'
-      path: '/personeel'
-      fullPath: '/app/personeel'
-      preLoaderRoute: typeof AppPersoneelRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/ouderkoppelingen': {
-      id: '/app/ouderkoppelingen'
-      path: '/ouderkoppelingen'
-      fullPath: '/app/ouderkoppelingen'
-      preLoaderRoute: typeof AppOuderkoppelingenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/opdrachten': {
-      id: '/app/opdrachten'
-      path: '/opdrachten'
-      fullPath: '/app/opdrachten'
-      preLoaderRoute: typeof AppOpdrachtenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/notificaties': {
-      id: '/app/notificaties'
-      path: '/notificaties'
-      fullPath: '/app/notificaties'
-      preLoaderRoute: typeof AppNotificatiesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/leerlingen': {
-      id: '/app/leerlingen'
-      path: '/leerlingen'
-      fullPath: '/app/leerlingen'
-      preLoaderRoute: typeof AppLeerlingenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/integraties': {
-      id: '/app/integraties'
-      path: '/integraties'
-      fullPath: '/app/integraties'
-      preLoaderRoute: typeof AppIntegratiesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/import': {
-      id: '/app/import'
-      path: '/import'
-      fullPath: '/app/import'
-      preLoaderRoute: typeof AppImportRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/huiswerk': {
-      id: '/app/huiswerk'
-      path: '/huiswerk'
-      fullPath: '/app/huiswerk'
-      preLoaderRoute: typeof AppHuiswerkRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/gesprekken': {
-      id: '/app/gesprekken'
-      path: '/gesprekken'
-      fullPath: '/app/gesprekken'
-      preLoaderRoute: typeof AppGesprekkenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/gebruikersbeheer': {
-      id: '/app/gebruikersbeheer'
-      path: '/gebruikersbeheer'
-      fullPath: '/app/gebruikersbeheer'
-      preLoaderRoute: typeof AppGebruikersbeheerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/documenten': {
-      id: '/app/documenten'
-      path: '/documenten'
-      fullPath: '/app/documenten'
-      preLoaderRoute: typeof AppDocumentenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/cijfers': {
-      id: '/app/cijfers'
-      path: '/cijfers'
-      fullPath: '/app/cijfers'
-      preLoaderRoute: typeof AppCijfersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/betalingen': {
-      id: '/app/betalingen'
-      path: '/betalingen'
-      fullPath: '/app/betalingen'
-      preLoaderRoute: typeof AppBetalingenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/berichten': {
-      id: '/app/berichten'
-      path: '/berichten'
-      fullPath: '/app/berichten'
-      preLoaderRoute: typeof AppBerichtenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/begeleiding': {
-      id: '/app/begeleiding'
-      path: '/begeleiding'
-      fullPath: '/app/begeleiding'
-      preLoaderRoute: typeof AppBegeleidingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/avg': {
-      id: '/app/avg'
-      path: '/avg'
-      fullPath: '/app/avg'
-      preLoaderRoute: typeof AppAvgRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/agenda': {
-      id: '/app/agenda'
-      path: '/agenda'
-      fullPath: '/app/agenda'
-      preLoaderRoute: typeof AppAgendaRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/activiteiten': {
-      id: '/app/activiteiten'
-      path: '/activiteiten'
-      fullPath: '/app/activiteiten'
-      preLoaderRoute: typeof AppActiviteitenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/absentie': {
-      id: '/app/absentie'
-      path: '/absentie'
-      fullPath: '/app/absentie'
-      preLoaderRoute: typeof AppAbsentieRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/aanwezigheid': {
-      id: '/app/aanwezigheid'
-      path: '/aanwezigheid'
-      fullPath: '/app/aanwezigheid'
-      preLoaderRoute: typeof AppAanwezigheidRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/admin/structure': {
-      id: '/admin/structure'
-      path: '/structure'
-      fullPath: '/admin/structure'
-      preLoaderRoute: typeof AdminStructureRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/schools': {
-      id: '/admin/schools'
-      path: '/schools'
-      fullPath: '/admin/schools'
-      preLoaderRoute: typeof AdminSchoolsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/roles': {
-      id: '/admin/roles'
-      path: '/roles'
-      fullPath: '/admin/roles'
-      preLoaderRoute: typeof AdminRolesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/relations': {
-      id: '/admin/relations'
-      path: '/relations'
-      fullPath: '/admin/relations'
-      preLoaderRoute: typeof AdminRelationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/docs': {
-      id: '/admin/docs'
-      path: '/docs'
-      fullPath: '/admin/docs'
-      preLoaderRoute: typeof AdminDocsRouteImport
+    '/admin/accounts': {
+      id: '/admin/accounts'
+      path: '/accounts'
+      fullPath: '/admin/accounts'
+      preLoaderRoute: typeof AdminAccountsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
@@ -983,12 +703,292 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/accounts': {
-      id: '/admin/accounts'
-      path: '/accounts'
-      fullPath: '/admin/accounts'
-      preLoaderRoute: typeof AdminAccountsRouteImport
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/relations': {
+      id: '/admin/relations'
+      path: '/relations'
+      fullPath: '/admin/relations'
+      preLoaderRoute: typeof AdminRelationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/schools': {
+      id: '/admin/schools'
+      path: '/schools'
+      fullPath: '/admin/schools'
+      preLoaderRoute: typeof AdminSchoolsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/structure': {
+      id: '/admin/structure'
+      path: '/structure'
+      fullPath: '/admin/structure'
+      preLoaderRoute: typeof AdminStructureRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/aanwezigheid': {
+      id: '/app/aanwezigheid'
+      path: '/aanwezigheid'
+      fullPath: '/app/aanwezigheid'
+      preLoaderRoute: typeof AppAanwezigheidRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/absentie': {
+      id: '/app/absentie'
+      path: '/absentie'
+      fullPath: '/app/absentie'
+      preLoaderRoute: typeof AppAbsentieRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/activiteiten': {
+      id: '/app/activiteiten'
+      path: '/activiteiten'
+      fullPath: '/app/activiteiten'
+      preLoaderRoute: typeof AppActiviteitenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/agenda': {
+      id: '/app/agenda'
+      path: '/agenda'
+      fullPath: '/app/agenda'
+      preLoaderRoute: typeof AppAgendaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/avg': {
+      id: '/app/avg'
+      path: '/avg'
+      fullPath: '/app/avg'
+      preLoaderRoute: typeof AppAvgRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/begeleiding': {
+      id: '/app/begeleiding'
+      path: '/begeleiding'
+      fullPath: '/app/begeleiding'
+      preLoaderRoute: typeof AppBegeleidingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/berichten': {
+      id: '/app/berichten'
+      path: '/berichten'
+      fullPath: '/app/berichten'
+      preLoaderRoute: typeof AppBerichtenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/betalingen': {
+      id: '/app/betalingen'
+      path: '/betalingen'
+      fullPath: '/app/betalingen'
+      preLoaderRoute: typeof AppBetalingenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/cijfers': {
+      id: '/app/cijfers'
+      path: '/cijfers'
+      fullPath: '/app/cijfers'
+      preLoaderRoute: typeof AppCijfersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/documenten': {
+      id: '/app/documenten'
+      path: '/documenten'
+      fullPath: '/app/documenten'
+      preLoaderRoute: typeof AppDocumentenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/gebruikersbeheer': {
+      id: '/app/gebruikersbeheer'
+      path: '/gebruikersbeheer'
+      fullPath: '/app/gebruikersbeheer'
+      preLoaderRoute: typeof AppGebruikersbeheerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/gesprekken': {
+      id: '/app/gesprekken'
+      path: '/gesprekken'
+      fullPath: '/app/gesprekken'
+      preLoaderRoute: typeof AppGesprekkenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/huiswerk': {
+      id: '/app/huiswerk'
+      path: '/huiswerk'
+      fullPath: '/app/huiswerk'
+      preLoaderRoute: typeof AppHuiswerkRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/import': {
+      id: '/app/import'
+      path: '/import'
+      fullPath: '/app/import'
+      preLoaderRoute: typeof AppImportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/integraties': {
+      id: '/app/integraties'
+      path: '/integraties'
+      fullPath: '/app/integraties'
+      preLoaderRoute: typeof AppIntegratiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/leerlingen': {
+      id: '/app/leerlingen'
+      path: '/leerlingen'
+      fullPath: '/app/leerlingen'
+      preLoaderRoute: typeof AppLeerlingenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notificaties': {
+      id: '/app/notificaties'
+      path: '/notificaties'
+      fullPath: '/app/notificaties'
+      preLoaderRoute: typeof AppNotificatiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/opdrachten': {
+      id: '/app/opdrachten'
+      path: '/opdrachten'
+      fullPath: '/app/opdrachten'
+      preLoaderRoute: typeof AppOpdrachtenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ouderkoppelingen': {
+      id: '/app/ouderkoppelingen'
+      path: '/ouderkoppelingen'
+      fullPath: '/app/ouderkoppelingen'
+      preLoaderRoute: typeof AppOuderkoppelingenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/personeel': {
+      id: '/app/personeel'
+      path: '/personeel'
+      fullPath: '/app/personeel'
+      preLoaderRoute: typeof AppPersoneelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rapporten': {
+      id: '/app/rapporten'
+      path: '/rapporten'
+      fullPath: '/app/rapporten'
+      preLoaderRoute: typeof AppRapportenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rechten-aanvragen': {
+      id: '/app/rechten-aanvragen'
+      path: '/rechten-aanvragen'
+      fullPath: '/app/rechten-aanvragen'
+      preLoaderRoute: typeof AppRechtenAanvragenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rooster': {
+      id: '/app/rooster'
+      path: '/rooster'
+      fullPath: '/app/rooster'
+      preLoaderRoute: typeof AppRoosterRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/schoolstructuur': {
+      id: '/app/schoolstructuur'
+      path: '/schoolstructuur'
+      fullPath: '/app/schoolstructuur'
+      preLoaderRoute: typeof AppSchoolstructuurRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/studieplanner': {
+      id: '/app/studieplanner'
+      path: '/studieplanner'
+      fullPath: '/app/studieplanner'
+      preLoaderRoute: typeof AppStudieplannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/toestemming': {
+      id: '/app/toestemming'
+      path: '/toestemming'
+      fullPath: '/app/toestemming'
+      preLoaderRoute: typeof AppToestemmingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/toetsen': {
+      id: '/app/toetsen'
+      path: '/toetsen'
+      fullPath: '/app/toetsen'
+      preLoaderRoute: typeof AppToetsenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/vervanging': {
+      id: '/app/vervanging'
+      path: '/vervanging'
+      fullPath: '/app/vervanging'
+      preLoaderRoute: typeof AppVervangingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/features/communicatie': {
+      id: '/features/communicatie'
+      path: '/features/communicatie'
+      fullPath: '/features/communicatie'
+      preLoaderRoute: typeof FeaturesCommunicatieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/notificaties': {
+      id: '/features/notificaties'
+      path: '/features/notificaties'
+      fullPath: '/features/notificaties'
+      preLoaderRoute: typeof FeaturesNotificatiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/opdrachten': {
+      id: '/features/opdrachten'
+      path: '/features/opdrachten'
+      fullPath: '/features/opdrachten'
+      preLoaderRoute: typeof FeaturesOpdrachtenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/roosterbeheer': {
+      id: '/features/roosterbeheer'
+      path: '/features/roosterbeheer'
+      fullPath: '/features/roosterbeheer'
+      preLoaderRoute: typeof FeaturesRoosterbeheerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/veiligheid': {
+      id: '/features/veiligheid'
+      path: '/features/veiligheid'
+      fullPath: '/features/veiligheid'
+      preLoaderRoute: typeof FeaturesVeiligheidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/voortgang': {
+      id: '/features/voortgang'
+      path: '/features/voortgang'
+      fullPath: '/features/voortgang'
+      preLoaderRoute: typeof FeaturesVoortgangRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
