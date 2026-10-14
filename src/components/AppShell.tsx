@@ -53,6 +53,13 @@ import {
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import logo from "@/assets/schoolpulse-logo.png";
 import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const berichtenBadge = (role: Role): number => {
   const map = {
@@ -174,6 +181,14 @@ function AppShellInner({
   const [searchOpen, setSearchOpen] = useState(false);
   const [unread, setUnread] = useState(true);
   const [bannerOpen, setBannerOpen] = useState(true);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("sp-theme") === "dark";
@@ -225,373 +240,394 @@ function AppShellInner({
       )
     : [];
 
-  return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Demo Banner */}
-      {bannerOpen && (
-        <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-primary px-4 py-2 text-primary-foreground">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold">Demo als: {roleLabels[role]}</span>
-            <span className="hidden text-primary-foreground/60 sm:inline">·</span>
-            <div className="hidden flex-wrap gap-1 sm:flex">
-              {(Object.keys(roleLabels) as Role[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setRole(r)}
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${r === role ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 hover:bg-primary-foreground/30"}`}
-                >
-                  {roleLabels[r]}
-                </button>
-              ))}
-            </div>
-          </div>
-          <button
-            onClick={() => setBannerOpen(false)}
-            className="shrink-0 rounded p-0.5 hover:bg-primary-foreground/20"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-      {/* Sidebar — altijd fixed, met eigen scroll */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground transition-transform md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5">
-          <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
-          <div className="min-w-0">
-            <div className="truncate text-sm font-bold tracking-tight text-white">Schoolpulse</div>
-            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">
-              Demo omgeving
-            </div>
+  const sidebarContent = (
+    <>
+      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5 pr-12 md:pr-5">
+        <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
+        <div className="min-w-0">
+          <div className="truncate text-sm font-bold tracking-tight text-white">Schoolpulse</div>
+          <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">
+            Demo omgeving
           </div>
         </div>
-
-        <div className="px-3 pt-4">
-          <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-            Modules
-          </div>
-          <nav className="space-y-0.5">
-            {modules.map((m) => {
-              const active = isActive(m.to, m.exact);
-              return (
-                <Link
-                  key={m.to}
-                  to={m.to}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    active
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
-                  }`}
-                >
-                  <m.icon className="h-4 w-4" />
-                  <span className="flex-1">{m.label}</span>
-                  {m.badge ? (
-                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
-                      {m.badge}
-                    </span>
-                  ) : null}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className="mt-auto border-t border-sidebar-border p-3">
-          <div className="relative">
-            <button
-              onClick={() => setRolePickerOpen((v) => !v)}
-              className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-sidebar-accent"
-            >
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="h-9 w-9 shrink-0 rounded-full bg-sidebar-primary/40 object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-semibold text-white">{user.name}</div>
-                <div className="truncate text-[11px] text-sidebar-foreground/60">
-                  {roleLabels[role]}
-                </div>
-              </div>
-              <ChevronDown className="h-4 w-4 text-sidebar-foreground/60" />
-            </button>
-            {rolePickerOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-xl border border-sidebar-border bg-card text-card-foreground shadow-lg">
-                <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Wissel rol
-                </div>
-                {(Object.keys(roleLabels) as Role[]).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => {
-                      setRole(r);
-                      setRolePickerOpen(false);
-                    }}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${r === role ? "font-semibold text-primary" : ""}`}
-                  >
-                    <img
-                      src={roleUsers[r].avatar}
-                      alt=""
-                      className="h-6 w-6 rounded-full object-cover"
-                    />
-                    {roleLabels[r]}
-                  </button>
-                ))}
-                <div className="border-t border-border">
-                  <button
-                    onClick={() => {
-                      setDemoUser(null);
-                      navigate({ to: "/" });
-                    }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
-                  >
-                    <LogOut className="h-3.5 w-3.5" /> Uitloggen & terug
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </aside>
-
-      {open && (
-        <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setOpen(false)} />
-      )}
-
-      {/* Main — met marge voor sidebar */}
-      <div className="flex min-h-screen min-w-0 flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur md:px-8">
-          <button className="md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
-            <span className="block h-0.5 w-5 bg-foreground" />
-            <span className="mt-1 block h-0.5 w-5 bg-foreground" />
-            <span className="mt-1 block h-0.5 w-5 bg-foreground" />
-          </button>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-semibold">{title}</div>
-            {subtitle && <div className="truncate text-xs text-muted-foreground">{subtitle}</div>}
-          </div>
-
-          {/* Zoekbalk */}
-          <div ref={searchRef} className="relative hidden md:block">
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                value={searchQ}
-                onChange={(e) => {
-                  setSearchQ(e.target.value);
-                  setSearchOpen(true);
-                }}
-                onFocus={() => setSearchOpen(true)}
-                placeholder="Zoek in Schoolpulse..."
-                className="w-56 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-            {searchOpen && searchQ && (
-              <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
-                {results.length ? (
-                  results.map((r) => (
-                    <button
-                      key={r.to}
-                      onClick={() => {
-                        navigate({ to: r.to });
-                        setSearchOpen(false);
-                        setSearchQ("");
-                      }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
-                    >
-                      <Search className="h-3.5 w-3.5 text-muted-foreground" /> {r.label}
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">
-                    Geen resultaten voor "{searchQ}"
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Meldingen */}
-          <div ref={notifRef} className="relative">
-            <button
-              onClick={() => setNotifOpen((v) => !v)}
-              className="relative rounded-lg p-2 hover:bg-muted"
-              aria-label="Notificaties"
-            >
-              <Bell className="h-4 w-4" />
-              {unread && (
-                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-              )}
-            </button>
-            {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
-                <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                  <div className="text-xs font-semibold">Meldingen</div>
-                  <button
-                    className="text-[10px] font-medium text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setUnread(false);
-                      setNotifOpen(false);
-                      toast.success("Alle meldingen als gelezen gemarkeerd");
-                    }}
-                  >
-                    Alles gelezen
-                  </button>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {(role === "directie"
-                    ? directieMeldingen
-                    : role === "teamleider"
-                      ? teamleiderMeldingen
-                      : role === "docent"
-                        ? docentMeldingen
-                        : meldingen
-                  ).map((m) => (
-                    <button
-                      key={m.titel}
-                      onClick={() => {
-                        navigate({ to: m.link });
-                        setNotifOpen(false);
-                      }}
-                      className={`flex w-full items-start gap-3 border-b border-border px-3 py-2.5 text-left hover:bg-muted ${!unread ? "opacity-60" : ""}`}
-                    >
-                      <div
-                        className={`mt-1 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-muted-foreground"}`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm">{m.titel}</div>
-                        <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Instellingen */}
-          <div ref={settingsRef} className="relative">
-            <button
-              onClick={() => setSettingsOpen((v) => !v)}
-              className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
-              aria-label="Profiel"
-            >
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="h-7 w-7 rounded-full object-cover"
-              />
-              <Settings className="hidden h-4 w-4 text-muted-foreground md:block" />
-            </button>
-            {settingsOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
-                <div className="flex items-center gap-3 border-b border-border p-3">
-                  <img src={user.avatar} alt="" className="h-10 w-10 rounded-full object-cover" />
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold">{user.name}</div>
-                    <div className="truncate text-[11px] text-muted-foreground">{user.sub}</div>
-                  </div>
-                </div>
-                <div className="py-1">
-                  {[
-                    {
-                      icon: User,
-                      label: "Mijn profiel",
-                      msg: "Profielbeheer komt binnenkort beschikbaar",
-                    },
-                    {
-                      icon: Shield,
-                      label: "Privacy & 2FA",
-                      msg: "Privacy- en 2FA-instellingen komen binnenkort",
-                    },
-                    {
-                      icon: HelpCircle,
-                      label: "Help & support",
-                      msg: "Meer info op docs.schoolpulse.nl",
-                    },
-                  ].map((it) => (
-                    <button
-                      key={it.label}
-                      onClick={() => {
-                        toast(it.label, { description: it.msg });
-                        setSettingsOpen(false);
-                      }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
-                    >
-                      <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => {
-                      setDark((d) => !d);
-                      setSettingsOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
-                  >
-                    {dark ? (
-                      <Sun className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Moon className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    {dark ? "Lichte modus" : "Donkere modus"}
-                  </button>
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm">
-                    <Type className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1">Tekstgrootte</span>
-                    <div className="flex gap-1">
-                      {(["sm", "base", "lg"] as const).map((s, i) => (
-                        <button
-                          key={s}
-                          onClick={() => setFontSize(s)}
-                          className={`rounded px-2 py-0.5 text-[11px] font-semibold ${fontSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
-                        >
-                          {["A-", "A", "A+"][i]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-border">
-                  <button
-                    onClick={() => {
-                      setDemoUser(null);
-                      navigate({ to: "/" });
-                    }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
-                  >
-                    <LogOut className="h-4 w-4" /> Uitloggen
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
-
-        <main className="min-w-0 flex-1 overflow-x-hidden p-4 pb-20 md:p-8 md:pb-8">
-          {children}
-        </main>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 flex border-t border-border bg-background md:hidden">
-        {getModules(role)
-          .slice(0, 5)
-          .map((m) => {
+      <div className="px-3 pt-4">
+        <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          Modules
+        </div>
+        <nav className="space-y-0.5">
+          {modules.map((m) => {
             const active = isActive(m.to, m.exact);
             return (
               <Link
                 key={m.to}
                 to={m.to}
-                className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
+                }`}
               >
-                <m.icon className="h-5 w-5" />
-                {m.label}
+                <m.icon className="h-4 w-4" />
+                <span className="flex-1">{m.label}</span>
+                {m.badge ? (
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                    {m.badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
-      </nav>
-    </div>
+        </nav>
+      </div>
+
+      <div className="mt-auto border-t border-sidebar-border p-3">
+        <div className="relative">
+          <button
+            onClick={() => setRolePickerOpen((v) => !v)}
+            className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-sidebar-accent"
+          >
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-9 w-9 shrink-0 rounded-full bg-sidebar-primary/40 object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold text-white">{user.name}</div>
+              <div className="truncate text-[11px] text-sidebar-foreground/60">
+                {roleLabels[role]}
+              </div>
+            </div>
+            <ChevronDown className="h-4 w-4 text-sidebar-foreground/60" />
+          </button>
+          {rolePickerOpen && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-xl border border-sidebar-border bg-card text-card-foreground shadow-lg">
+              <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Wissel rol
+              </div>
+              {(Object.keys(roleLabels) as Role[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => {
+                    setRole(r);
+                    setRolePickerOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${r === role ? "font-semibold text-primary" : ""}`}
+                >
+                  <img
+                    src={roleUsers[r].avatar}
+                    alt=""
+                    className="h-6 w-6 rounded-full object-cover"
+                  />
+                  {roleLabels[r]}
+                </button>
+              ))}
+              <div className="border-t border-border">
+                <button
+                  onClick={() => {
+                    setDemoUser(null);
+                    navigate({ to: "/" });
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+                >
+                  <LogOut className="h-3.5 w-3.5" /> Uitloggen & terug
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <div className="min-h-screen bg-muted/30">
+        {/* Demo Banner */}
+        {bannerOpen && (
+          <div className="relative z-10 flex items-center justify-between gap-2 bg-primary px-4 py-2 text-primary-foreground md:ml-64">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold">Demo als: {roleLabels[role]}</span>
+              <span className="hidden text-primary-foreground/60 sm:inline">·</span>
+              <div className="hidden flex-wrap gap-1 sm:flex">
+                {(Object.keys(roleLabels) as Role[]).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRole(r)}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${r === role ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 hover:bg-primary-foreground/30"}`}
+                  >
+                    {roleLabels[r]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setBannerOpen(false)}
+              aria-label="Demobanner sluiten"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded hover:bg-primary-foreground/20"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        {/* Sidebar — altijd fixed, met eigen scroll */}
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground md:flex">
+          {sidebarContent}
+        </aside>
+        <SheetContent
+          side="left"
+          className="flex w-72 max-w-[85vw] flex-col overflow-y-auto border-sidebar-border bg-sidebar p-0 text-sidebar-foreground md:hidden"
+        >
+          <SheetTitle className="sr-only">Schoolpulse navigatie</SheetTitle>
+          <SheetDescription className="sr-only">
+            Open een module of wissel van schoolrol.
+          </SheetDescription>
+          {sidebarContent}
+        </SheetContent>
+
+        {/* Main — met marge voor sidebar */}
+        <div className="flex min-h-screen min-w-0 flex-col md:pl-64">
+          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur md:px-8">
+            <SheetTrigger asChild>
+              <button
+                className="grid h-11 w-11 shrink-0 place-content-center rounded-lg hover:bg-muted md:hidden"
+                aria-label="Open menu"
+              >
+                <span className="block h-0.5 w-5 bg-foreground" />
+                <span className="mt-1 block h-0.5 w-5 bg-foreground" />
+                <span className="mt-1 block h-0.5 w-5 bg-foreground" />
+              </button>
+            </SheetTrigger>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-base font-semibold">{title}</div>
+              {subtitle && <div className="truncate text-xs text-muted-foreground">{subtitle}</div>}
+            </div>
+
+            {/* Zoekbalk */}
+            <div ref={searchRef} className="relative hidden lg:block">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <input
+                  value={searchQ}
+                  onChange={(e) => {
+                    setSearchQ(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder="Zoek in Schoolpulse..."
+                  className="w-56 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+              {searchOpen && searchQ && (
+                <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
+                  {results.length ? (
+                    results.map((r) => (
+                      <button
+                        key={r.to}
+                        onClick={() => {
+                          navigate({ to: r.to });
+                          setSearchOpen(false);
+                          setSearchQ("");
+                        }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                      >
+                        <Search className="h-3.5 w-3.5 text-muted-foreground" /> {r.label}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-4 text-center text-xs text-muted-foreground">
+                      Geen resultaten voor "{searchQ}"
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Meldingen */}
+            <div ref={notifRef} className="relative">
+              <button
+                onClick={() => setNotifOpen((v) => !v)}
+                className="relative grid h-11 w-11 place-items-center rounded-lg hover:bg-muted"
+                aria-label="Notificaties"
+              >
+                <Bell className="h-4 w-4" />
+                {unread && (
+                  <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
+              </button>
+              {notifOpen && (
+                <div className="fixed inset-x-4 top-28 z-50 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                    <div className="text-xs font-semibold">Meldingen</div>
+                    <button
+                      className="text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setUnread(false);
+                        setNotifOpen(false);
+                        toast.success("Alle meldingen als gelezen gemarkeerd");
+                      }}
+                    >
+                      Alles gelezen
+                    </button>
+                  </div>
+                  <div className="max-h-[min(20rem,calc(100dvh_-_12rem))] overflow-y-auto">
+                    {(role === "directie"
+                      ? directieMeldingen
+                      : role === "teamleider"
+                        ? teamleiderMeldingen
+                        : role === "docent"
+                          ? docentMeldingen
+                          : meldingen
+                    ).map((m) => (
+                      <button
+                        key={m.titel}
+                        onClick={() => {
+                          navigate({ to: m.link });
+                          setNotifOpen(false);
+                        }}
+                        className={`flex w-full items-start gap-3 border-b border-border px-3 py-2.5 text-left hover:bg-muted ${!unread ? "opacity-60" : ""}`}
+                      >
+                        <div
+                          className={`mt-1 h-2 w-2 shrink-0 rounded-full ${unread ? "bg-primary" : "bg-muted-foreground"}`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm">{m.titel}</div>
+                          <div className="text-[11px] text-muted-foreground">{m.tijd} geleden</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Instellingen */}
+            <div ref={settingsRef} className="relative">
+              <button
+                onClick={() => setSettingsOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
+                aria-label="Profiel"
+              >
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-7 w-7 rounded-full object-cover"
+                />
+                <Settings className="hidden h-4 w-4 text-muted-foreground md:block" />
+              </button>
+              {settingsOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
+                  <div className="flex items-center gap-3 border-b border-border p-3">
+                    <img src={user.avatar} alt="" className="h-10 w-10 rounded-full object-cover" />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold">{user.name}</div>
+                      <div className="truncate text-[11px] text-muted-foreground">{user.sub}</div>
+                    </div>
+                  </div>
+                  <div className="py-1">
+                    {[
+                      {
+                        icon: User,
+                        label: "Mijn profiel",
+                        msg: "Profielbeheer komt binnenkort beschikbaar",
+                      },
+                      {
+                        icon: Shield,
+                        label: "Privacy & 2FA",
+                        msg: "Privacy- en 2FA-instellingen komen binnenkort",
+                      },
+                      {
+                        icon: HelpCircle,
+                        label: "Help & support",
+                        msg: "Meer info op docs.schoolpulse.nl",
+                      },
+                    ].map((it) => (
+                      <button
+                        key={it.label}
+                        onClick={() => {
+                          toast(it.label, { description: it.msg });
+                          setSettingsOpen(false);
+                        }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                      >
+                        <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => {
+                        setDark((d) => !d);
+                        setSettingsOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                    >
+                      {dark ? (
+                        <Sun className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Moon className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      {dark ? "Lichte modus" : "Donkere modus"}
+                    </button>
+                    <div className="flex items-center gap-2 px-3 py-2 text-sm">
+                      <Type className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="flex-1">Tekstgrootte</span>
+                      <div className="flex gap-1">
+                        {(["sm", "base", "lg"] as const).map((s, i) => (
+                          <button
+                            key={s}
+                            onClick={() => setFontSize(s)}
+                            className={`rounded px-2 py-0.5 text-[11px] font-semibold ${fontSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                          >
+                            {["A-", "A", "A+"][i]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-border">
+                    <button
+                      onClick={() => {
+                        setDemoUser(null);
+                        navigate({ to: "/" });
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
+                    >
+                      <LogOut className="h-4 w-4" /> Uitloggen
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </header>
+
+          <main className="min-w-0 flex-1 p-4 pb-[calc(5rem_+_env(safe-area-inset-bottom))] md:p-8 md:pb-8">
+            {children}
+          </main>
+        </div>
+
+        {/* Mobile bottom nav */}
+        <nav
+          aria-label="Snelle navigatie"
+          className="fixed bottom-0 left-0 right-0 z-30 flex border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+        >
+          {getModules(role)
+            .slice(0, 5)
+            .map((m) => {
+              const active = isActive(m.to, m.exact);
+              return (
+                <Link
+                  key={m.to}
+                  to={m.to}
+                  className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <m.icon className="h-5 w-5" />
+                  {m.label}
+                </Link>
+              );
+            })}
+        </nav>
+      </div>
+    </Sheet>
   );
 }

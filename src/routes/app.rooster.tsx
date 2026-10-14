@@ -242,7 +242,7 @@ function Rooster() {
       )}
 
       {/* Toggle */}
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="inline-flex rounded-lg border border-border bg-card p-1">
           <button
             onClick={() => setView("dag")}
@@ -338,24 +338,28 @@ function Rooster() {
                 <button
                   key={l.start}
                   onClick={() => openDetail(l, currentDag)}
-                  className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50"
+                  className="grid w-full grid-cols-[4px_2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50 sm:flex sm:gap-3"
                 >
-                  <div className={`h-10 w-1 shrink-0 rounded-full ${l.kleur}`} />
-                  <div className="w-8 shrink-0 text-center">
+                  <div
+                    className={`row-span-3 h-full min-h-10 w-1 shrink-0 rounded-full sm:h-10 ${l.kleur}`}
+                  />
+                  <div className="row-span-2 w-8 shrink-0 text-center">
                     <div className="text-[10px] font-semibold uppercase text-muted-foreground">
                       uur
                     </div>
                     <div className="text-sm font-bold">{nr}</div>
                   </div>
-                  <div className="w-24 shrink-0 text-xs text-muted-foreground">{l.tijd}</div>
-                  <div className="min-w-0 flex-1">
+                  <div className="col-start-3 shrink-0 text-xs text-muted-foreground sm:w-24">
+                    {l.tijd}
+                  </div>
+                  <div className="col-start-3 min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">{l.vak}</div>
                     <div className="truncate text-xs text-muted-foreground">
                       Lokaal {l.lokaal} · {l.docent}
                     </div>
                   </div>
                   {l.wijziging && (
-                    <span className="hidden sm:inline rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                    <span className="col-start-3 w-fit rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
                       {l.wijziging}
                     </span>
                   )}

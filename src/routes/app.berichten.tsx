@@ -197,13 +197,10 @@ function Berichten() {
 
   return (
     <AppShell title="Berichten" subtitle="Veilige, versleutelde communicatie">
-      <div
-        className="grid gap-0 overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[320px_1fr]"
-        style={{ height: "calc(100vh - 10rem)" }}
-      >
+      <div className="grid h-[calc(100dvh_-_13rem)] min-h-72 gap-0 overflow-hidden rounded-2xl border border-border bg-card md:h-[calc(100dvh_-_10rem)] md:grid-cols-[280px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)]">
         {/* Conversation list */}
         <aside
-          className={`flex flex-col border-b border-border md:border-b-0 md:border-r md:flex ${mobileDetail ? "hidden" : "flex"}`}
+          className={`min-h-0 min-w-0 flex-col border-b border-border md:border-b-0 md:border-r md:flex ${mobileDetail ? "hidden" : "flex"}`}
         >
           <div className="border-b border-border p-3">
             <button
@@ -277,7 +274,7 @@ function Berichten() {
         </aside>
 
         {/* Chat panel */}
-        <section className={`min-w-0 flex-col md:flex ${mobileDetail ? "flex" : "hidden"}`}>
+        <section className={`min-h-0 min-w-0 flex-col md:flex ${mobileDetail ? "flex" : "hidden"}`}>
           <div className="flex items-center gap-3 border-b border-border p-4">
             <button
               onClick={() => setMobileDetail(false)}
@@ -308,7 +305,7 @@ function Berichten() {
             </span>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-muted/30 p-4">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-muted/30 p-4">
             {thread.map((m, i) => {
               const prev = thread[i - 1];
               const toonAvatar = !m.mij && (!prev || prev.van !== m.van || prev.mij !== m.mij);
@@ -329,7 +326,7 @@ function Berichten() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${m.mij ? "bg-primary text-primary-foreground" : "border border-border bg-background"}`}
+                    className={`max-w-[85%] break-words rounded-2xl px-4 py-2 text-sm [overflow-wrap:anywhere] sm:max-w-[75%] ${m.mij ? "bg-primary text-primary-foreground" : "border border-border bg-background"}`}
                   >
                     {!m.mij && isGroep && toonAvatar && (
                       <div className="mb-0.5 text-[11px] font-semibold text-primary">{m.van}</div>

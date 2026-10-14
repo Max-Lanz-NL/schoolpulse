@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { DemoGate } from "@/components/DemoGate";
+import { DemoDevicePreview } from "@/components/DemoDevicePreview";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -8,7 +9,9 @@ export const Route = createFileRoute("/app")({
 function AppLayout() {
   return (
     <DemoGate>
-      <Outlet />
+      <DemoDevicePreview>
+        <Outlet />
+      </DemoDevicePreview>
     </DemoGate>
   );
 }

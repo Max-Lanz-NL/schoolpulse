@@ -85,7 +85,7 @@ function StatCard({
         </div>
         <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="mt-4 text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-4 break-words text-xs font-medium text-muted-foreground">{label}</div>
       <div className="mt-1 text-2xl font-bold tracking-tight">{value}</div>
       {hint && <div className={`mt-1 text-xs ${toneClass}`}>{hint}</div>}
     </>
@@ -132,7 +132,7 @@ function LeerlingView() {
         <StatCard to="/app/berichten" icon={MessageSquare} label="Nieuwe berichten" value="2" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card
             title="Rooster vandaag"
@@ -147,18 +147,22 @@ function LeerlingView() {
                 <Link
                   key={l.tijd}
                   to="/app/rooster"
-                  className="flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
+                  className="grid grid-cols-[4px_minmax(0,1fr)] items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50 sm:flex sm:gap-3"
                 >
-                  <div className={`h-10 w-1 shrink-0 rounded-full ${l.kleur}`} />
-                  <div className="w-28 shrink-0 text-xs text-muted-foreground">{l.tijd}</div>
-                  <div className="min-w-0 flex-1">
+                  <div
+                    className={`row-span-3 h-full min-h-10 w-1 shrink-0 rounded-full sm:h-10 ${l.kleur}`}
+                  />
+                  <div className="col-start-2 shrink-0 text-xs text-muted-foreground sm:w-28">
+                    {l.tijd}
+                  </div>
+                  <div className="col-start-2 min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">{l.vak}</div>
                     <div className="truncate text-xs text-muted-foreground">
                       Lokaal {l.lokaal} · {l.docent}
                     </div>
                   </div>
                   {l.wijziging && (
-                    <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                    <span className="col-start-2 w-fit rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
                       {l.wijziging}
                     </span>
                   )}
@@ -182,7 +186,7 @@ function LeerlingView() {
                   <Link
                     key={o.titel}
                     to="/app/opdrachten"
-                    className="flex items-center justify-between rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50"
+                    className="flex flex-col items-start justify-between gap-2 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center"
                   >
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold">{o.titel}</div>
@@ -294,7 +298,7 @@ function DocentView() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card
             title="Mijn klassen"
@@ -452,8 +456,8 @@ function OuderView() {
               {kind.niveau} · Klas {kind.klas} · Mentor: {kind.mentor}
             </div>
           </div>
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex overflow-hidden rounded-lg border border-border">
+          <div className="flex w-full flex-wrap items-center gap-3 sm:ml-auto sm:w-auto">
+            <div className="flex shrink-0 overflow-hidden rounded-lg border border-border">
               {kinderen.map((k, i) => (
                 <button
                   key={k.naam}
@@ -464,7 +468,7 @@ function OuderView() {
                 </button>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => navigate({ to: "/app/berichten" })}
                 className="rounded-lg border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
@@ -509,7 +513,7 @@ function OuderView() {
         <StatCard to="/app/berichten" icon={AlertCircle} label="Meldingen" value={kind.meldingen} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-2">
         <Card title="Cijfers per vak">
           <div className="space-y-2">
             {cijfers.map((c) => (
@@ -557,7 +561,7 @@ function OuderView() {
       </div>
 
       <Card title={`Weekoverzicht ${kind.naam.split(" ")[0]} — week 28`}>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {[
             {
               dag: "Ma",
@@ -683,7 +687,7 @@ function TeamleiderView() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="Klassenoverzicht bovenbouw">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -896,7 +900,7 @@ function DirectieView() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 [&>*]:min-w-0 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card
             title="Cijfertrend schoolbreed"
@@ -904,7 +908,10 @@ function DirectieView() {
           >
             <div className="flex h-48 items-end gap-2">
               {bars.map((b, i) => (
-                <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                <div
+                  key={i}
+                  className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2"
+                >
                   <div
                     className="w-full rounded-t-md bg-gradient-to-t from-primary to-primary/60"
                     style={{ height: `${b}%` }}

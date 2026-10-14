@@ -332,7 +332,7 @@ function DocentOpdrachten() {
               Geen te-late inleveringen
             </div>
           ) : (
-            <div className="overflow-hidden rounded-xl border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                   <tr>
@@ -1022,7 +1022,7 @@ function ManagementOpdrachten() {
         </button>
       </div>
       <Card title="Overzicht per klas">
-        <div className="overflow-hidden rounded-xl border border-border">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
