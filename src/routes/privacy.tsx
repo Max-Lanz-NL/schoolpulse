@@ -28,10 +28,10 @@ function Privacy() {
           <div className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
             <aside className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-soft)] lg:sticky lg:top-24 lg:h-fit">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <ShieldCheck className="h-4 w-4 text-primary" /> Privacyverklaring
+                <ShieldCheck className="h-4 w-4 text-primary" /> Privacy & schoolafspraken
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
-                Schoolpulse · Versie 1.0 · Demo omgeving
+                Schoolpulse · Demo en voorbereiding op ingebruikname
               </div>
               <div className="mt-4 space-y-2 text-sm">
                 <a
@@ -58,21 +58,37 @@ function Privacy() {
                 >
                   Beveiliging
                 </a>
+                <a
+                  href="#schoolafspraken"
+                  className="block rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  Afspraken met de school
+                </a>
               </div>
             </aside>
 
             <main className="space-y-4">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Duidelijkheid over gegevens en toegang
+                </h1>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  De openbare demo toont fictieve schoolgegevens. Voor gebruik met echte
+                  schoolgegevens leggen we de verwerking, beveiliging en verantwoordelijkheden
+                  vooraf vast met de school.
+                </p>
+              </div>
               <SectionCard
                 id="gegevensverwerking"
                 icon={Lock}
                 title="Gegevensverwerking"
-                body="Schoolpulse verwerkt persoonsgegevens conform de AVG (Algemene Verordening Gegevensbescherming). In de demo-omgeving worden geen echte persoonsgegevens opgeslagen — alle data is fictief en wordt lokaal bewaard in uw browser."
+                body="Het rooster, de cijfers en de gebruikers in de ingerichte demo zijn voorbeelden. Uw gekozen schoolrol en eventueel ingevulde demoprofiel worden in uw browser bewaard. Gebruik bij het verkennen uitsluitend fictieve gegevens; vul geen echte leerlinggegevens in."
               />
               <SectionCard
                 id="gegevenssoorten"
                 icon={Eye}
                 title="Welke gegevens verzamelen wij?"
-                body="In de productieversie worden naam, e-mailadres, rol en schoolgegevens verwerkt voor het functioneren van het platform. Gegevens worden niet gedeeld met derden zonder expliciete toestemming."
+                body="Een schoolomgeving kan accountgegevens, rollen, klasindelingen, roosters, aanwezigheid, resultaten en berichten bevatten. Welke onderdelen jullie gebruiken en welke gegevens daarvoor nodig zijn, bepalen we vooraf met de school. Ook leggen we vast welke leveranciers bij de verwerking betrokken zijn."
               />
               <SectionCard
                 id="rechten"
@@ -84,8 +100,36 @@ function Privacy() {
                 id="beveiliging"
                 icon={ShieldCheck}
                 title="Beveiliging"
-                body="Alle communicatie is versleuteld via TLS. Wachtwoorden worden nooit opgeslagen in leesbare vorm. Optioneel is tweestapsverificatie (2FA) beschikbaar."
+                body="Bespreek vóór ingebruikname hoe toegang per schoolrol wordt ingericht, hoe beheeraccounts worden beveiligd en hoe back-ups, herstel en incidentmeldingen worden geregeld. Hostinglocatie, bewaartermijnen en operationele afspraken moeten voor jullie school worden bevestigd; de demo is geen bewijs van die productieafspraken."
               />
+              <section
+                id="schoolafspraken"
+                className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-soft)]"
+              >
+                <h2 className="text-base font-semibold">Wat leggen we vooraf vast?</h2>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+                  <li>
+                    De verwerkersovereenkomst en verantwoordelijkheden van school en leverancier.
+                  </li>
+                  <li>
+                    Hostinglocatie, betrokken leveranciers en bewaartermijnen per gegevenssoort.
+                  </li>
+                  <li>
+                    Toegangsrechten, beheeraccounts en aanspreekpunten voor privacy en
+                    ondersteuning.
+                  </li>
+                  <li>
+                    Back-ups, herstel, incidentafhandeling en de overdracht of verwijdering van
+                    gegevens bij beëindiging.
+                  </li>
+                </ul>
+                <Link
+                  to="/contact"
+                  className="mt-5 inline-flex text-sm font-semibold text-primary hover:underline"
+                >
+                  Bespreek de afspraken voor jullie school
+                </Link>
+              </section>
             </main>
           </div>
         </div>

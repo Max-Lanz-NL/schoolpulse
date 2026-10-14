@@ -13,8 +13,58 @@ import {
   Users,
 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
+import dashboardPreview from "@/assets/schoolpulse-dashboard-preview.png";
+import teacherPreview from "@/assets/schoolpulse-docent-preview.png";
+import managementPreview from "@/assets/schoolpulse-directie-preview.png";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Menu, Maximize2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Landing });
+
+const dashboardPreviews = [
+  {
+    role: "leerling",
+    label: "Leerling",
+    image: dashboardPreview,
+    width: 1780,
+    height: 883,
+    description: "Je schooldag in één overzicht",
+    alt: "Leerlingdashboard met het rooster van vandaag, recente cijfers, berichten en openstaande taken.",
+  },
+  {
+    role: "docent",
+    label: "Docent",
+    image: teacherPreview,
+    width: 1785,
+    height: 881,
+    description: "Klassen, beoordelingen en berichten bij elkaar",
+    alt: "Docentdashboard met klassen, ingeleverde opdrachten, lessen en nieuwe berichten.",
+  },
+  {
+    role: "directie",
+    label: "Directie",
+    image: managementPreview,
+    width: 1784,
+    height: 881,
+    description: "Inzicht in resultaten en schooldoelstellingen",
+    alt: "Directiedashboard met leerlingaantallen, aanwezigheid, slagingspercentages en schooldoelstellingen.",
+  },
+];
 
 function Landing() {
   return (
@@ -25,7 +75,10 @@ function Landing() {
             <img src={logo} alt="Schoolpulse" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">Schoolpulse</span>
           </Link>
-          <nav className="hidden items-center gap-7 md:flex">
+          <nav
+            aria-label="Hoofdnavigatie"
+            className="hidden items-center gap-5 whitespace-nowrap lg:flex"
+          >
             <a
               href="#waarde"
               className="text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -48,16 +101,59 @@ function Landing() {
           <div className="flex items-center gap-2">
             <Link
               to="/contact"
-              className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted sm:inline-flex"
+              className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted lg:inline-flex"
             >
               Contact
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90 sm:px-4"
             >
-              Offerte aanvragen <ArrowRight className="h-4 w-4" />
+              <span className="sm:hidden">Offerte</span>
+              <span className="hidden sm:inline">Offerte aanvragen</span>{" "}
+              <ArrowRight className="h-4 w-4" />
             </Link>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Navigatiemenu openen"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent className="overflow-y-auto">
+                <SheetTitle>Schoolpulse</SheetTitle>
+                <SheetDescription>Ontdek het platform voor jullie school.</SheetDescription>
+                <nav aria-label="Mobiele hoofdnavigatie" className="mt-6 flex flex-col gap-2">
+                  {[
+                    ["#waarde", "Waarom Schoolpulse"],
+                    ["#doelgroepen", "Voor wie"],
+                    ["#vertrouwen", "Privacy & vertrouwen"],
+                  ].map(([href, label]) => (
+                    <SheetClose asChild key={href}>
+                      <a href={href} className="rounded-lg px-3 py-3 font-medium hover:bg-muted">
+                        {label}
+                      </a>
+                    </SheetClose>
+                  ))}
+                  <SheetClose asChild>
+                    <Link to="/contact" className="rounded-lg px-3 py-3 font-medium hover:bg-muted">
+                      Contact
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a
+                      href={`${DOMAIN_ORIGINS.demo}/app`}
+                      className="rounded-lg px-3 py-3 font-medium text-primary hover:bg-muted"
+                    >
+                      Bekijk de demo
+                    </a>
+                  </SheetClose>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
@@ -65,13 +161,13 @@ function Landing() {
       <section className="relative overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.10] via-background to-background" />
         <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-72 w-[46rem] -translate-x-1/2 rounded-full bg-primary/[0.08] blur-3xl" />
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-20 pt-16 md:grid-cols-[1.15fr_0.85fr] md:px-6 md:pb-24 md:pt-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10 lg:py-16">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-[var(--shadow-soft)]">
               <Sparkles className="h-3.5 w-3.5 text-primary" /> Nieuw en gebouwd voor de
               schoolpraktijk
             </div>
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
               Eén platform voor{" "}
               <span className="text-primary">rooster, communicatie en voortgang</span>.
             </h1>
@@ -96,7 +192,7 @@ function Landing() {
             </div>
             <div className="mt-6 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
               <div className="rounded-lg border border-border/70 bg-background/80 px-3 py-2">
-                Snelle implementatie
+                Samen ingericht voor jullie school
               </div>
               <div className="rounded-lg border border-border/70 bg-background/80 px-3 py-2">
                 Rollen & rechten per gebruiker
@@ -107,39 +203,85 @@ function Landing() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border/80 bg-card p-5 shadow-[var(--shadow-elegant)] md:p-6">
-            <div className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Waarom scholen kiezen
-            </div>
-            <div className="mt-4 space-y-3">
-              {[
-                {
-                  t: "Minder losse tools",
-                  d: "Rooster, berichten, dossiers en voortgang in één omgeving.",
-                },
-                {
-                  t: "Meer rust voor teams",
-                  d: "Docenten, mentoren en management werken vanuit één omgeving zonder losse systemen.",
-                },
-                {
-                  t: "Betere ouderbetrokkenheid",
-                  d: "Ouders ontvangen relevante berichten, roosterwijzigingen en voortgang op één plek.",
-                },
-                {
-                  t: "Management-overzicht",
-                  d: "Bekijk verzuim, roosterwijzigingen en belangrijke meldingen vanuit één dashboard.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.t}
-                  className="rounded-xl border border-border/70 bg-background/80 p-3"
-                >
-                  <div className="text-sm font-semibold">{item.t}</div>
-                  <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.d}</div>
-                </div>
+          <Tabs defaultValue="leerling" className="min-w-0">
+            <TabsList aria-label="Kies een schoolrol" className="mb-2 grid h-11 w-full grid-cols-3">
+              {dashboardPreviews.map((preview) => (
+                <TabsTrigger key={preview.role} value={preview.role} className="h-9">
+                  {preview.label}
+                </TabsTrigger>
               ))}
-            </div>
-          </div>
+            </TabsList>
+            {dashboardPreviews.map((preview) => (
+              <TabsContent key={preview.role} value={preview.role}>
+                <figure>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={`Vergroot het ${preview.label.toLowerCase()}dashboard`}
+                        className="block w-full overflow-hidden rounded-2xl border border-border/80 bg-card text-left shadow-[var(--shadow-elegant)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                      >
+                        <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 py-3 text-xs">
+                          <span className="font-semibold">{preview.description}</span>
+                          <span className="inline-flex shrink-0 items-center gap-1 text-primary">
+                            <Maximize2 className="h-3.5 w-3.5" /> Vergroten
+                          </span>
+                        </div>
+                        <div className="aspect-[2/1] bg-muted/20">
+                          <img
+                            src={preview.image}
+                            alt={preview.alt}
+                            width={preview.width}
+                            height={preview.height}
+                            fetchPriority={preview.role === "leerling" ? "high" : "auto"}
+                            className="block h-full w-full object-contain"
+                          />
+                        </div>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-6xl overflow-y-auto p-4 sm:p-6">
+                      <DialogTitle className="pr-8">
+                        Het {preview.label.toLowerCase()}dashboard
+                      </DialogTitle>
+                      <DialogDescription>
+                        Voorbeeld van de demo-omgeving met fictieve gegevens. Naam school is een
+                        voorbeeldlabel.
+                      </DialogDescription>
+                      <div
+                        tabIndex={0}
+                        aria-label="Scroll door het vergrote dashboard"
+                        className="max-h-[55dvh] overflow-auto rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-primary"
+                      >
+                        <img
+                          src={preview.image}
+                          alt={preview.alt}
+                          width={preview.width}
+                          height={preview.height}
+                          className="h-auto w-full min-w-[900px]"
+                        />
+                      </div>
+                      <a
+                        href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                      >
+                        Probeer de demo als {preview.label.toLowerCase()}{" "}
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
+                    </DialogContent>
+                  </Dialog>
+                  <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                    <span>{preview.label}dashboard · Fictieve voorbeeldgegevens</span>
+                    <a
+                      href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
+                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                    >
+                      Zelf proberen <ArrowRight className="h-3.5 w-3.5" />
+                    </a>
+                  </figcaption>
+                </figure>
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       </section>
 
@@ -189,25 +331,58 @@ function Landing() {
         </div>
       </section>
 
-      <section id="vertrouwen" className="border-b border-border/60 bg-muted/35 py-10">
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 md:grid-cols-4 md:px-6">
-          {[
-            "AVG-minded ontwerp",
-            "Veilig berichtenverkeer",
-            "Rollen met passende toegang",
-            "Demo-ready voor besluitvorming",
-          ].map((item) => (
-            <div
-              key={item}
-              className="rounded-xl border border-border/70 bg-background px-4 py-3 text-sm font-semibold text-foreground shadow-[var(--shadow-soft)]"
-            >
-              {item}
-            </div>
-          ))}
+      <section id="vertrouwen" className="scroll-mt-20 border-b border-border/60 bg-muted/35 py-14">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <h2 className="text-2xl font-bold tracking-tight">Duidelijkheid voordat jullie kiezen</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Bekijk hoe het platform werkt en bespreek de afspraken over persoonsgegevens en
+            invoering voor jullie school.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                title: "Verkennen met voorbeeldgegevens",
+                description:
+                  "De ingerichte demo laat rooster, berichten en resultaten zien met fictieve schoolgegevens.",
+                to: "/privacy",
+                label: "Lees over de demo en privacy",
+              },
+              {
+                title: "Een overzicht per schoolrol",
+                description:
+                  "Probeer de demo als leerling, ouder, docent of directie en bekijk welke informatie iedere rol nodig heeft.",
+                to: "/#doelgroepen",
+                label: "Ontdek de schoolrollen",
+              },
+              {
+                title: "Invoering en afspraken bespreken",
+                description:
+                  "Bespreek inrichting, gegevensoverdracht, training en ondersteuning. Vraag ook naar hosting, bewaartermijnen en de verwerkersovereenkomst.",
+                to: "/contact",
+                label: "Bespreek jullie situatie",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border border-border/70 bg-background p-5 shadow-[var(--shadow-soft)]"
+              >
+                <h3 className="text-sm font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {item.description}
+                </p>
+                <a
+                  href={item.to}
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  {item.label} <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="waarde" className="py-20">
+      <section id="waarde" className="scroll-mt-20 py-20">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <div className="text-xs font-semibold uppercase tracking-wider text-primary">
@@ -231,8 +406,8 @@ function Landing() {
               },
               {
                 icon: ShieldCheck,
-                t: "Veilig en controleerbaar",
-                d: "Heldere rechten, privacybewuste defaults en veilige workflows.",
+                t: "Een overzicht per schoolrol",
+                d: "Verken de omgeving vanuit leerling, ouder, docent of directie en bekijk hoe het overzicht per rol verschilt.",
               },
             ].map(({ icon: Icon, t, d }) => (
               <div
@@ -250,7 +425,10 @@ function Landing() {
         </div>
       </section>
 
-      <section id="doelgroepen" className="border-y border-border/60 bg-muted/35 py-20">
+      <section
+        id="doelgroepen"
+        className="scroll-mt-20 border-y border-border/60 bg-muted/35 py-20"
+      >
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <div className="text-xs font-semibold uppercase tracking-wider text-primary">
@@ -299,6 +477,66 @@ function Landing() {
               </a>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="implementatie" className="scroll-mt-20 border-b border-border/60 py-16">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="max-w-2xl">
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">
+              Invoering op school
+            </div>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight">
+              Van kennismaking naar een ingerichte schoolomgeving
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Dit bespreken we samen voordat jullie starten. De planning en ondersteuning stemmen we
+              af op de situatie van jullie school.
+            </p>
+          </div>
+          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: "Kennismaking & demo",
+                description:
+                  "Bekijk de schoolrollen en bespreek welke processen, gebruikers en onderdelen jullie nodig hebben.",
+              },
+              {
+                title: "Afspraken vastleggen",
+                description:
+                  "Bespreek privacy, hosting, bewaartermijnen, toegangsrechten en wie het aanspreekpunt is voor ondersteuning.",
+              },
+              {
+                title: "Inrichten & controleren",
+                description:
+                  "Bepaal welke schoolgegevens worden overgezet en controleer samen accounts, klassen en het rooster.",
+              },
+              {
+                title: "Voorbereiden & starten",
+                description:
+                  "Maak afspraken over uitleg voor het team, de controle vóór ingebruikname en ondersteuning na de start.",
+              },
+            ].map((step, index) => (
+              <li key={step.title} className="rounded-2xl border border-border/80 bg-card p-5">
+                <span
+                  aria-hidden="true"
+                  className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary"
+                >
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 text-sm font-semibold">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {step.description}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <Link
+            to="/contact"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          >
+            Bespreek de invoering voor jullie school <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
