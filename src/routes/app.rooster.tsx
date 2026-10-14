@@ -242,8 +242,8 @@ function Rooster() {
       )}
 
       {/* Toggle */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-lg border border-border bg-card p-1">
+      <div className="mb-3 flex flex-wrap items-center gap-3 sm:mb-4">
+        <div className="hidden rounded-lg border border-border bg-card p-1 md:inline-flex">
           <button
             onClick={() => setView("dag")}
             className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold ${view === "dag" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
@@ -257,7 +257,7 @@ function Rooster() {
             <Grid3x3 className="h-3.5 w-3.5" /> Week
           </button>
         </div>
-        <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+        <div className="flex w-full items-center justify-between gap-1 rounded-lg border border-border bg-card p-1 md:ml-auto md:w-auto">
           <button
             onClick={() => setWeekOffset((week) => week - 1)}
             className="rounded-md p-1.5 hover:bg-muted"
@@ -283,12 +283,14 @@ function Rooster() {
 
       {view === "dag" ? (
         <Card
+          className="!p-3 sm:!p-5 [&>div:first-child]:mb-2 sm:[&>div:first-child]:mb-4"
           title={geselecteerdeDagLabel.charAt(0).toUpperCase() + geselecteerdeDagLabel.slice(1)}
           action={
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setDagIdx((i) => Math.max(0, i - 1))}
                 disabled={dagIdx === 0}
+                aria-label="Vorige dag"
                 className="rounded-md p-1 hover:bg-muted disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -296,6 +298,7 @@ function Rooster() {
               <button
                 onClick={() => setDagIdx((i) => Math.min(dagen.length - 1, i + 1))}
                 disabled={dagIdx === dagen.length - 1}
+                aria-label="Volgende dag"
                 className="rounded-md p-1 hover:bg-muted disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -303,12 +306,13 @@ function Rooster() {
             </div>
           }
         >
-          <div className="mb-3 flex gap-1 overflow-x-auto pb-1 md:hidden">
+          <div className="mb-2 grid grid-cols-5 gap-1 md:hidden">
             {dagen.map((d, i) => (
               <button
                 key={d}
                 onClick={() => setDagIdx(i)}
-                className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold ${i === dagIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                aria-pressed={i === dagIdx}
+                className={`min-h-9 rounded-md px-2 py-1.5 text-xs font-semibold ${i === dagIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
               >
                 {d}
               </button>
@@ -326,7 +330,7 @@ function Rooster() {
             ))}
           </div>
 
-          <div className="mt-3 space-y-2 select-none" {...swipe}>
+          <div className="mt-2 space-y-1 select-none sm:mt-3 sm:space-y-2" {...swipe}>
             {dagLessen.length === 0 && (
               <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                 Geen lessen deze dag
@@ -338,28 +342,31 @@ function Rooster() {
                 <button
                   key={l.start}
                   onClick={() => openDetail(l, currentDag)}
-                  className="grid w-full grid-cols-[4px_2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/50 sm:flex sm:gap-3"
+                  className="grid min-h-11 w-full grid-cols-[3px_1rem_5rem_minmax(0,1fr)] items-center gap-x-1.5 gap-y-0.5 rounded-xl border border-border bg-background p-2 text-left hover:bg-muted/50 sm:flex sm:gap-3 sm:p-3"
                 >
                   <div
-                    className={`row-span-3 h-full min-h-10 w-1 shrink-0 rounded-full sm:h-10 ${l.kleur}`}
+                    className={`row-span-2 h-full min-h-7 w-[3px] shrink-0 rounded-full sm:h-10 sm:w-1 ${l.kleur}`}
                   />
-                  <div className="row-span-2 w-8 shrink-0 text-center">
-                    <div className="text-[10px] font-semibold uppercase text-muted-foreground">
+                  <div
+                    aria-label={`Lesuur ${nr}`}
+                    className="row-span-2 w-4 shrink-0 text-center sm:w-8"
+                  >
+                    <div className="hidden text-[10px] font-semibold uppercase text-muted-foreground sm:block">
                       uur
                     </div>
                     <div className="text-sm font-bold">{nr}</div>
                   </div>
-                  <div className="col-start-3 shrink-0 text-xs text-muted-foreground sm:w-24">
+                  <div className="col-start-3 row-span-2 shrink-0 text-[10px] text-muted-foreground sm:w-24 sm:text-xs">
                     {l.tijd}
                   </div>
-                  <div className="col-start-3 min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{l.vak}</div>
-                    <div className="truncate text-xs text-muted-foreground">
+                  <div className="col-start-4 min-w-0 flex-1">
+                    <div className="truncate text-xs font-semibold sm:text-sm">{l.vak}</div>
+                    <div className="truncate text-[10px] text-muted-foreground sm:text-xs">
                       Lokaal {l.lokaal} · {l.docent}
                     </div>
                   </div>
                   {l.wijziging && (
-                    <span className="col-start-3 w-fit rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                    <span className="col-start-4 w-fit rounded-full bg-warning/15 px-1.5 py-0.5 text-[9px] font-semibold text-warning sm:px-2 sm:text-[10px]">
                       {l.wijziging}
                     </span>
                   )}
@@ -367,7 +374,7 @@ function Rooster() {
               );
             })}
           </div>
-          <div className="mt-3 text-center text-[11px] text-muted-foreground md:hidden">
+          <div className="mt-2 text-center text-[10px] text-muted-foreground md:hidden">
             ← Swipe om van dag te wisselen →
           </div>
         </Card>
