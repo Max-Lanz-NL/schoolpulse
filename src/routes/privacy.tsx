@@ -82,7 +82,7 @@ function Privacy() {
                 id="gegevensverwerking"
                 icon={Lock}
                 title="Gegevensverwerking"
-                body="Het rooster, de cijfers en de gebruikers in de ingerichte demo zijn voorbeelden. Uw gekozen schoolrol en eventueel ingevulde demoprofiel worden in uw browser bewaard. Gebruik bij het verkennen uitsluitend fictieve gegevens; vul geen echte leerlinggegevens in."
+                body="Het rooster, de cijfers en de gebruikers in de ingerichte demo zijn voorbeelden. U kunt de demo direct bekijken zonder naam of e-mailadres in te vullen. Uw gekozen schoolrol en weergavevoorkeuren worden in uw browser bewaard. Gebruik bij het verkennen uitsluitend fictieve gegevens; vul geen echte leerlinggegevens in."
               />
               <SectionCard
                 id="gegevenssoorten"
