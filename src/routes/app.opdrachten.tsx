@@ -118,11 +118,11 @@ function LeerlingOpdrachten() {
             <Users className="h-4 w-4" /> {groep.length ? "Groep aanpassen" : "Groepje aanmaken"}
           </button>
         </div>
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <select
             value={filterVak}
             onChange={(e) => setFilterVak(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary"
+            className="min-w-0 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary sm:w-auto"
           >
             <option value="alle">Alle vakken</option>
             {vakken.map((v) => (
@@ -134,19 +134,24 @@ function LeerlingOpdrachten() {
           <select
             value={filterDeadline}
             onChange={(e) => setFilterDeadline(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary"
+            className="min-w-0 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary sm:w-auto"
           >
             <option value="alle">Alle deadlines</option>
             <option value="vandaag">Vandaag</option>
             <option value="week">Deze week</option>
             <option value="verlopen">Verlopen</option>
           </select>
-          <div className="inline-flex overflow-hidden rounded-lg border border-border">
+          <div
+            role="group"
+            aria-label="Opdrachtstatus"
+            className="col-span-2 grid grid-cols-3 gap-1 rounded-lg border border-border bg-card p-1 sm:inline-flex"
+          >
             {(["alle", "open", "afgerond"] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setFilterStatus(s)}
-                className={`px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${filterStatus === s ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                aria-pressed={filterStatus === s}
+                className={`min-w-0 rounded-md px-2 py-1.5 text-xs font-semibold capitalize transition-colors sm:px-3 ${filterStatus === s ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
               >
                 {s === "alle" ? "Alle" : s === "open" ? "Openstaand" : "Afgerond"}
               </button>

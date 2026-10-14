@@ -57,11 +57,11 @@ function LeerlingCijfers() {
 
   return (
     <AppShell title="Cijfers" subtitle="Schooljaar 2025-2026">
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         <select
           value={filterVak}
           onChange={(e) => setFilterVak(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary"
+          className="min-w-0 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary sm:w-auto"
         >
           <option value="alle">Alle vakken</option>
           {vakken.map((v) => (
@@ -73,7 +73,7 @@ function LeerlingCijfers() {
         <select
           value={filterPeriode}
           onChange={(e) => setFilterPeriode(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary"
+          className="min-w-0 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-primary sm:w-auto"
         >
           <option value="alle">Alle periodes</option>
           <option value="P1">Periode 1 (sep–nov)</option>
@@ -82,21 +82,28 @@ function LeerlingCijfers() {
           <option value="P4">Periode 4 (jun–aug)</option>
         </select>
       </div>
-      <div className="mb-6 inline-flex rounded-lg border border-border bg-card p-1">
+      <div
+        role="group"
+        aria-label="Cijferweergave"
+        className="mb-6 grid grid-cols-3 gap-1 rounded-lg border border-border bg-card p-1 sm:inline-flex"
+      >
         <button
           onClick={() => setTab("recent")}
+          aria-pressed={tab === "recent"}
           className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "recent" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
           Recent
         </button>
         <button
           onClick={() => setTab("overzicht")}
+          aria-pressed={tab === "overzicht"}
           className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "overzicht" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
           Overzicht
         </button>
         <button
           onClick={() => setTab("prognose")}
+          aria-pressed={tab === "prognose"}
           className={`rounded-md px-3 py-1.5 text-xs font-semibold ${tab === "prognose" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
           Prognose
