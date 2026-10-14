@@ -79,32 +79,45 @@ function StatCard({
         : "text-muted-foreground";
   const content = (
     <>
-      <div className="flex items-center justify-between">
+      <div className="hidden items-center justify-between sm:flex">
         <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
           <Icon className="h-4 w-4" />
         </div>
         <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
       </div>
-      <div className="mt-4 break-words text-xs font-medium text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-bold tracking-tight">{value}</div>
-      {hint && <div className={`mt-1 text-xs ${toneClass}`}>{hint}</div>}
+      <div className="min-w-0 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground sm:mt-4 sm:text-xs">
+        <Icon className="h-3.5 w-3.5 shrink-0 text-primary sm:hidden" />
+        <span className="break-words">{label}</span>
+      </div>
+      <div className="col-start-2 row-span-2 self-center text-lg font-bold tracking-tight sm:mt-1 sm:text-2xl">
+        {value}
+      </div>
+      {hint && (
+        <div className={`col-start-1 text-[10px] leading-tight sm:mt-1 sm:text-xs ${toneClass}`}>
+          {hint}
+        </div>
+      )}
     </>
   );
   const cls =
-    "block rounded-2xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-elegant)]";
+    "grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-2xl border border-border bg-card p-2 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-elegant)] sm:block sm:p-5";
   if (to)
     return (
       <Link to={to} className={cls}>
         {content}
       </Link>
     );
-  return <div className="rounded-2xl border border-border bg-card p-5">{content}</div>;
+  return (
+    <div className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-2xl border border-border bg-card p-2 sm:block sm:p-5">
+      {content}
+    </div>
+  );
 }
 
 function LeerlingView() {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="space-y-3 sm:space-y-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
         <StatCard
           to="/app/cijfers"
           icon={BarChart3}
@@ -136,33 +149,34 @@ function LeerlingView() {
         <div className="lg:col-span-2 space-y-6">
           <Card
             title="Rooster vandaag"
+            className="!p-3 sm:!p-5 [&>div:first-child]:mb-2 sm:[&>div:first-child]:mb-4"
             action={
               <Link to="/app/rooster" className="text-xs font-semibold text-primary">
                 Volledig rooster →
               </Link>
             }
           >
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-2">
               {roosterVandaag.map((l) => (
                 <Link
                   key={l.tijd}
                   to="/app/rooster"
-                  className="grid grid-cols-[4px_minmax(0,1fr)] items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-background p-3 transition-colors hover:bg-muted/50 sm:flex sm:gap-3"
+                  className="grid grid-cols-[3px_5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-0.5 rounded-xl border border-border bg-background p-2 transition-colors hover:bg-muted/50 sm:flex sm:gap-3 sm:p-3"
                 >
                   <div
-                    className={`row-span-3 h-full min-h-10 w-1 shrink-0 rounded-full sm:h-10 ${l.kleur}`}
+                    className={`row-span-2 h-full min-h-8 w-[3px] shrink-0 rounded-full sm:h-10 sm:w-1 ${l.kleur}`}
                   />
-                  <div className="col-start-2 shrink-0 text-xs text-muted-foreground sm:w-28">
+                  <div className="col-start-2 row-span-2 shrink-0 text-[10px] text-muted-foreground sm:w-28 sm:text-xs">
                     {l.tijd}
                   </div>
-                  <div className="col-start-2 min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{l.vak}</div>
-                    <div className="truncate text-xs text-muted-foreground">
+                  <div className="col-start-3 min-w-0 flex-1">
+                    <div className="truncate text-xs font-semibold sm:text-sm">{l.vak}</div>
+                    <div className="truncate text-[10px] text-muted-foreground sm:text-xs">
                       Lokaal {l.lokaal} · {l.docent}
                     </div>
                   </div>
                   {l.wijziging && (
-                    <span className="col-start-2 w-fit rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                    <span className="col-start-3 w-fit rounded-full bg-warning/15 px-1.5 py-0.5 text-[9px] font-semibold text-warning sm:px-2 sm:text-[10px]">
                       {l.wijziging}
                     </span>
                   )}

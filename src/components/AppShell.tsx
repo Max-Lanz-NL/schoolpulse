@@ -182,6 +182,40 @@ function AppShellInner({
   const [unread, setUnread] = useState(true);
   const [bannerOpen, setBannerOpen] = useState(true);
   useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    const originalViewport = viewport?.content;
+    const originalTouchAction = document.documentElement.style.touchAction;
+    const update = () => {
+      if (viewport)
+        viewport.content = mobile.matches
+          ? "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover"
+          : (originalViewport ?? "width=device-width, initial-scale=1");
+      document.documentElement.style.touchAction = mobile.matches
+        ? "pan-x pan-y"
+        : originalTouchAction;
+    };
+    const preventPinch = (event: TouchEvent) => {
+      if (mobile.matches && event.touches.length > 1) event.preventDefault();
+    };
+    const preventGesture = (event: Event) => {
+      if (mobile.matches) event.preventDefault();
+    };
+    update();
+    mobile.addEventListener("change", update);
+    document.addEventListener("touchstart", preventPinch, { passive: false });
+    document.addEventListener("touchmove", preventPinch, { passive: false });
+    document.addEventListener("gesturestart", preventGesture, { passive: false });
+    return () => {
+      mobile.removeEventListener("change", update);
+      document.removeEventListener("touchstart", preventPinch);
+      document.removeEventListener("touchmove", preventPinch);
+      document.removeEventListener("gesturestart", preventGesture);
+      if (viewport && originalViewport !== undefined) viewport.content = originalViewport;
+      document.documentElement.style.touchAction = originalTouchAction;
+    };
+  }, []);
+  useEffect(() => {
     const desktop = window.matchMedia("(min-width: 768px)");
     const closeOnDesktop = () => {
       if (desktop.matches) setOpen(false);
