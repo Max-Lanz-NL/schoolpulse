@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
-import dashboardPreview from "@/assets/schoolpulse-dashboard-preview.png";
+import dashboardPreview from "@/assets/schoolpulse-leerling-mobile-preview.png";
 import teacherPreview from "@/assets/schoolpulse-docent-preview.png";
 import managementPreview from "@/assets/schoolpulse-directie-preview.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,10 +41,10 @@ const dashboardPreviews = [
     role: "leerling",
     label: "Leerling",
     image: dashboardPreview,
-    width: 1780,
-    height: 883,
-    description: "Je schooldag in één overzicht",
-    alt: "Leerlingdashboard met het rooster van vandaag, recente cijfers, berichten en openstaande taken.",
+    width: 390,
+    height: 844,
+    description: "Je schooldag op je telefoon",
+    alt: "Telefoonweergave van het leerlingdashboard met cijfers, taken en het volledige dagrooster.",
   },
   {
     role: "docent",
@@ -219,22 +219,48 @@ function Landing() {
                       <button
                         type="button"
                         aria-label={`Vergroot het ${preview.label.toLowerCase()}dashboard`}
-                        className="block w-full overflow-hidden rounded-2xl border border-border/80 bg-card text-left shadow-[var(--shadow-elegant)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                        className={
+                          preview.role === "leerling"
+                            ? "group block w-full rounded-2xl bg-transparent text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                            : "block w-full overflow-hidden rounded-2xl border border-border/80 bg-card text-left shadow-[var(--shadow-elegant)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                        }
                       >
-                        <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 py-3 text-xs">
+                        <div
+                          className={
+                            preview.role === "leerling"
+                              ? "flex items-center justify-between gap-2 px-4 py-3 text-xs"
+                              : "flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 py-3 text-xs"
+                          }
+                        >
                           <span className="font-semibold">{preview.description}</span>
                           <span className="inline-flex shrink-0 items-center gap-1 text-primary">
                             <Maximize2 className="h-3.5 w-3.5" /> Vergroten
                           </span>
                         </div>
-                        <div className="aspect-[2/1] bg-muted/20">
+                        <div
+                          className={
+                            preview.role === "leerling"
+                              ? "relative isolate flex h-[460px] items-center justify-center p-4"
+                              : "aspect-[2/1] bg-muted/20"
+                          }
+                        >
+                          {preview.role === "leerling" && (
+                            <span
+                              aria-hidden="true"
+                              className="pointer-events-none absolute -z-10 h-80 w-72 rounded-full bg-primary/[0.07] blur-3xl"
+                            />
+                          )}
                           <img
                             src={preview.image}
                             alt={preview.alt}
                             width={preview.width}
                             height={preview.height}
                             fetchPriority={preview.role === "leerling" ? "high" : "auto"}
-                            className="block h-full w-full object-contain"
+                            className={
+                              preview.role === "leerling"
+                                ? "block h-full w-auto max-w-full rounded-2xl border-4 border-sidebar object-contain shadow-md"
+                                : "block h-full w-full object-contain"
+                            }
                           />
                         </div>
                       </button>
@@ -257,7 +283,11 @@ function Landing() {
                           alt={preview.alt}
                           width={preview.width}
                           height={preview.height}
-                          className="h-auto w-full min-w-[900px]"
+                          className={
+                            preview.role === "leerling"
+                              ? "mx-auto h-auto w-full max-w-[390px]"
+                              : "h-auto w-full min-w-[900px]"
+                          }
                         />
                       </div>
                       <a
