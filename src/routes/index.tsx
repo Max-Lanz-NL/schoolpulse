@@ -558,15 +558,10 @@ function Landing() {
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link
                     to="/contact"
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                    className="inline-flex max-w-full items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
-                    Offerte aanvragen <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/contact"
-                    className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-5 py-3 text-sm font-semibold hover:bg-muted"
-                  >
-                    Contact opnemen
+                    <span>Offerte aanvragen / Contact opnemen</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </Link>
                 </div>
               </div>
