@@ -23,6 +23,41 @@ export function DemoDevicePreview({ children }: { children: ReactNode }) {
     return () => media.removeEventListener("change", update);
   }, []);
 
+  useEffect(() => {
+    const syncRole = (event: StorageEvent) => {
+      if (
+        event.key === "schoolpulse.role" &&
+        event.newValue &&
+        Object.hasOwn(roleLabels, event.newValue)
+      ) {
+        setRole(event.newValue as Role);
+      }
+    };
+    window.addEventListener("storage", syncRole);
+    return () => window.removeEventListener("storage", syncRole);
+  }, [setRole]);
+
+  function changeRole(nextRole: Role) {
+    setRole(nextRole);
+    if (!phone) return;
+    let url = new URL(phoneUrl, window.location.origin);
+    try {
+      const current = frame.current?.contentWindow?.location.href;
+      if (current) {
+        const candidate = new URL(current);
+        if (
+          candidate.origin === window.location.origin &&
+          /^\/app(?:\/|$)/.test(candidate.pathname)
+        )
+          url = candidate;
+      }
+    } catch {
+      /* Use the last demo URL if the frame has followed an external link. */
+    }
+    url.searchParams.set("role", nextRole);
+    setPhoneUrl(url.pathname + url.search + url.hash);
+  }
+
   function showPhone() {
     if (phone) return;
     const url = new URL(location.href, window.location.origin);
@@ -73,6 +108,21 @@ export function DemoDevicePreview({ children }: { children: ReactNode }) {
         aria-label="Demo schermformaat"
         className="fixed bottom-6 right-6 z-[60] flex items-center gap-1 rounded-2xl border border-border bg-background p-1.5 shadow-lg"
       >
+        <label className="mr-1 flex items-center gap-2 border-r border-border px-3 text-xs font-medium text-muted-foreground">
+          Bekijk als
+          <select
+            aria-label="Schoolrol voor de demo"
+            value={role}
+            onChange={(event) => changeRole(event.target.value as Role)}
+            className="min-h-11 rounded-lg bg-background px-2 text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            {(Object.keys(roleLabels) as Role[]).map((item) => (
+              <option key={item} value={item}>
+                {roleLabels[item]}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           aria-pressed={!phone}

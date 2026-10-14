@@ -391,7 +391,7 @@ function ShareModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -399,7 +399,11 @@ function ShareModal({
             <div className="text-xs font-medium text-muted-foreground">Delen</div>
             <div className="truncate text-sm font-semibold">{file}</div>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -442,6 +446,7 @@ function ShareModal({
                 const isExtra = extras.includes(s);
                 return (
                   <button
+                    aria-label="Sluiten"
                     key={s}
                     onClick={() => isExtra && onRemove(s)}
                     disabled={!isExtra}

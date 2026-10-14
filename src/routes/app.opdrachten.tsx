@@ -118,7 +118,7 @@ function LeerlingOpdrachten() {
             <Users className="h-4 w-4" /> {groep.length ? "Groep aanpassen" : "Groepje aanmaken"}
           </button>
         </div>
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="mb-4 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap">
           <select
             value={filterVak}
             onChange={(e) => setFilterVak(e.target.value)}
@@ -144,7 +144,7 @@ function LeerlingOpdrachten() {
           <div
             role="group"
             aria-label="Opdrachtstatus"
-            className="col-span-2 grid grid-cols-3 gap-1 rounded-lg border border-border bg-card p-1 sm:inline-flex"
+            className="col-span-full grid grid-cols-3 gap-1 rounded-lg border border-border bg-card p-1 sm:inline-flex"
           >
             {(["alle", "open", "afgerond"] as const).map((s) => (
               <button
@@ -568,14 +568,18 @@ function OpdrachtModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="text-sm font-semibold">
             {init ? "Opdracht bewerken" : "Nieuwe opdracht"}
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -680,7 +684,7 @@ function AICheckModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -688,7 +692,11 @@ function AICheckModal({ onClose }: { onClose: () => void }) {
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold">AI-controle</span>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -756,7 +764,7 @@ function BeoordeelModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-4xl max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -764,7 +772,11 @@ function BeoordeelModal({
             <div className="text-xs text-muted-foreground">Beoordelen · {opdracht.klas}</div>
             <div className="text-sm font-semibold">{opdracht.titel}</div>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>

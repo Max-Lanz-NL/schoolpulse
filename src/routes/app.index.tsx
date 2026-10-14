@@ -87,7 +87,7 @@ function StatCard({
       </div>
       <div className="min-w-0 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground sm:mt-4 sm:text-xs">
         <Icon className="h-3.5 w-3.5 shrink-0 text-primary sm:hidden" />
-        <span className="break-words">{label}</span>
+        <span className="min-w-0 break-words">{label}</span>
       </div>
       <div className="col-start-2 row-span-2 self-center text-lg font-bold tracking-tight sm:mt-1 sm:text-2xl">
         {value}

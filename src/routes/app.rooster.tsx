@@ -546,7 +546,7 @@ function LesDetailModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className={`h-2 w-full ${detail.kleur}`} />
@@ -558,7 +558,11 @@ function LesDetailModal({
               </div>
               <div className="mt-1 text-lg font-bold">{detail.vak}</div>
             </div>
-            <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+            <button
+              aria-label="Sluiten"
+              onClick={onClose}
+              className="rounded-lg p-1.5 hover:bg-muted"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -656,7 +660,7 @@ function AIVoorstelModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-lg max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -664,7 +668,11 @@ function AIVoorstelModal({ onClose }: { onClose: () => void }) {
             <Sparkles className="h-4 w-4 text-primary" />{" "}
             <span className="text-sm font-semibold">Roosterwijzigingsvoorstel</span>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -761,12 +769,16 @@ function HuiswerkModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="text-sm font-semibold">Huiswerk — {les.vak}</div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -820,7 +832,7 @@ function AbsentiesModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -830,7 +842,11 @@ function AbsentiesModal({
               {les.vak} · {les.tijd}
             </div>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>

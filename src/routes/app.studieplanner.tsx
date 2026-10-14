@@ -41,8 +41,8 @@ function addDays(iso: string, n: number): string {
 }
 
 function buildCalCells() {
-  // July 1 2026 = Tuesday; with Mon-first: startIndex=1, so Monday June 30 is the start
-  const firstMonday = "2026-06-30";
+  // July 1, 2026 is Wednesday; the calendar starts on Monday June 29.
+  const firstMonday = "2026-06-29";
   return Array.from({ length: 35 }, (_, i) => {
     const iso = addDays(firstMonday, i);
     const d = new Date(iso);
@@ -95,7 +95,7 @@ function StudieplannerPage() {
 
   return (
     <AppShell title="Studieplanner" subtitle="Plan je studiemomenten en toetsvoorbereiding">
-      <div className="mb-6 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-card to-card p-6 shadow-sm">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-card to-card p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-5">
           <div>
             <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
@@ -106,7 +106,7 @@ function StudieplannerPage() {
               Toetsen, deadlines en aanbevolen studiemomenten staan in één overzicht.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid w-full grid-cols-3 gap-2 sm:w-auto">
             {[
               { icon: CalendarDays, value: aankomend.length, label: "toetsen" },
               { icon: Clock3, value: extraBlokken.length, label: "blokken" },
@@ -114,7 +114,7 @@ function StudieplannerPage() {
             ].map(({ icon: Icon, value, label }) => (
               <div
                 key={label}
-                className="min-w-20 rounded-2xl border border-border/70 bg-background/80 p-3 text-center"
+                className="min-w-0 rounded-2xl border border-border/70 bg-background/80 p-2 text-center sm:min-w-20 sm:p-3"
               >
                 <Icon className="mx-auto h-4 w-4 text-primary" />
                 <div className="mt-1 text-lg font-bold">{value}</div>
@@ -171,7 +171,7 @@ function StudieplannerPage() {
               return (
                 <div
                   key={cell.iso}
-                  className={`min-h-[56px] rounded-lg p-1 ${bg} ${!cell.inMonth ? "opacity-30" : ""} border border-border`}
+                  className={`min-h-[56px] min-w-0 overflow-hidden rounded-lg p-1 ${bg} ${!cell.inMonth ? "opacity-30" : ""} border border-border`}
                 >
                   <div
                     className={`text-[11px] font-semibold ${isToday ? "text-primary" : cell.inMonth ? "text-foreground" : "text-muted-foreground"}`}
@@ -184,7 +184,8 @@ function StudieplannerPage() {
                       className={`mt-0.5 rounded px-1 py-0.5 text-[9px] font-semibold text-white ${TOETS_KLEUREN[t.vak] ?? "bg-primary"} leading-tight`}
                       title={t.naam}
                     >
-                      {t.vak.slice(0, 4)}
+                      <span className="sm:hidden">{t.vak.slice(0, 2)}</span>
+                      <span className="hidden sm:inline">{t.vak.slice(0, 4)}</span>
                     </div>
                   ))}
                   {(deadlinesByDate[cell.iso] ?? []).map((dl, i) => (
@@ -193,7 +194,8 @@ function StudieplannerPage() {
                       className="mt-0.5 rounded bg-warning/20 px-1 py-0.5 text-[9px] font-semibold text-warning leading-tight"
                       title={dl.titel}
                     >
-                      {dl.vak.slice(0, 3)}
+                      <span className="sm:hidden">{dl.vak.slice(0, 2)}</span>
+                      <span className="hidden sm:inline">{dl.vak.slice(0, 3)}</span>
                     </div>
                   ))}
                   {userBlokken.map((b) => (
@@ -201,11 +203,18 @@ function StudieplannerPage() {
                       key={b.id}
                       className="mt-0.5 rounded bg-primary/30 px-1 py-0.5 text-[9px] font-semibold text-primary leading-tight"
                     >
-                      {b.vak.slice(0, 4)}
+                      <span className="sm:hidden">{b.vak.slice(0, 2)}</span>
+                      <span className="hidden sm:inline">{b.vak.slice(0, 4)}</span>
                     </div>
                   ))}
                   {isSuggestie && !userBlokDates.has(cell.iso) && cell.inMonth && (
-                    <div className="mt-0.5 text-[9px] text-blue-500">studeer</div>
+                    <div title="Aangeraden studiedag" className="mt-1 text-[9px] text-blue-500">
+                      <span
+                        aria-hidden="true"
+                        className="block h-1.5 w-1.5 rounded-full bg-blue-500 sm:hidden"
+                      />
+                      <span className="sr-only sm:not-sr-only">studeer</span>
+                    </div>
                   )}
                 </div>
               );
@@ -306,6 +315,7 @@ function StudieplannerPage() {
                         <div className="text-[10px] text-muted-foreground">{dag}</div>
                       </div>
                       <button
+                        aria-label="Sluiten"
                         onClick={() => setExtraBlokken((prev) => prev.filter((x) => x.id !== b.id))}
                         className="rounded p-0.5 hover:bg-muted"
                       >
@@ -334,12 +344,13 @@ function StudieplannerPage() {
           onClick={() => setModalOpen(false)}
         >
           <div
-            className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="w-full max-w-sm max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="text-sm font-semibold">Studieblok toevoegen</div>
               <button
+                aria-label="Sluiten"
                 onClick={() => setModalOpen(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >

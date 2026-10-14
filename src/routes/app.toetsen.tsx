@@ -194,11 +194,16 @@ function ToetsenPage() {
 
   return (
     <AppShell title="Toetsen" subtitle="Digitale toetsafname en automatisch nakijken">
-      <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1">
+      <div
+        role="group"
+        aria-label="Toetsweergave"
+        className="mb-4 grid grid-cols-3 gap-1 rounded-lg border border-border bg-card p-1 sm:inline-flex"
+      >
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
+            aria-pressed={tab === t.id}
             className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             {t.label}
@@ -208,11 +213,11 @@ function ToetsenPage() {
 
       {tab === "mijn" && (
         <div className="space-y-3">
-          <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-card p-3">
+          <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-card p-3 sm:flex sm:flex-wrap">
             <select
               value={filterKlas}
               onChange={(e) => setFilterKlas(e.target.value)}
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              className="min-w-0 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm sm:w-auto sm:px-3"
             >
               <option value="alle">Alle klassen</option>
               {docentKlassen.map((klas) => (
@@ -222,13 +227,13 @@ function ToetsenPage() {
             <select
               value={filterVak}
               onChange={(e) => setFilterVak(e.target.value)}
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              className="min-w-0 w-full rounded-lg border border-border bg-background px-2 py-2 text-sm sm:w-auto sm:px-3"
             >
               <option value="alle">Alle vakken</option>
               <option>Wiskunde A</option>
               <option>Wiskunde B</option>
             </select>
-            <label className="ml-auto inline-flex cursor-pointer items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1 rounded-lg border border-border px-2 py-2 text-xs font-semibold sm:ml-auto sm:px-3">
               <Upload className="h-3.5 w-3.5" /> Importeren
               <input
                 type="file"
@@ -238,7 +243,7 @@ function ToetsenPage() {
             </label>
             <button
               onClick={() => toast.success("Toetsen geëxporteerd")}
-              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold"
+              className="inline-flex min-h-11 items-center justify-center gap-1 rounded-lg border border-border px-2 py-2 text-xs font-semibold sm:px-3"
             >
               <Download className="h-3.5 w-3.5" /> Exporteren
             </button>
@@ -249,7 +254,7 @@ function ToetsenPage() {
             .map((t) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+                className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center"
               >
                 <div>
                   <div className="text-sm font-semibold">{t.naam}</div>
@@ -430,6 +435,7 @@ function ToetsenPage() {
                       </span>
                       {vragen.length > 1 && (
                         <button
+                          aria-label="Sluiten"
                           onClick={() => setVragen((prev) => prev.filter((_, j) => j !== qi))}
                           className="rounded p-0.5 text-muted-foreground hover:text-destructive"
                         >

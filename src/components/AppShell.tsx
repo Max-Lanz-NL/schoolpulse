@@ -32,7 +32,6 @@ import {
   HelpCircle,
   Moon,
   Sun,
-  X,
   GraduationCap,
   Users,
   Building2,
@@ -180,7 +179,6 @@ function AppShellInner({
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [unread, setUnread] = useState(true);
-  const [bannerOpen, setBannerOpen] = useState(true);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 767px)");
     const viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
@@ -378,34 +376,7 @@ function AppShellInner({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <div className="min-h-screen bg-muted/30">
-        {/* Demo Banner */}
-        {bannerOpen && (
-          <div className="relative z-10 flex items-center justify-between gap-2 bg-primary px-4 py-2 text-primary-foreground md:ml-64">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold">Demo als: {roleLabels[role]}</span>
-              <span className="hidden text-primary-foreground/60 sm:inline">·</span>
-              <div className="hidden flex-wrap gap-1 sm:flex">
-                {(Object.keys(roleLabels) as Role[]).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setRole(r)}
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${r === role ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 hover:bg-primary-foreground/30"}`}
-                  >
-                    {roleLabels[r]}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={() => setBannerOpen(false)}
-              aria-label="Demobanner sluiten"
-              className="grid h-8 w-8 shrink-0 place-items-center rounded hover:bg-primary-foreground/20"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        )}
+      <div data-demo-shell className="min-h-screen bg-muted/30">
         {/* Sidebar — altijd fixed, met eigen scroll */}
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-y-auto bg-sidebar text-sidebar-foreground md:flex">
           {sidebarContent}
@@ -492,7 +463,7 @@ function AppShellInner({
                 )}
               </button>
               {notifOpen && (
-                <div className="fixed inset-x-4 top-28 z-50 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80">
+                <div className="fixed inset-x-4 top-20 z-50 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80">
                   <div className="flex items-center justify-between border-b border-border px-3 py-2">
                     <div className="text-xs font-semibold">Meldingen</div>
                     <button

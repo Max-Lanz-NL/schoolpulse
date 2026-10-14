@@ -509,7 +509,7 @@ function Berichten() {
           onClick={() => setNieuwChatOpen(false)}
         >
           <div
-            className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
@@ -518,6 +518,7 @@ function Berichten() {
                 <div className="text-sm font-semibold">Nieuwe conversatie starten</div>
               </div>
               <button
+                aria-label="Sluiten"
                 onClick={() => setNieuwChatOpen(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >
@@ -645,7 +646,7 @@ function Berichten() {
           onClick={() => setSchoolBreedOpen(false)}
         >
           <div
-            className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="w-full max-w-lg max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
@@ -654,6 +655,7 @@ function Berichten() {
                 <div className="text-sm font-semibold">Schoolbrede mededeling</div>
               </div>
               <button
+                aria-label="Sluiten"
                 onClick={() => setSchoolBreedOpen(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >

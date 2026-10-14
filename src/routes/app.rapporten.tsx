@@ -282,7 +282,7 @@ function RapportenPage() {
           onClick={() => setModalRapport(null)}
         >
           <div
-            className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="w-full max-w-lg max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
@@ -295,6 +295,7 @@ function RapportenPage() {
                 </div>
               </div>
               <button
+                aria-label="Sluiten"
                 onClick={() => setModalRapport(null)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >

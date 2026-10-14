@@ -57,7 +57,7 @@ function LeerlingCijfers() {
 
   return (
     <AppShell title="Cijfers" subtitle="Schooljaar 2025-2026">
-      <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+      <div className="mb-4 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap">
         <select
           value={filterVak}
           onChange={(e) => setFilterVak(e.target.value)}
@@ -649,14 +649,18 @@ function CijferModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="text-sm font-semibold">
             {init ? "Cijfer bewerken" : "Cijfer toevoegen"}
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>

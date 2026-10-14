@@ -468,12 +468,16 @@ function NieuweAankondigingModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-lg max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
           <div className="text-sm font-semibold">Nieuwe aankondiging</div>
-          <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted">
+          <button
+            aria-label="Sluiten"
+            onClick={onClose}
+            className="rounded-lg p-1.5 hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>

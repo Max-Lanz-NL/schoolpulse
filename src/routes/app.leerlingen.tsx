@@ -338,12 +338,13 @@ function LeerlingDetail({
           onClick={() => setContactModalOpen(false)}
         >
           <div
-            className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="w-full max-w-md max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="text-sm font-semibold">Contactmoment loggen</div>
               <button
+                aria-label="Sluiten"
                 onClick={() => setContactModalOpen(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >
