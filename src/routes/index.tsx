@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { roleLabels, type Role } from "@/lib/demo-data";
 import { DOMAIN_ORIGINS } from "@/lib/domains";
 import {
@@ -13,7 +14,10 @@ import {
   Users,
 } from "lucide-react";
 import logo from "@/assets/schoolpulse-logo.png";
-import dashboardPreview from "@/assets/schoolpulse-leerling-mobile-preview.png";
+import dashboardPreview from "@/assets/schoolpulse-dashboard-preview.png";
+import learnerMobilePreview from "@/assets/schoolpulse-leerling-mobile-preview.png";
+import teacherMobilePreview from "@/assets/schoolpulse-docent-mobile-preview.png";
+import managementMobilePreview from "@/assets/schoolpulse-directie-mobile-preview.png";
 import teacherPreview from "@/assets/schoolpulse-docent-preview.png";
 import managementPreview from "@/assets/schoolpulse-directie-preview.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,7 +36,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Menu, Maximize2 } from "lucide-react";
+import { Menu, Maximize2, Monitor, Smartphone } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
@@ -41,15 +45,17 @@ const dashboardPreviews = [
     role: "leerling",
     label: "Leerling",
     image: dashboardPreview,
-    width: 390,
-    height: 844,
-    description: "Je schooldag op je telefoon",
-    alt: "Telefoonweergave van het leerlingdashboard met cijfers, taken en het volledige dagrooster.",
+    mobileImage: learnerMobilePreview,
+    width: 1780,
+    height: 883,
+    description: "Je schooldag in één overzicht",
+    alt: "Leerlingdashboard met cijfers, taken en het dagrooster.",
   },
   {
     role: "docent",
     label: "Docent",
     image: teacherPreview,
+    mobileImage: teacherMobilePreview,
     width: 1785,
     height: 881,
     description: "Klassen, beoordelingen en berichten bij elkaar",
@@ -59,12 +65,138 @@ const dashboardPreviews = [
     role: "directie",
     label: "Directie",
     image: managementPreview,
+    mobileImage: managementMobilePreview,
     width: 1784,
     height: 881,
     description: "Inzicht in resultaten en schooldoelstellingen",
     alt: "Directiedashboard met leerlingaantallen, aanwezigheid, slagingspercentages en schooldoelstellingen.",
   },
 ];
+
+function HomepageDashboardPreview({ preview }: { preview: (typeof dashboardPreviews)[number] }) {
+  const [device, setDevice] = useState<"desktop" | "phone">("desktop");
+  const isPhone = device === "phone";
+  const activeImage = isPhone ? preview.mobileImage : preview.image;
+  const width = isPhone ? 390 : preview.width;
+  const height = isPhone ? 844 : preview.height;
+  const deviceLabel = isPhone ? "Telefoon" : "Desktop";
+
+  return (
+    <figure>
+      <div
+        role="group"
+        aria-label={`Schermformaat voor ${preview.label.toLowerCase()}`}
+        className="mb-3 flex justify-end gap-1"
+      >
+        {(
+          [
+            { value: "desktop", label: "Desktop", icon: Monitor },
+            { value: "phone", label: "Telefoon", icon: Smartphone },
+          ] as const
+        ).map(({ value, label, icon: Icon }) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={device === value}
+            onClick={() => setDevice(value)}
+            className={`inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${device === value ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+          >
+            <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            aria-label={`Vergroot het ${preview.label.toLowerCase()}dashboard op ${deviceLabel.toLowerCase()}`}
+            className={
+              isPhone
+                ? "block w-full rounded-2xl bg-transparent text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                : "block w-full overflow-hidden rounded-2xl border border-border/80 bg-card text-left shadow-[var(--shadow-elegant)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            }
+          >
+            <div
+              className={`flex items-center justify-between gap-2 px-4 py-3 text-xs ${isPhone ? "" : "border-b border-border bg-muted/40"}`}
+            >
+              <span className="font-semibold">{preview.description}</span>
+              <span className="inline-flex shrink-0 items-center gap-1 text-primary">
+                <Maximize2 className="h-3.5 w-3.5" /> Vergroten
+              </span>
+            </div>
+            <div
+              className={
+                isPhone
+                  ? "relative isolate flex h-[460px] items-center justify-center p-4"
+                  : "aspect-[2/1] bg-muted/20"
+              }
+            >
+              {isPhone && (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -z-10 h-80 w-72 rounded-full bg-primary/[0.07] blur-3xl"
+                />
+              )}
+              <img
+                src={activeImage}
+                alt={`${deviceLabel}weergave: ${preview.alt}`}
+                width={width}
+                height={height}
+                fetchPriority={preview.role === "leerling" && !isPhone ? "high" : "auto"}
+                className={
+                  isPhone
+                    ? "block h-full w-auto max-w-full rounded-2xl border-4 border-sidebar object-contain shadow-md"
+                    : "block h-full w-full object-contain"
+                }
+              />
+            </div>
+          </button>
+        </DialogTrigger>
+        <DialogContent className="max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-6xl overflow-y-auto p-4 sm:p-6">
+          <DialogTitle className="pr-8">
+            Het {preview.label.toLowerCase()}dashboard · {deviceLabel.toLowerCase()}
+          </DialogTitle>
+          <DialogDescription>
+            Voorbeeld van de demo-omgeving met fictieve gegevens.
+          </DialogDescription>
+          <div
+            tabIndex={0}
+            aria-label="Scroll door het vergrote dashboard"
+            className="max-h-[55dvh] overflow-auto rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <img
+              src={activeImage}
+              alt={`${deviceLabel}weergave: ${preview.alt}`}
+              width={width}
+              height={height}
+              className={
+                isPhone ? "mx-auto h-auto w-full max-w-[390px]" : "h-auto w-full min-w-[900px]"
+              }
+            />
+          </div>
+          <a
+            href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+          >
+            Probeer de demo als {preview.label.toLowerCase()} <ArrowRight className="h-4 w-4" />
+          </a>
+        </DialogContent>
+      </Dialog>
+      <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span>
+          {preview.label}dashboard · {deviceLabel} · Fictieve voorbeeldgegevens
+        </span>
+        <a
+          href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
+          className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+        >
+          Zelf proberen <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      </figcaption>
+    </figure>
+  );
+}
 
 function Landing() {
   return (
@@ -213,102 +345,7 @@ function Landing() {
             </TabsList>
             {dashboardPreviews.map((preview) => (
               <TabsContent key={preview.role} value={preview.role}>
-                <figure>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label={`Vergroot het ${preview.label.toLowerCase()}dashboard`}
-                        className={
-                          preview.role === "leerling"
-                            ? "group block w-full rounded-2xl bg-transparent text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-                            : "block w-full overflow-hidden rounded-2xl border border-border/80 bg-card text-left shadow-[var(--shadow-elegant)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-                        }
-                      >
-                        <div
-                          className={
-                            preview.role === "leerling"
-                              ? "flex items-center justify-between gap-2 px-4 py-3 text-xs"
-                              : "flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 py-3 text-xs"
-                          }
-                        >
-                          <span className="font-semibold">{preview.description}</span>
-                          <span className="inline-flex shrink-0 items-center gap-1 text-primary">
-                            <Maximize2 className="h-3.5 w-3.5" /> Vergroten
-                          </span>
-                        </div>
-                        <div
-                          className={
-                            preview.role === "leerling"
-                              ? "relative isolate flex h-[460px] items-center justify-center p-4"
-                              : "aspect-[2/1] bg-muted/20"
-                          }
-                        >
-                          {preview.role === "leerling" && (
-                            <span
-                              aria-hidden="true"
-                              className="pointer-events-none absolute -z-10 h-80 w-72 rounded-full bg-primary/[0.07] blur-3xl"
-                            />
-                          )}
-                          <img
-                            src={preview.image}
-                            alt={preview.alt}
-                            width={preview.width}
-                            height={preview.height}
-                            fetchPriority={preview.role === "leerling" ? "high" : "auto"}
-                            className={
-                              preview.role === "leerling"
-                                ? "block h-full w-auto max-w-full rounded-2xl border-4 border-sidebar object-contain shadow-md"
-                                : "block h-full w-full object-contain"
-                            }
-                          />
-                        </div>
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent className="max-h-[calc(100dvh_-_2rem)] w-[calc(100%_-_2rem)] max-w-6xl overflow-y-auto p-4 sm:p-6">
-                      <DialogTitle className="pr-8">
-                        Het {preview.label.toLowerCase()}dashboard
-                      </DialogTitle>
-                      <DialogDescription>
-                        Voorbeeld van de demo-omgeving met fictieve gegevens. Naam school is een
-                        voorbeeldlabel.
-                      </DialogDescription>
-                      <div
-                        tabIndex={0}
-                        aria-label="Scroll door het vergrote dashboard"
-                        className="max-h-[55dvh] overflow-auto rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-primary"
-                      >
-                        <img
-                          src={preview.image}
-                          alt={preview.alt}
-                          width={preview.width}
-                          height={preview.height}
-                          className={
-                            preview.role === "leerling"
-                              ? "mx-auto h-auto w-full max-w-[390px]"
-                              : "h-auto w-full min-w-[900px]"
-                          }
-                        />
-                      </div>
-                      <a
-                        href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                      >
-                        Probeer de demo als {preview.label.toLowerCase()}{" "}
-                        <ArrowRight className="h-4 w-4" />
-                      </a>
-                    </DialogContent>
-                  </Dialog>
-                  <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                    <span>{preview.label}dashboard · Fictieve voorbeeldgegevens</span>
-                    <a
-                      href={`${DOMAIN_ORIGINS.demo}/app?role=${preview.role}`}
-                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-                    >
-                      Zelf proberen <ArrowRight className="h-3.5 w-3.5" />
-                    </a>
-                  </figcaption>
-                </figure>
+                <HomepageDashboardPreview preview={preview} />
               </TabsContent>
             ))}
           </Tabs>
